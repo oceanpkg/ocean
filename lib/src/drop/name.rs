@@ -1,0 +1,223 @@
+//! Drop names.
+
+use std::{
+    convert::TryFrom,
+    fmt,
+    str,
+};
+
+/// A drop name that may or may not be scoped.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedName`
+pub struct DropQuery<'a> {
+    /// The scope scope if the query is scoped to a specific owner.
+    ///
+    /// If this scope is `None`, then drops are checked against the main trusted
+    /// set of packages. It is not yet decided as to what goes there.
+    pub scope: Option<&'a ValidName>,
+    /// The name of the drop itself.
+    pub name: &'a ValidName,
+}
+
+impl<'a> TryFrom<&'a [u8]> for DropQuery<'a> {
+    type Error = ParseError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<Self, Self::Error> {
+        let index = bytes.iter().enumerate().find(|(_, &b)| b == b'/');
+        if let Some((index, _)) = index {
+            let scope = &bytes[..index];
+            let name  = &bytes[(index + 1)..];
+            ScopedName::new(scope, name).map(|n| n.into())
+        } else {
+            // No '/' means the query is only a name.
+            ValidName::new(bytes)
+                .map(|name| Self { scope: None, name })
+                .map_err(|err| ParseError::Name(err))
+        }
+    }
+}
+
+impl<'a> From<ScopedName<'a>> for DropQuery<'a> {
+    #[inline]
+    fn from(n: ScopedName<'a>) -> Self {
+        Self { scope: Some(n.scope), name: n.name }
+    }
+}
+
+impl fmt::Display for DropQuery<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(scoped) = self.to_scoped() {
+            scoped.fmt(f)
+        } else {
+            self.name.fmt(f)
+        }
+    }
+}
+
+impl<'a> DropQuery<'a> {
+    /// Attempts to create a new instance by parsing `name`.
+    #[inline]
+    pub fn parse<B>(name: &'a B) -> Result<Self, ParseError>
+        where B: ?Sized + AsRef<[u8]>
+    {
+        Self::try_from(name.as_ref())
+    }
+
+    /// Converts `self` to a scoped name if it is one.
+    #[inline]
+    pub fn to_scoped(&self) -> Option<&ScopedName<'a>> {
+        if self.scope.is_none() {
+            None
+        } else {
+            // SAFETY: Checked above and the memory layout of both is the same
+            Some(unsafe { &*(self as *const Self as *const ScopedName) })
+        }
+    }
+}
+
+/// A name in the format `<owner>/<drop>`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(C)] // `scope` must be first to be bitwise-compatible with `DropQuery`
+pub struct ScopedName<'a> {
+    /// The namespace of the drop.
+    pub scope: &'a ValidName,
+    /// The drop's given name.
+    pub name: &'a ValidName,
+}
+
+impl<'a> TryFrom<&'a [u8]> for ScopedName<'a> {
+    type Error = ParseError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<Self, Self::Error> {
+        let index = bytes.iter().enumerate().find(|(_, &b)| b == b'/');
+        if let Some((index, _)) = index {
+            let scope = &bytes[..index];
+            let name  = &bytes[(index + 1)..];
+            Self::new(scope, name)
+        } else {
+            Err(ParseError::MissingSeparator)
+        }
+    }
+}
+
+impl fmt::Display for ScopedName<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}/{}", self.scope, self.name)
+    }
+}
+
+impl<'a> ScopedName<'a> {
+    /// Attempts to create a new instance by parsing `name`.
+    #[inline]
+    pub fn parse<B>(name: &'a B) -> Result<Self, ParseError>
+        where B: ?Sized + AsRef<[u8]>
+    {
+        Self::try_from(name.as_ref())
+    }
+
+    /// Creates a new instance by verifying `scope` and `name`.
+    #[inline]
+    pub fn new(scope: &'a [u8], name: &'a [u8]) -> Result<Self, ParseError> {
+        match ValidName::new(scope) {
+            Ok(scope) => match ValidName::new(name) {
+                Ok(name) => Ok(Self {
+                    scope,
+                    name,
+                }),
+                Err(err) => Err(ParseError::Name(err)),
+            },
+            Err(err) => Err(ParseError::Scope(err)),
+        }
+    }
+
+    /// Creates a new instance without attempting to verify `scope` or `name`.
+    #[inline]
+    pub unsafe fn new_unchecked(scope: &'a [u8], name: &'a [u8]) -> Self {
+        Self {
+            scope: ValidName::new_unchecked(scope),
+            name: ValidName::new_unchecked(name),
+        }
+    }
+}
+
+/// A name valid for a scope scope or drop name.
+///
+/// Valid names match the regex: `([0-9]|[a-z]|[A-Z]|-)+`.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ValidName(str);
+
+impl<'a> TryFrom<&'a [u8]> for &'a ValidName {
+    type Error = ValidateError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<Self, Self::Error> {
+        if ValidName::is_valid(bytes) {
+            Ok(unsafe { &*(bytes as *const [u8] as *const ValidName) })
+        } else {
+            Err(ValidateError(()))
+        }
+    }
+}
+
+impl AsRef<str> for ValidName {
+    #[inline]
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl AsRef<[u8]> for ValidName {
+    #[inline]
+    fn as_ref(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
+}
+
+impl fmt::Display for ValidName {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl ValidName {
+    /// Attempts to create a new instance by parsing `name`.
+    #[inline]
+    pub fn new<'a, B>(name: &'a B) -> Result<&'a Self, ValidateError>
+        where B: ?Sized + AsRef<[u8]>
+    {
+        <&Self>::try_from(name.as_ref())
+    }
+
+    /// Creates a new instance without parsing `name`.
+    pub unsafe fn new_unchecked<'a, B>(name: &'a B) -> &'a Self
+        where B: ?Sized + AsRef<[u8]>
+    {
+        &*(name.as_ref() as *const [u8] as *const Self)
+    }
+
+    /// Returns whether `bytes` is a valid name.
+    pub fn is_valid(bytes: &[u8]) -> bool {
+        bytes.iter().all(|&b| match b {
+            b'0'..=b'9' |
+            b'a'..=b'z' |
+            b'A'..=b'Z' |
+            b'-' => true,
+            _ => false,
+        })
+    }
+}
+
+/// An error returned when a `ValidName` could not be created.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ValidateError(());
+
+/// An error returned when parsing into a `DropQuery` or `ScopedName`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum ParseError {
+    /// Could not parse the scope (what comes before the separator).
+    Scope(ValidateError),
+    /// Could not parse the drop's name itself.
+    Name(ValidateError),
+    /// The separator character ('/') was not found in a scoped name.
+    MissingSeparator,
+}

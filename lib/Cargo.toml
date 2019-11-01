@@ -1,0 +1,16 @@
+[package]
+name = "oceanpkg"
+description = "Client library for the Ocean package manager."
+version = "0.0.0"
+authors = ["The Ocean Project Developers"]
+edition = "2018"
+homepage = "https://www.oceanpkg.org"
+
+[lib]
+name = "ocean"
+
+[dependencies]
+dirs = "1"
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,16 @@
+[package]
+name = "ocean-cli"
+description = "Command-line interface for the Ocean package manager."
+version = "0.0.0"
+authors = ["The Ocean Project Developers"]
+edition = "2018"
+homepage = "https://www.oceanpkg.org"
+publish = false
+
+[[bin]]
+name = "ocean"
+path = "src/main.rs"
+
+[dependencies]
+oceanpkg = { path = "../lib", version = "0.0.0" }
+clap = "2.33"
