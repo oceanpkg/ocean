@@ -15,6 +15,8 @@ impl ArgMatchesExt for ArgMatches<'_> {
     fn install_target(&self) -> InstallTarget {
         if self.is_present("global") {
             InstallTarget::Global
+        } else if let Some(user) = self.value_of("user") {
+            InstallTarget::SpecificUser(user.to_owned())
         } else {
             InstallTarget::CurrentUser
         }
