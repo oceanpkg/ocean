@@ -1,6 +1,6 @@
 # Ocean
 
-[![Travis CI](https://travis-ci.org/oceanpkg/ocean.svg?branch=master)](https://travis-ci.org/oceanpkg/ocean)
+[![Travis CI](https://travis-ci.com/oceanpkg/ocean.svg?branch=master)](https://travis-ci.com/oceanpkg/ocean)
 
 The package manager from the future, coming to an operating system near you!
 
