@@ -2,9 +2,11 @@
 
 use std::{
     convert::TryFrom,
+    ffi::OsStr,
     fmt,
     str,
 };
+use crate::ext::OsStrExt;
 
 /// A drop name that may or may not be scoped.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -37,6 +39,16 @@ impl<'a> TryFrom<&'a [u8]> for DropQuery<'a> {
     }
 }
 
+impl<'a> TryFrom<&'a OsStr> for DropQuery<'a> {
+    type Error = ParseError;
+
+    fn try_from(s: &'a OsStr) -> Result<Self, Self::Error> {
+        s.try_as_bytes()
+            .ok_or(ParseError::Name(ValidateError(())))
+            .and_then(TryFrom::try_from)
+    }
+}
+
 impl<'a> From<ScopedName<'a>> for DropQuery<'a> {
     #[inline]
     fn from(n: ScopedName<'a>) -> Self {
@@ -55,12 +67,12 @@ impl fmt::Display for DropQuery<'_> {
 }
 
 impl<'a> DropQuery<'a> {
-    /// Attempts to create a new instance by parsing `name`.
+    /// Attempts to create a new instance by parsing `query`.
     #[inline]
-    pub fn parse<B>(name: &'a B) -> Result<Self, ParseError>
-        where B: ?Sized + AsRef<[u8]>
+    pub fn parse<Q>(query: Q) -> Result<Self, ParseError>
+        where Self: TryFrom<Q, Error = ParseError>
     {
-        Self::try_from(name.as_ref())
+        TryFrom::try_from(query)
     }
 
     /// Converts `self` to a scoped name if it is one.
@@ -100,6 +112,16 @@ impl<'a> TryFrom<&'a [u8]> for ScopedName<'a> {
     }
 }
 
+impl<'a> TryFrom<&'a OsStr> for ScopedName<'a> {
+    type Error = ParseError;
+
+    fn try_from(s: &'a OsStr) -> Result<Self, Self::Error> {
+        s.try_as_bytes()
+            .ok_or(ParseError::Name(ValidateError(())))
+            .and_then(TryFrom::try_from)
+    }
+}
+
 impl fmt::Display for ScopedName<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}/{}", self.scope, self.name)
@@ -109,10 +131,10 @@ impl fmt::Display for ScopedName<'_> {
 impl<'a> ScopedName<'a> {
     /// Attempts to create a new instance by parsing `name`.
     #[inline]
-    pub fn parse<B>(name: &'a B) -> Result<Self, ParseError>
-        where B: ?Sized + AsRef<[u8]>
+    pub fn parse<N>(name: N) -> Result<Self, ParseError>
+        where Self: TryFrom<N, Error = ParseError>
     {
-        Self::try_from(name.as_ref())
+        TryFrom::try_from(name)
     }
 
     /// Creates a new instance by verifying `scope` and `name`.
@@ -159,6 +181,16 @@ impl<'a> TryFrom<&'a [u8]> for &'a ValidName {
     }
 }
 
+impl<'a> TryFrom<&'a OsStr> for &'a ValidName {
+    type Error = ValidateError;
+
+    fn try_from(s: &'a OsStr) -> Result<Self, Self::Error> {
+        s.try_as_bytes()
+            .ok_or(ValidateError(()))
+            .and_then(TryFrom::try_from)
+    }
+}
+
 impl AsRef<str> for ValidName {
     #[inline]
     fn as_ref(&self) -> &str {
@@ -183,10 +215,10 @@ impl fmt::Display for ValidName {
 impl ValidName {
     /// Attempts to create a new instance by parsing `name`.
     #[inline]
-    pub fn new<'a, B>(name: &'a B) -> Result<&'a Self, ValidateError>
-        where B: ?Sized + AsRef<[u8]>
+    pub fn new<'a, N>(name: N) -> Result<&'a Self, ValidateError>
+        where &'a Self: TryFrom<N, Error = ValidateError>
     {
-        <&Self>::try_from(name.as_ref())
+        TryFrom::try_from(name)
     }
 
     /// Creates a new instance without parsing `name`.

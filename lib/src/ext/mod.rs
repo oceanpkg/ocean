@@ -1,7 +1,11 @@
 //! Extension traits.
 
 mod bytes;
-pub use self::bytes::*;
-
+mod ffi;
 mod path;
-pub use self::path::*;
+
+pub use self::{
+    bytes::*,
+    ffi::*,
+    path::*,
+};
