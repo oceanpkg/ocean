@@ -4,8 +4,9 @@
 
 The package manager from the future, coming to an operating system near you!
 
-This repository hosts:
+This project consists of:
 - A client library named `oceanpkg`.
+  - See [documentation](https://docs.rs/oceanpkg).
 - A client [CLI] executable named `ocean-cli`.
 
 ## License
