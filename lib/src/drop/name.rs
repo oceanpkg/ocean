@@ -142,7 +142,8 @@ impl<'a> ScopedName<'a> {
 
 /// A name valid for a scope scope or drop name.
 ///
-/// Valid names match the regex: `([0-9]|[a-z]|[A-Z]|-)+`.
+/// Valid names are non-empty, alphanumeric (`[0-9a-zA-Z]`), and can have dashes
+/// (`-`) anywhere except for the beginning or end.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ValidName(str);
 
@@ -197,6 +198,11 @@ impl ValidName {
 
     /// Returns whether `bytes` is a valid name.
     pub fn is_valid(bytes: &[u8]) -> bool {
+        match (bytes.first(), bytes.last()) {
+            // Cannot be empty or begin/end with '-'
+            (None, _) | (Some(b'-'), _) | (_, Some(b'-')) => return false,
+            _ => {},
+        }
         bytes.iter().all(|&b| match b {
             b'0'..=b'9' |
             b'a'..=b'z' |
