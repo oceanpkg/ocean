@@ -1,6 +1,10 @@
-//! Client library for the [Ocean package manager](https://www.oceanpkg.org).
+//! Client library for the [Ocean package manager][home].
+//!
+//! This library is meant to be used by Ocean's [CLI], [GUI], and web services.
 //!
 //! [home]: https://www.oceanpkg.org
+//! [CLI]: https://en.wikipedia.org/wiki/Command-line_interface
+//! [GUI]: https://en.wikipedia.org/wiki/Graphical_user_interface
 
 #![deny(missing_docs)]
 
