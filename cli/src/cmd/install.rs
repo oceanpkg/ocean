@@ -6,6 +6,8 @@ pub fn cmd() -> App {
     SubCommand::with_name(NAME)
         .visible_alias("i")
         .about("Downloads and installs a drop")
+        .arg(Arg::user_flag()
+            .help("Drop(s) will be available to a specific user"))
         .arg(Arg::global_flag()
             .help("Drop(s) will be globally available to all users"))
         .arg(Arg::with_name("drop")
