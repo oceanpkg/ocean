@@ -4,6 +4,9 @@
 
 #![deny(missing_docs)]
 
+#[macro_use]
+extern crate serde;
+
 pub mod cfg;
 pub mod drop;
 pub mod ext;

@@ -15,6 +15,7 @@ name = "ocean"
 
 [dependencies]
 dirs = "1"
+serde = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
 tempfile = "3"

@@ -7,7 +7,7 @@ pub mod file;
 pub use self::file::{CfgFile, CfgFileFmt};
 
 /// Represents the configuration of a local installation.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cfg {
     // TODO: ???
 }
