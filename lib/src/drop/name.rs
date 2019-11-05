@@ -164,8 +164,10 @@ impl<'a> ScopedName<'a> {
 
 /// A name valid for a scope scope or drop name.
 ///
-/// Valid names are non-empty, alphanumeric (`[0-9a-zA-Z]`), and can have dashes
+/// Valid names are non-empty, ASCII alphanumeric, and can have dashes
 /// (`-`) anywhere except for the beginning or end.
+///
+/// Regex: `^[^-][0-9a-zA-Z-]+[^-]$`
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ValidName(str);
 
