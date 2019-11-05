@@ -21,6 +21,15 @@ pub struct DropQuery<'a> {
     pub name: &'a ValidName,
 }
 
+impl<'a> TryFrom<&'a str> for DropQuery<'a> {
+    type Error = ParseError;
+
+    #[inline]
+    fn try_from(s: &'a str) -> Result<Self, Self::Error> {
+        TryFrom::try_from(s.as_bytes())
+    }
+}
+
 impl<'a> TryFrom<&'a [u8]> for DropQuery<'a> {
     type Error = ParseError;
 
@@ -97,6 +106,15 @@ pub struct ScopedName<'a> {
     pub name: &'a ValidName,
 }
 
+impl<'a> TryFrom<&'a str> for ScopedName<'a> {
+    type Error = ParseError;
+
+    #[inline]
+    fn try_from(s: &'a str) -> Result<Self, Self::Error> {
+        TryFrom::try_from(s.as_bytes())
+    }
+}
+
 impl<'a> TryFrom<&'a [u8]> for ScopedName<'a> {
     type Error = ParseError;
 
@@ -170,6 +188,15 @@ impl<'a> ScopedName<'a> {
 /// Regex: `^[^-][0-9a-zA-Z-]+[^-]$`
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ValidName(str);
+
+impl<'a> TryFrom<&'a str> for &'a ValidName {
+    type Error = ValidateError;
+
+    #[inline]
+    fn try_from(s: &'a str) -> Result<Self, Self::Error> {
+        TryFrom::try_from(s.as_bytes())
+    }
+}
 
 impl<'a> TryFrom<&'a [u8]> for &'a ValidName {
     type Error = ValidateError;
