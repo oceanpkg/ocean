@@ -189,6 +189,7 @@ impl<'a> ScopedName<'a> {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ValidName(str);
 
+// Allows for creating a `&ValidName` in a `const` from a `&str`.
 macro_rules! valid_name {
     ($name:expr) => {
         {
