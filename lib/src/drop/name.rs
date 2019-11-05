@@ -189,6 +189,18 @@ impl<'a> ScopedName<'a> {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ValidName(str);
 
+macro_rules! valid_name {
+    ($name:expr) => {
+        {
+            union Convert<'a> {
+                s: &'a str,
+                n: &'a ValidName,
+            }
+            Convert { s: $name }.n
+        }
+    };
+}
+
 impl<'a> TryFrom<&'a str> for &'a ValidName {
     type Error = ValidateError;
 
@@ -242,6 +254,12 @@ impl fmt::Display for ValidName {
 }
 
 impl ValidName {
+    /// The string "core".
+    pub const CORE: &'static Self = unsafe { valid_name!("core") };
+
+    /// The string "ocean".
+    pub const OCEAN: &'static Self = unsafe { valid_name!("ocean") };
+
     /// Attempts to create a new instance by parsing `name`.
     #[inline]
     pub fn new<'a, N>(name: N) -> Result<&'a Self, ValidateError>
