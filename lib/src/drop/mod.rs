@@ -5,6 +5,8 @@ pub mod name;
 
 use self::kind::{App, Exe, Font, Lib};
 
+pub use self::kind::Kind;
+
 /// Defines an Ocean package, also known as a drop 💧.
 #[derive(Clone, Debug)]
 pub enum Drop {
@@ -50,6 +52,16 @@ impl Drop {
     ///
     pub fn query(query: &name::DropQuery) -> Result<Self, ()> {
         unimplemented!("TODO: Find '{}' drop", query);
+    }
+
+    /// Returns the kind of drop.
+    pub fn kind(&self) -> Kind {
+        match self {
+            Drop::App(_)  => Kind::App,
+            Drop::Exe(_)  => Kind::Exe,
+            Drop::Font(_) => Kind::Font,
+            Drop::Lib(_)  => Kind::Lib,
+        }
     }
 
     /// Returns basic metadata for the drop.
