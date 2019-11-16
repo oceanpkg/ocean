@@ -276,19 +276,24 @@ impl ValidName {
         &*(name.as_ref() as *const [u8] as *const Self)
     }
 
-    /// Returns whether `bytes` is a valid name.
-    pub fn is_valid(bytes: &[u8]) -> bool {
-        match (bytes.first(), bytes.last()) {
-            // Cannot be empty or begin/end with '-'
-            (None, _) | (Some(b'-'), _) | (_, Some(b'-')) => return false,
-            _ => {},
+    /// Returns whether `name` is valid.
+    #[inline]
+    pub fn is_valid<N: AsRef<[u8]>>(name: N) -> bool {
+        // Monomorphization
+        fn imp(bytes: &[u8]) -> bool {
+            match (bytes.first(), bytes.last()) {
+                // Cannot be empty or begin/end with '-'
+                (None, _) | (Some(b'-'), _) | (_, Some(b'-')) => return false,
+                _ => {},
+            }
+            bytes.iter().all(|&b| match b {
+                b'0'..=b'9' |
+                b'a'..=b'z' |
+                b'-' => true,
+                _ => false,
+            })
         }
-        bytes.iter().all(|&b| match b {
-            b'0'..=b'9' |
-            b'a'..=b'z' |
-            b'-' => true,
-            _ => false,
-        })
+        imp(name.as_ref())
     }
 }
 
