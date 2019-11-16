@@ -90,7 +90,7 @@ impl<'a> DropQuery<'a> {
         if self.scope.is_none() {
             None
         } else {
-            // SAFETY: Checked above and the memory layout of both is the same
+            // SAFETY: Checked above that the memory layout of both is the same
             Some(unsafe { &*(self as *const Self as *const ScopedName) })
         }
     }
@@ -140,6 +140,13 @@ impl<'a> TryFrom<&'a OsStr> for ScopedName<'a> {
     }
 }
 
+impl<'a> AsRef<DropQuery<'a>> for ScopedName<'a> {
+    #[inline]
+    fn as_ref(&self) -> &DropQuery<'a> {
+        self.as_query()
+    }
+}
+
 impl fmt::Display for ScopedName<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}/{}", self.scope, self.name)
@@ -177,6 +184,13 @@ impl<'a> ScopedName<'a> {
             scope: ValidName::new_unchecked(scope),
             name: ValidName::new_unchecked(name),
         }
+    }
+
+    /// Returns `self` as a `DropQuery`.
+    #[inline]
+    pub fn as_query(&self) -> &DropQuery<'a> {
+        // SAFETY: Checked above that the memory layout of both is the same
+        unsafe { &*(self as *const Self as *const DropQuery) }
     }
 }
 
