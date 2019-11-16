@@ -296,6 +296,12 @@ impl ValidName {
     /// The string "ocean".
     pub const OCEAN: &'static Self = unsafe { valid_name!("ocean") };
 
+    /// Namespaces reserved to only be used only by Ocean.
+    pub const RESERVED_SCOPES: &'static [&'static Self] = &[
+        Self::CORE,
+        Self::OCEAN,
+    ];
+
     /// Attempts to create a new instance by parsing `name`.
     #[inline]
     pub fn new<'a, N>(name: N) -> Result<&'a Self, ValidateError>
