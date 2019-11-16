@@ -1,14 +1,6 @@
-//! Describes how drops are installed.
-//!
-//! Drops can either be installed specifically for the current user executing
-//! Ocean or globally, making them available to _all_ users.
-
-use std::{
-    error::Error,
-    fmt,
-    path::PathBuf,
-};
+use std::path::PathBuf;
 use crate::ext::PathBufExt;
+use super::DirError;
 
 /// Indicates where to (un)install a drop.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -89,30 +81,6 @@ impl InstallTarget {
             },
             InstallTarget::Global => {
                 unimplemented!("TODO: Get global config directory");
-            },
-        }
-    }
-}
-
-/// A directory for an `InstallTarget` could not be retrieved.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum DirError {
-    /// Could not get the current user's home directory.
-    CurrentUserHome,
-    /// Could not get the current user's config directory.
-    CurrentUserCfgDir,
-}
-
-impl Error for DirError {}
-
-impl fmt::Display for DirError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            DirError::CurrentUserHome => {
-                write!(f, "Could not get current user's home directory")
-            },
-            DirError::CurrentUserCfgDir => {
-                write!(f, "Could not get current user's config directory")
             },
         }
     }
