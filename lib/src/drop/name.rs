@@ -352,3 +352,68 @@ pub enum ParseError {
     /// The separator character ('/') was not found in a scoped name.
     MissingSeparator,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Legal outer characters
+    fn outer() -> Vec<char> {
+        let mut outer = Vec::new();
+        outer.extend((b'a'..=b'z').map(|byte| byte as char));
+        outer.extend((b'0'..=b'9').map(|byte| byte as char));
+        outer
+    }
+
+    #[test]
+    fn valid_names() {
+        let outer = outer();
+        let mut inner = outer.clone();
+        inner.push('-');
+
+        for &c1 in &outer {
+            let mut name_buf = [0; 4];
+            let name = c1.encode_utf8(&mut name_buf);
+            assert!(
+                ValidName::is_valid(&name),
+                "{:?} found to be invalid",
+                name
+            );
+
+            for &c2 in &inner {
+                for &c3 in &outer {
+                    let name: String = [c1, c2, c3].iter().collect();
+                    assert!(
+                        ValidName::is_valid(&name),
+                        "{:?} found to be invalid",
+                        name
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn invalid_names() {
+        assert!(!ValidName::is_valid(""));
+        assert!(!ValidName::is_valid("-"));
+        assert!(!ValidName::is_valid("--"));
+        assert!(!ValidName::is_valid("---"));
+
+        for &ch in &outer() {
+            let names: &[&[char]] = &[
+                &[ch, '-'],
+                &['-', ch],
+                &['-', ch, '-'],
+            ];
+            for name in names {
+                let name: String = name.iter().cloned().collect();
+                assert!(
+                    !ValidName::is_valid(&name),
+                    "{:?} found to to be valid",
+                    name
+                );
+            }
+        }
+    }
+}
