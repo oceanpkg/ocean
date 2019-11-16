@@ -5,6 +5,7 @@ mod exe;
 mod font;
 mod lib;
 
+#[doc(inline)]
 pub use self::{
     app::App,
     exe::Exe,

@@ -5,6 +5,7 @@ pub mod name;
 
 use self::kind::{App, Exe, Font, Lib};
 
+#[doc(inline)]
 pub use self::kind::Kind;
 
 /// Defines an Ocean package, also known as a drop 💧.
