@@ -34,16 +34,15 @@ impl<'a> TryFrom<&'a [u8]> for DropQuery<'a> {
     type Error = ParseError;
 
     fn try_from(bytes: &'a [u8]) -> Result<Self, Self::Error> {
-        let index = bytes.iter().enumerate().find(|(_, &b)| b == b'/');
-        if let Some((index, _)) = index {
-            let scope = &bytes[..index];
-            let name  = &bytes[(index + 1)..];
-            ScopedName::new(scope, name).map(|n| n.into())
-        } else {
-            // No '/' means the query is only a name.
-            ValidName::new(bytes)
-                .map(|name| Self { scope: None, name })
-                .map_err(|err| ParseError::Name(err))
+        match ScopedName::parse(bytes) {
+            Ok(scoped) => Ok(scoped.into()),
+            Err(ParseError::MissingSeparator) => {
+                // No '/' means the query is only a name.
+                ValidName::new(bytes)
+                    .map(|name| Self { scope: None, name })
+                    .map_err(|err| ParseError::Name(err))
+            },
+            Err(error) => Err(error),
         }
     }
 }
