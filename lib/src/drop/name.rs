@@ -2,7 +2,7 @@
 
 use std::{
     convert::TryFrom,
-    ffi::OsStr,
+    ffi::{CStr, OsStr},
     fmt,
     str,
 };
@@ -220,6 +220,15 @@ impl<'a> TryFrom<&'a [u8]> for &'a ValidName {
         } else {
             Err(ValidateError(()))
         }
+    }
+}
+
+impl<'a> TryFrom<&'a CStr> for &'a ValidName {
+    type Error = ValidateError;
+
+    #[inline]
+    fn try_from(s: &'a CStr) -> Result<Self, Self::Error> {
+        Self::try_from(s.to_bytes())
     }
 }
 
