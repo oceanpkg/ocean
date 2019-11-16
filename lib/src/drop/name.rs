@@ -186,6 +186,18 @@ impl<'a> ScopedName<'a> {
         }
     }
 
+    /// Creates a new instance in the `core` namespace.
+    #[inline]
+    pub const fn core(name: &'a ValidName) -> Self {
+        Self { scope: ValidName::CORE, name }
+    }
+
+    /// Creates a new instance in the `ocean` namespace.
+    #[inline]
+    pub const fn ocean(name: &'a ValidName) -> Self {
+        Self { scope: ValidName::OCEAN, name }
+    }
+
     /// Returns `self` as a `DropQuery`.
     #[inline]
     pub fn as_query(&self) -> &DropQuery<'a> {
