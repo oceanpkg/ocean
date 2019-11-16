@@ -1,6 +1,6 @@
 use std::process::exit;
 use super::prelude::*;
-use ocean::drop::Exe;
+use ocean::drop::kind::Exe;
 
 pub const NAME: &str = "run";
 

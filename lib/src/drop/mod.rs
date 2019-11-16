@@ -1,18 +1,9 @@
 //! Ocean packages, also known as drops 💧.
 
-mod app;
-mod exe;
-mod font;
-mod lib;
-
+pub mod kind;
 pub mod name;
 
-pub use self::{
-    app::App,
-    exe::Exe,
-    font::Font,
-    lib::Lib,
-};
+use self::kind::{App, Exe, Font, Lib};
 
 /// Defines an Ocean package, also known as a drop 💧.
 #[derive(Clone, Debug)]
