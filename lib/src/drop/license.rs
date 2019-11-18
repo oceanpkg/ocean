@@ -5,12 +5,6 @@ use std::{
     fmt,
 };
 
-/// Counts the number of input tokens.
-macro_rules! count {
-    () => (0usize);
-    ($x:tt $($xs:tt)*) => (1usize + count!($($xs)*));
-}
-
 macro_rules! def_license {
     ($($(#[$m:meta])+ $l:ident = $s:literal,)+) => {
         /// A known licensing option.

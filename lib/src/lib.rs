@@ -11,6 +11,9 @@
 #[macro_use] extern crate phf;
 #[macro_use] extern crate serde;
 
+#[macro_use]
+mod macros;
+
 pub mod cfg;
 pub mod drop;
 pub mod ext;
