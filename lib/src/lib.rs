@@ -15,3 +15,4 @@ pub mod cfg;
 pub mod drop;
 pub mod ext;
 pub mod install;
+pub mod version;

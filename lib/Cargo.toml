@@ -15,6 +15,7 @@ name = "ocean"
 
 [dependencies]
 dirs = "1"
+semver = "0.9"
 serde = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
