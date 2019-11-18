@@ -1,12 +1,16 @@
 //! Ocean packages, also known as drops 💧.
 
 pub mod kind;
+pub mod license;
 pub mod name;
 
 use self::kind::{App, Exe, Font, Lib};
 
 #[doc(inline)]
-pub use self::kind::Kind;
+pub use self::{
+    kind::Kind,
+    license::License,
+};
 
 /// Defines an Ocean package, also known as a drop 💧.
 #[derive(Clone, Debug)]
