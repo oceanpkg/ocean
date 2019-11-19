@@ -211,6 +211,7 @@ def_license! {
     /// Zope Public License 2.0 (ZPL-2.0).
     Zpl2 = "ZPL-2.0",
     /// zlib/libpng license (Zlib).
+    // This is currently the last license value.
     Zlib = "Zlib",
 }
 
@@ -402,6 +403,12 @@ impl License {
         where I: TryInto<Self, Error = ParseError>
     {
         input.try_into()
+    }
+
+    /// Returns an iterator over all licenses.
+    #[inline]
+    pub fn all() -> impl ExactSizeIterator<Item = License> {
+        (0..=(License::Zlib as u8)).map(|b| unsafe { std::mem::transmute(b) })
     }
 
     /// Returns the string identifier for this license.
