@@ -8,6 +8,9 @@
 
 #![deny(missing_docs)]
 
+#![doc(html_root_url = "https://docs.rs/oceanpkg/0.0.4")]
+#![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
+
 #[macro_use] extern crate serde;
 
 #[macro_use]
