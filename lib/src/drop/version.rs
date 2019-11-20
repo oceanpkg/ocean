@@ -23,4 +23,10 @@ impl<'a> Version<'a> {
     {
         Self::Custom(version.into())
     }
+
+    /// Attempts to parse `version` as SemVer.
+    #[inline]
+    pub fn semver(version: &str) -> Result<Self, semver::SemVerError> {
+        SemVer::parse(version).map(Self::SemVer)
+    }
 }
