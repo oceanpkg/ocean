@@ -17,3 +17,6 @@ pub mod cfg;
 pub mod drop;
 pub mod ext;
 pub mod install;
+
+#[doc(inline)]
+pub use self::drop::Drop;
