@@ -1,9 +1,6 @@
 //! Drop manifest data.
 
-use std::{
-    borrow::Cow,
-    path::Path,
-};
+use std::borrow::Cow;
 use serde::Deserialize;
 use crate::drop::{license::Expr, name::ValidName, Version};
 
@@ -26,7 +23,10 @@ pub struct Manifest<'a> {
     pub authors: Option<Vec<&'a str>>,
 
     /// A path to the package's "README" file.
-    pub readme: Option<&'a Path>,
+    pub readme: Option<&'a str>,
+
+    /// A path to the package's change log file.
+    pub changelog: Option<&'a str>,
 }
 
 impl<'a> Manifest<'a> {
@@ -37,7 +37,8 @@ impl<'a> Manifest<'a> {
         version: Version::Custom(Cow::Borrowed(env!("CARGO_PKG_VERSION"))),
         license: None,
         authors: None,
-        readme: None,
+        readme: Some("README.md"),
+        changelog: Some("CHANGELOG.md"),
     };
 
     /// Parses a manifest from [TOML](https://en.wikipedia.org/wiki/TOML).
@@ -56,7 +57,8 @@ impl<'a> Manifest<'a> {
     ///     version: Version::custom("0.1"),
     ///     license: Some(SpdxLicense::Apache2.into()),
     ///     authors: None,
-    ///     readme: None,
+    ///     readme: Some("README.md"),
+    ///     changelog: Some("CHANGELOG.md"),
     /// };
     ///
     /// let toml = r#"
@@ -64,6 +66,8 @@ impl<'a> Manifest<'a> {
     /// description = "Cross-platform package manager"
     /// version = { custom = "0.1" }
     /// license = "Apache-2.0"
+    /// readme = "README.md"
+    /// changelog = "CHANGELOG.md"
     /// "#;
     ///
     /// assert_eq!(Manifest::from_toml(toml), Ok(manifest));
