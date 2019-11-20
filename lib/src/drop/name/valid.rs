@@ -39,6 +39,34 @@ impl AsRef<[u8]> for ValidName {
     }
 }
 
+impl PartialEq<str> for ValidName {
+    #[inline]
+    fn eq(&self, s: &str) -> bool {
+        self.0 == *s
+    }
+}
+
+impl PartialEq<[u8]> for ValidName {
+    #[inline]
+    fn eq(&self, b: &[u8]) -> bool {
+        self.0.as_bytes() == b
+    }
+}
+
+impl PartialEq<ValidName> for str {
+    #[inline]
+    fn eq(&self, n: &ValidName) -> bool {
+        *self == n.0
+    }
+}
+
+impl PartialEq<ValidName> for [u8] {
+    #[inline]
+    fn eq(&self, n: &ValidName) -> bool {
+        self == n.0.as_bytes()
+    }
+}
+
 impl fmt::Display for ValidName {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
