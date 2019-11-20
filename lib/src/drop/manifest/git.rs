@@ -27,6 +27,37 @@ impl<'a> Git<'a> {
             Git::Repo(repo) | Git::Detailed { repo, .. } => repo
         }
     }
+
+    /// WRites the TOML form of `self` to `f`.
+    #[inline]
+    pub fn write_toml(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Git::Repo(repo) => write!(f, "git = \"{}\"", repo),
+            Git::Detailed { repo, checkout } => {
+                write!(f, r#"git = {{ repo = "{}""#, repo)?;
+                if let Some(checkout) = checkout {
+                    write!(f, r#", {} = "{}""#, checkout.variant_name(), checkout.as_str())?;
+                }
+                write!(f, " }}")
+            },
+        }
+    }
+
+    /// Returns a type that can be used to as `{}` to display TOML.
+    #[inline]
+    pub fn display_toml(&self) -> impl fmt::Display + Copy + 'a {
+        #[derive(Clone, Copy)]
+        struct Displayer<'a>(Git<'a>);
+
+        impl fmt::Display for Displayer<'_> {
+            #[inline]
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                self.0.write_toml(f)
+            }
+        }
+
+        Displayer(*self)
+    }
 }
 
 /// The git checkout to use.
@@ -63,6 +94,16 @@ impl<'a> Checkout<'a> {
             Checkout::Branch(ch) |
             Checkout::Tag(ch) |
             Checkout::Rev(ch) => ch
+        }
+    }
+
+    /// Returns the name of the variant: `branch`, `tag`, or `rev`.
+    #[inline]
+    pub fn variant_name(&self) -> &'static str {
+        match self {
+            Checkout::Branch(_) => "branch",
+            Checkout::Tag(_) => "tag",
+            Checkout::Rev(_) => "rev",
         }
     }
 }
