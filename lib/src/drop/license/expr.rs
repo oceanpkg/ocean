@@ -25,11 +25,11 @@ use super::{License, SpdxLicense};
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Expr<'a> {
-    /// Only one license to follow.
+    /// Only one license's conditions to follow.
     Single(License<'a>),
-    /// Two or more licenses
+    /// The conditions of either of two or more licenses apply.
     Or(Or<'a>),
-    ///
+    /// The conditions of all of two or more licenses apply.
     And(And<'a>),
 }
 
@@ -193,6 +193,8 @@ impl fmt::Display for ParseError {
 /// A set of licenses separated by `OR`. For projects that are dual/n-ary
 /// licensed.
 ///
+/// See [`Expr::Or`](enum.Expr.html#variant.Or).
+///
 /// Instances of this type always have two or more.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Or<'a>(Vec<License<'a>>);
@@ -207,6 +209,8 @@ impl<'a> Or<'a> {
 
 /// A set of licenses separated by `AND`. For projects that require restrictions
 /// of multiple licenses.
+///
+/// See [`Expr::And`](enum.Expr.html#variant.And).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct And<'a>(Vec<License<'a>>);
 
