@@ -15,11 +15,11 @@ fn app() -> clap::App<'static, 'static> {
         .about(ABOUT)
         .settings(&[
             clap::AppSettings::SubcommandRequiredElseHelp,
-            clap::AppSettings::DeriveDisplayOrder,
         ])
         .global_settings(&[
             clap::AppSettings::ColoredHelp,
             clap::AppSettings::VersionlessSubcommands,
+            clap::AppSettings::DeriveDisplayOrder,
         ])
         .set_term_width(80)
         .subcommands(cmd::all())
