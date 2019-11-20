@@ -7,6 +7,8 @@ use crate::drop::{
 fn manifests() -> Vec<(String, Manifest<'static>)> {
     let version = "0.1.0";
     let repo = env!("CARGO_PKG_REPOSITORY");
+    let home = "https://www.oceanpkg.org";
+    let docs = "https://docs.oceanpkg.org";
     let meta = Meta {
         name: ValidName::OCEAN,
         description: "Cross-platform package manager",
@@ -20,6 +22,8 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
             repo,
             checkout: Some(git::Checkout::Tag(version)),
         }),
+        homepage: Some(home),
+        documentation: Some(docs),
     };
     let header = format!(
         r#"
@@ -31,9 +35,13 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
             readme = "README.md"
             changelog = "CHANGELOG.md"
             git = {{ repo = "{repo}", tag = "{version}" }}
+            homepage = "{homepage}"
+            documentation = "{documentation}"
         "#,
         version = version,
         repo = repo,
+        homepage = home,
+        documentation = docs,
     );
     let detailed_deps: BTreeMap<_, _> = vec![
         (

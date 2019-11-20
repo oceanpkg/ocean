@@ -37,4 +37,10 @@ pub struct Meta<'a> {
     ///
     /// Repository info is taKen from here.
     pub git: Option<Git<'a>>,
+
+    /// This drop's corner of the internet.
+    pub homepage: Option<&'a str>,
+
+    /// The URL where docs live.
+    pub documentation: Option<&'a str>,
 }
