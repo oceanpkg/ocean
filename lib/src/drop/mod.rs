@@ -2,7 +2,9 @@
 
 pub mod kind;
 pub mod license;
+pub mod manifest;
 pub mod name;
+pub mod version;
 
 use self::kind::{App, Exe, Font, Lib};
 
@@ -10,6 +12,8 @@ use self::kind::{App, Exe, Font, Lib};
 pub use self::{
     kind::Kind,
     license::License,
+    manifest::Manifest,
+    version::Version,
 };
 
 /// Defines an Ocean package, also known as a drop 💧.
