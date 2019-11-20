@@ -53,10 +53,14 @@ impl ValidName {
     /// The string "ocean".
     pub const OCEAN: &'static Self = unsafe { valid_name!("ocean") };
 
+    /// The string "self".
+    pub const SELF: &'static Self = unsafe { valid_name!("self") };
+
     /// Namespaces reserved to only be used only by Ocean.
     pub const RESERVED_SCOPES: &'static [&'static Self] = &[
         Self::CORE,
         Self::OCEAN,
+        Self::SELF,
     ];
 
     /// Attempts to create a new instance by parsing `name`.
