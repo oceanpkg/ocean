@@ -39,6 +39,7 @@ fn main() {
             cmd::search::NAME    => cmd::search::run,
             cmd::install::NAME   => cmd::install::run,
             cmd::uninstall::NAME => cmd::uninstall::run,
+            cmd::update::NAME    => cmd::update::run,
             cmd::run::NAME       => cmd::run::run,
             cmd::cfg::NAME       => cmd::cfg::run,
             cmd::self_::NAME     => cmd::self_::run,
