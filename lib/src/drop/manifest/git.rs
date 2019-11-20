@@ -99,12 +99,12 @@ mod tests {
         let parsed = Parsed::parse(r#"
             [git]
             repo = "https://github.com/oceanpkg/ocean.git"
-            tag = "lib-v0.0.3"
+            tag = "lib-v0.0.4"
         "#);
         let expected = Parsed {
             git: Git::Detailed {
                 repo: "https://github.com/oceanpkg/ocean.git",
-                checkout: Some(Checkout::Tag("lib-v0.0.3")),
+                checkout: Some(Checkout::Tag("lib-v0.0.4")),
             },
         };
         assert_eq!(parsed, expected);
@@ -113,12 +113,12 @@ mod tests {
     #[test]
     fn toml_detailed_table() {
         let parsed = Parsed::parse(r#"
-            git = { repo = "https://github.com/oceanpkg/ocean.git", tag = "lib-v0.0.3" }
+            git = { repo = "https://github.com/oceanpkg/ocean.git", tag = "lib-v0.0.4" }
         "#);
         let expected = Parsed {
             git: Git::Detailed {
                 repo: "https://github.com/oceanpkg/ocean.git",
-                checkout: Some(Checkout::Tag("lib-v0.0.3")),
+                checkout: Some(Checkout::Tag("lib-v0.0.4")),
             },
         };
         assert_eq!(parsed, expected);
