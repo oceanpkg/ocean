@@ -24,6 +24,9 @@ impl ArgMatchesExt for ArgMatches<'_> {
 }
 
 pub trait ArgExt {
+    /// The common `--all`/`-a` flag.
+    fn all_flag() -> Self;
+
     /// The common `--global`/`-g` flag.
     fn global_flag() -> Self;
 
@@ -32,6 +35,12 @@ pub trait ArgExt {
 }
 
 impl ArgExt for clap::Arg<'_, '_> {
+    fn all_flag() -> Self {
+        Arg::with_name("all")
+            .short("a")
+            .long("all")
+    }
+
     fn global_flag() -> Self {
         Arg::with_name("global")
             .short("g")
