@@ -15,7 +15,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
         version: Version::parse_semver(version).unwrap(),
         conflicts: None,
         license: Some(SpdxLicense::Apache2.into()),
-        authors: None,
+        authors: Some(vec!["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]),
         readme: Some("README.md"),
         changelog: Some("CHANGELOG.md"),
         git: Some(Git::Detailed {
@@ -32,6 +32,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
             description = "Cross-platform package manager"
             version = "{version}"
             license = "Apache-2.0"
+            authors = ["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]
             readme = "README.md"
             changelog = "CHANGELOG.md"
             git = {{ repo = "{repo}", tag = "{version}" }}

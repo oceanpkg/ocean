@@ -55,6 +55,7 @@ impl<'a> Manifest<'a> {
     ///     description = "Cross-platform package manager"
     ///     version = "0.1.0"
     ///     license = "Apache-2.0"
+    ///     authors = ["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]
     ///     readme = "README.md"
     ///     changelog = "CHANGELOG.md"
     ///     git = "https://github.com/oceanpkg/ocean"
@@ -69,6 +70,7 @@ impl<'a> Manifest<'a> {
     /// assert_eq!(meta.description, "Cross-platform package manager");
     /// assert_eq!(&meta.version, "0.1.0");
     /// assert_eq!(meta.license.as_ref().unwrap(), "Apache-2.0");
+    /// assert_eq!(meta.authors.as_ref().unwrap().as_slice(), ["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]);
     /// assert_eq!(meta.readme.unwrap(), "README.md");
     /// assert_eq!(meta.changelog.unwrap(), "CHANGELOG.md");
     /// assert_eq!(meta.git.unwrap().repo(), "https://github.com/oceanpkg/ocean");
