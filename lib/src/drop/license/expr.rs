@@ -154,6 +154,47 @@ impl Serialize for Expr<'_> {
     }
 }
 
+impl PartialEq<License<'_>> for Expr<'_> {
+    #[inline]
+    fn eq(&self, l: &License) -> bool {
+        if let Expr::Single(e) = self {
+            e == l
+        } else {
+            false
+        }
+    }
+}
+
+impl PartialEq<str> for Expr<'_> {
+    fn eq(&self, s: &str) -> bool {
+        let (list, sep) = match self {
+            Expr::Single(l) => return l.id() == s,
+            Expr::Or(or) => {
+                (or.as_slice(), " OR ")
+            },
+            Expr::And(and) => {
+                (and.as_slice(), " AND ")
+            },
+        };
+        let mut iter = s.trim().split(sep).map(str::trim);
+        for license in list {
+            match iter.next() {
+                None => return false,
+                Some(next) if next != license.id() => return false,
+                _ => {},
+            }
+        }
+        iter.next().is_none()
+    }
+}
+
+impl PartialEq<Expr<'_>> for str {
+    #[inline]
+    fn eq(&self, e: &Expr) -> bool {
+        e == self
+    }
+}
+
 impl<'a> Expr<'a> {
     /// Attempts to parse `input` and returns a
     /// [`ParseError`](struct.ParseError.html) on error.
@@ -248,6 +289,39 @@ mod impl_display {
     impl fmt::Display for And<'_> {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
             display_iter(self.0.iter(), " AND ", f)
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn expr_eq() {
+        let licenses = [SpdxLicense::Mit, SpdxLicense::Apache2];
+        let licenses = licenses.iter().map(|&l| License::from(l));
+
+        for l1 in licenses.clone() {
+            let expr = l1.id();
+            let e = Expr::parse(expr).unwrap();
+            assert_eq!(&e, expr);
+            assert_eq!(e, Expr::Single(l1.clone()));
+
+            for l2 in licenses.clone() {
+                let exprs = [
+                    format!("{}  OR  {}", l1, l2),
+                    format!(" {} OR {} ", l1, l2),
+                    format!(" {} OR {} OR {}", l1, l2, l1),
+                    format!("{}  AND  {}", l1, l2),
+                    format!(" {} AND {} ", l1, l2),
+                    format!(" {} AND {} AND {}", l1, l2, l1),
+                ];
+                for expr in exprs.iter() {
+                    let e = Expr::parse(expr.as_str()).unwrap();
+                    assert_eq!(&e, expr.as_str());
+                }
+            }
         }
     }
 }

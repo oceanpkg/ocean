@@ -15,6 +15,24 @@ pub enum Version<'a> {
     Custom(Cow<'a, str>),
 }
 
+impl From<SemVer> for Version<'_> {
+    #[inline]
+    fn from(v: SemVer) -> Self {
+        Version::SemVer(v)
+    }
+}
+
+impl PartialEq<str> for Version<'_> {
+    fn eq(&self, s: &str) -> bool {
+        match self {
+            // TODO: Switch to a `SemVer` type that supports string equality
+            // without doing full parsing
+            Version::SemVer(v) => Ok(v) == SemVer::parse(s).as_ref(),
+            Version::Custom(v) => v == s,
+        }
+    }
+}
+
 impl<'a> Version<'a> {
     /// Creates a new instance from a custom `version`.
     #[inline]
@@ -26,7 +44,7 @@ impl<'a> Version<'a> {
 
     /// Attempts to parse `version` as SemVer.
     #[inline]
-    pub fn semver(version: &str) -> Result<Self, semver::SemVerError> {
+    pub fn parse_semver(version: &str) -> Result<Self, semver::SemVerError> {
         SemVer::parse(version).map(Self::SemVer)
     }
 }
