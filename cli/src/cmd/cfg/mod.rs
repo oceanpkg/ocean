@@ -1,5 +1,5 @@
 use std::{env, fs, io, process};
-use ocean::cfg::file::*;
+use oceanpkg::cfg::file::*;
 use super::prelude::*;
 
 pub const NAME: &str = "config";

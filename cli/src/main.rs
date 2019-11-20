@@ -1,5 +1,5 @@
 extern crate clap;
-extern crate ocean;
+extern crate oceanpkg;
 
 mod cmd;
 

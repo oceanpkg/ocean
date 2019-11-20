@@ -44,7 +44,7 @@ impl<'a> Manifest<'a> {
     /// Parses a manifest from [TOML](https://en.wikipedia.org/wiki/TOML).
     ///
     /// ```
-    /// use ocean::drop::{
+    /// use oceanpkg::drop::{
     ///     Manifest,
     ///     name::ValidName,
     ///     Version,

@@ -488,7 +488,7 @@ impl SpdxLicense {
     /// Returns an iterator over all licenses.
     ///
     /// ```
-    /// use ocean::drop::license::SpdxLicense;
+    /// use oceanpkg::drop::license::SpdxLicense;
     ///
     /// let licenses = SpdxLicense::all();
     /// assert_eq!(licenses.len(), SpdxLicense::COUNT);

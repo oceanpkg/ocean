@@ -23,7 +23,7 @@ pub trait BytesExt {
     /// This method can be used to match against filesystem paths:
     ///
     /// ```rust
-    /// use ocean::ext::BytesExt;
+    /// use oceanpkg::ext::BytesExt;
     ///
     /// let lower = b"../hello.txt";
     /// let upper = b"../HELLO.TXT";

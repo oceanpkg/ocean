@@ -10,9 +10,6 @@ repository = "https://github.com/oceanpkg/ocean"
 documentation = "https://docs.rs/oceanpkg"
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "CHANGELOG.md", "LICENSE*"]
 
-[lib]
-name = "ocean"
-
 [dependencies]
 dirs = "1"
 semver = { version = "0.9", features = ["serde"] }
