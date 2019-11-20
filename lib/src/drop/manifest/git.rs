@@ -3,7 +3,7 @@
 use std::fmt;
 
 /// Information about a git repository where a drop or dependency can be found.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Git<'a> {
     /// Simply point to the repository.
@@ -30,7 +30,7 @@ impl<'a> Git<'a> {
 }
 
 /// The git checkout to use.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Checkout<'a> {
     /// The specific git branch.

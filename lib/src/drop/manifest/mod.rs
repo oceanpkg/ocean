@@ -71,7 +71,7 @@ impl<'a> Manifest<'a> {
     /// assert_eq!(meta.license.as_ref().unwrap(), "Apache-2.0");
     /// assert_eq!(meta.readme.unwrap(), "README.md");
     /// assert_eq!(meta.changelog.unwrap(), "CHANGELOG.md");
-    /// assert_eq!(meta.git.as_ref().unwrap().repo(), "https://github.com/oceanpkg/ocean");
+    /// assert_eq!(meta.git.unwrap().repo(), "https://github.com/oceanpkg/ocean");
     ///
     /// for (name, info) in manifest.deps.unwrap() {
     ///     assert_eq!(name, "wget");
