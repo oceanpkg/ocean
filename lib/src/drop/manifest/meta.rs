@@ -22,7 +22,7 @@ pub struct Meta<'a> {
     pub conflicts: Option<BTreeMap<&'a ValidName, &'a str>>,
 
     /// The license used.
-    pub license: Option<Expr<'a>>,
+    pub license: Option<Expr>,
 
     /// Authors of the drop.
     pub authors: Option<Vec<&'a str>>,

@@ -9,20 +9,14 @@ use serde::{
     de::{self, Deserialize, Deserializer, Visitor},
 };
 
-pub mod expr;
-pub mod spdx;
-
 #[doc(inline)]
-pub use self::{
-    expr::Expr,
-    spdx::SpdxLicense,
-};
+pub use license::{SpdxLicense, License as KnownLicense, Expr};
 
 /// Any license.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum License<'a> {
     /// A commonly found license listed [here](https://spdx.org/licenses).
-    Spdx(SpdxLicense),
+    Known(KnownLicense),
     /// A license unknown to Ocean. This is generally treated as an opaque ID.
     Unknown(Cow<'a, str>),
 }
@@ -30,15 +24,15 @@ pub enum License<'a> {
 impl From<SpdxLicense> for License<'_> {
     #[inline]
     fn from(spdx: SpdxLicense) -> Self {
-        License::Spdx(spdx)
+        License::Known(spdx.into())
     }
 }
 
 impl<'a> From<&'a str> for License<'a> {
     #[inline]
     fn from(s: &'a str) -> Self {
-        if let Ok(spdx) = SpdxLicense::parse(s) {
-            License::Spdx(spdx)
+        if let Ok(l) = KnownLicense::parse(s) {
+            License::Known(l)
         } else {
             License::Unknown(Cow::Borrowed(s))
         }
@@ -48,8 +42,8 @@ impl<'a> From<&'a str> for License<'a> {
 impl From<String> for License<'_> {
     #[inline]
     fn from(s: String) -> Self {
-        if let Ok(spdx) = SpdxLicense::parse(s.as_str()) {
-            License::Spdx(spdx)
+        if let Ok(l) = KnownLicense::parse(s.as_str()) {
+            License::Known(l)
         } else {
             License::Unknown(Cow::Owned(s))
         }
@@ -59,7 +53,7 @@ impl From<String> for License<'_> {
 impl fmt::Display for License<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            License::Spdx(spdx) => spdx.fmt(f),
+            License::Known(known) => known.fmt(f),
             License::Unknown(unknown) => unknown.fmt(f),
         }
     }
@@ -121,8 +115,8 @@ impl<'a> License<'a> {
     pub fn owned<S>(s: S) -> Self
         where S: Into<String> + AsRef<str>
     {
-        if let Ok(spdx) = SpdxLicense::parse(s.as_ref()) {
-            License::Spdx(spdx)
+        if let Ok(l) = KnownLicense::parse(s.as_ref()) {
+            License::Known(l)
         } else {
             License::Unknown(Cow::Owned(s.into()))
         }
@@ -132,16 +126,7 @@ impl<'a> License<'a> {
     #[inline]
     pub fn id(&self) -> &str {
         match self {
-            License::Spdx(spdx) => spdx.id(),
-            License::Unknown(id) => id,
-        }
-    }
-
-    /// Returns the license's identifier by value.
-    #[inline]
-    pub fn into_id(self) -> Cow<'a, str> {
-        match self {
-            License::Spdx(spdx) => Cow::Borrowed(spdx.id()),
+            License::Known(l) => l.id(),
             License::Unknown(id) => id,
         }
     }

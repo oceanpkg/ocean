@@ -13,9 +13,9 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "CHANGELOG.md", "LICENSE*"]
 [dependencies]
 dirs = "1"
 semver = { version = "0.9", features = ["serde"] }
-phf = { version = "0.8", features = ["macros"] }
 serde = { version = "1", features = ["derive"] }
 toml = "0.5"
+linfo = { version = "0.1.3", features = ["phf", "serde"] }
 
 [dev-dependencies]
 tempfile = "3"
