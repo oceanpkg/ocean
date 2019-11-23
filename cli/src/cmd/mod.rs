@@ -5,6 +5,7 @@ pub mod cfg;
 pub mod install;
 pub mod run;
 pub mod list;
+pub mod new;
 pub mod search;
 pub mod uninstall;
 pub mod update;
@@ -16,6 +17,7 @@ pub mod self_; // `self` is a keyword
 pub fn all() -> Vec<App> {
     vec![
         list::cmd(),
+        new::cmd(),
         search::cmd(),
         install::cmd(),
         uninstall::cmd(),

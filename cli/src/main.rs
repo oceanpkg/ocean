@@ -36,6 +36,7 @@ fn main() {
     if let (command, Some(command_matches)) = matches.subcommand() {
         let run = match command {
             cmd::list::NAME      => cmd::list::run,
+            cmd::new::NAME       => cmd::new::run,
             cmd::search::NAME    => cmd::search::run,
             cmd::install::NAME   => cmd::install::run,
             cmd::uninstall::NAME => cmd::uninstall::run,
