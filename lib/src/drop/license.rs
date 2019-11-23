@@ -21,10 +21,17 @@ pub enum License<'a> {
     Unknown(Cow<'a, str>),
 }
 
+impl From<KnownLicense> for License<'_> {
+    #[inline]
+    fn from(known: KnownLicense) -> Self {
+        Self::Known(known)
+    }
+}
+
 impl From<SpdxLicense> for License<'_> {
     #[inline]
     fn from(spdx: SpdxLicense) -> Self {
-        License::Known(spdx.into())
+        Self::Known(spdx.into())
     }
 }
 
