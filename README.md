@@ -9,6 +9,10 @@
              alt="Travis CI badge">
     </a>
     <img src="https://tokei.rs/b1/github/oceanpkg/ocean" alt="Lines of code">
+    <a href="https://crates.io/crates/oceanpkg">
+        <img src="https://img.shields.io/crates/v/oceanpkg.svg"
+             alt="Crates.io badge">
+    </a>
 </div>
 <br>
 
