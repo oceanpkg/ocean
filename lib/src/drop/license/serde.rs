@@ -3,12 +3,12 @@ use serde::{
     ser::{Serialize, Serializer},
     de::{self, Deserialize, Deserializer, Visitor},
 };
-use super::License;
+use super::AnyLicense;
 
 struct LicenseVisitor;
 
 impl<'de> Visitor<'de> for LicenseVisitor {
-    type Value = License<'de>;
+    type Value = AnyLicense<'de>;
 
     #[inline]
     fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -19,25 +19,25 @@ impl<'de> Visitor<'de> for LicenseVisitor {
     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
         where E: de::Error,
     {
-        Ok(License::owned(v))
+        Ok(AnyLicense::owned(v))
     }
 
     #[inline]
     fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
         where E: de::Error,
     {
-        Ok(License::from(v))
+        Ok(v.into())
     }
 
     #[inline]
     fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
         where E: de::Error,
     {
-        Ok(License::owned(v))
+        Ok(AnyLicense::owned(v))
     }
 }
 
-impl<'de: 'a, 'a> Deserialize<'de> for License<'a> {
+impl<'de: 'a, 'a> Deserialize<'de> for AnyLicense<'a> {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -47,7 +47,7 @@ impl<'de: 'a, 'a> Deserialize<'de> for License<'a> {
     }
 }
 
-impl Serialize for License<'_> {
+impl Serialize for AnyLicense<'_> {
     #[inline]
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
         s.serialize_str(self.id())
