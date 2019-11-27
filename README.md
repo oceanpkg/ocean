@@ -1,6 +1,14 @@
-# Ocean
-
-[![Travis CI](https://travis-ci.com/oceanpkg/ocean.svg?branch=master)](https://travis-ci.com/oceanpkg/ocean)
+<div align="center">
+    <img src="https://www.oceanpkg.org/static/images/ocean-logo.svg"
+         alt="Ocean logo"
+         height="120" width="120">
+    <br>
+    <h1>Ocean</h1>
+    <a href="https://travis-ci.com/oceanpkg/ocean">
+        <img src="https://travis-ci.com/oceanpkg/ocean.svg?branch=master"
+             alt="Travis CI badge">
+    </a>
+</div>
 
 The package manager from the future, coming to an operating system near you!
 
