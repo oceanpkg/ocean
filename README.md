@@ -8,6 +8,7 @@
         <img src="https://travis-ci.com/oceanpkg/ocean.svg?branch=master"
              alt="Travis CI badge">
     </a>
+    <img src="https://tokei.rs/b1/github/oceanpkg/ocean" alt="Lines of code">
 </div>
 
 The package manager from the future, coming to an operating system near you!
