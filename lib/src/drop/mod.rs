@@ -67,20 +67,20 @@ impl Drop {
     /// Returns the kind of drop.
     pub fn kind(&self) -> Kind {
         match self {
-            Drop::App(_)  => Kind::App,
-            Drop::Exe(_)  => Kind::Exe,
-            Drop::Font(_) => Kind::Font,
-            Drop::Lib(_)  => Kind::Lib,
+            Self::App(_)  => Kind::App,
+            Self::Exe(_)  => Kind::Exe,
+            Self::Font(_) => Kind::Font,
+            Self::Lib(_)  => Kind::Lib,
         }
     }
 
     /// Returns basic metadata for the drop.
     pub fn metadata(&self) -> &Metadata {
         match self {
-            Drop::App(app)   => app.metadata(),
-            Drop::Exe(exe)   => exe.metadata(),
-            Drop::Font(font) => font.metadata(),
-            Drop::Lib(lib)   => lib.metadata(),
+            Self::App(app)   => app.metadata(),
+            Self::Exe(exe)   => exe.metadata(),
+            Self::Font(font) => font.metadata(),
+            Self::Lib(lib)   => lib.metadata(),
         }
     }
 }

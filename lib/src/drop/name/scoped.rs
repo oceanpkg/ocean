@@ -174,13 +174,13 @@ pub enum ParseError {
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ParseError::Scope(error) => {
+            Self::Scope(error) => {
                 write!(f, "could not parse scope: {}", error)
             },
-            ParseError::Name(error) => {
+            Self::Name(error) => {
                 write!(f, "could not parse name: {}", error)
             },
-            ParseError::MissingSeparator => {
+            Self::MissingSeparator => {
                 write!(f, "missing '/' separator in scoped name")
             },
         }

@@ -36,8 +36,8 @@ impl<'a> DepInfo<'a> {
     #[inline]
     pub fn version(&self) -> &'a str {
         match self {
-            DepInfo::Version(version) |
-            DepInfo::Detailed { version, .. } => version
+            Self::Version(version) |
+            Self::Detailed { version, .. } => version
         }
     }
 }

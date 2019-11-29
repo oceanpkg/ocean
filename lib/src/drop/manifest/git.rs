@@ -24,7 +24,8 @@ impl<'a> Git<'a> {
     #[inline]
     pub fn repo(&self) -> &'a str {
         match self {
-            Git::Repo(repo) | Git::Detailed { repo, .. } => repo
+            Self::Repo(repo) |
+            Self::Detailed { repo, .. } => repo
         }
     }
 
@@ -32,8 +33,8 @@ impl<'a> Git<'a> {
     #[inline]
     pub fn write_toml(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Git::Repo(repo) => write!(f, "git = \"{}\"", repo),
-            Git::Detailed { repo, checkout } => {
+            Self::Repo(repo) => write!(f, "git = \"{}\"", repo),
+            Self::Detailed { repo, checkout } => {
                 write!(f, r#"git = {{ repo = "{}""#, repo)?;
                 if let Some(checkout) = checkout {
                     write!(f, r#", {} = "{}""#, checkout.variant_name(), checkout.as_str())?;
@@ -91,9 +92,9 @@ impl<'a> Checkout<'a> {
     #[inline]
     pub fn as_str(&self) -> &'a str {
         match self {
-            Checkout::Branch(ch) |
-            Checkout::Tag(ch) |
-            Checkout::Rev(ch) => ch
+            Self::Branch(ch) |
+            Self::Tag(ch) |
+            Self::Rev(ch) => ch
         }
     }
 
@@ -101,9 +102,9 @@ impl<'a> Checkout<'a> {
     #[inline]
     pub fn variant_name(&self) -> &'static str {
         match self {
-            Checkout::Branch(_) => "branch",
-            Checkout::Tag(_) => "tag",
-            Checkout::Rev(_) => "rev",
+            Self::Branch(_) => "branch",
+            Self::Tag(_) => "tag",
+            Self::Rev(_) => "rev",
         }
     }
 }

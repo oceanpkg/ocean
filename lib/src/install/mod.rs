@@ -29,10 +29,10 @@ impl Error for DirError {}
 impl fmt::Display for DirError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            DirError::CurrentUserHome => {
+            Self::CurrentUserHome => {
                 write!(f, "Could not get current user's home directory")
             },
-            DirError::CurrentUserCfgDir => {
+            Self::CurrentUserCfgDir => {
                 write!(f, "Could not get current user's config directory")
             },
         }

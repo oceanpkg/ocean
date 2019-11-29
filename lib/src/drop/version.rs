@@ -28,8 +28,8 @@ impl PartialEq<str> for Version<'_> {
         match self {
             // TODO: Switch to a `SemVer` type that supports string equality
             // without doing full parsing
-            Version::SemVer(v) => Ok(v) == SemVer::parse(s).as_ref(),
-            Version::Custom(v) => v == s,
+            Self::SemVer(v) => Ok(v) == SemVer::parse(s).as_ref(),
+            Self::Custom(v) => v == s,
         }
     }
 }

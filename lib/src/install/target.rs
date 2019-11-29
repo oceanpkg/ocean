@@ -31,7 +31,7 @@ impl InstallTarget {
     pub fn base_dir(&self) -> Result<PathBuf, DirError> {
         #[cfg(unix)]
         match self {
-            InstallTarget::CurrentUser => {
+            Self::CurrentUser => {
                 // Usually means:
                 // - $HOME/ocean
                 // - ~/ocean
@@ -40,10 +40,10 @@ impl InstallTarget {
                     .ok_or(DirError::CurrentUserHome)
                     .map(|home| home.pushing("ocean"))
             },
-            InstallTarget::SpecificUser(username) => {
+            Self::SpecificUser(username) => {
                 unimplemented!("TODO: Get base directory for {:?}", username);
             },
-            InstallTarget::Global => {
+            Self::Global => {
                 // TODO+SUDO: Needs admin access to write to either. Should be
                 // in a separate process that runs based on user password input.
                 // Essentially the same UX as when shells try to run something
@@ -71,15 +71,15 @@ impl InstallTarget {
     /// - Linux:   `/home/alice/.config`
     pub fn cfg_dir(&self) -> Result<PathBuf, DirError> {
         match self {
-            InstallTarget::CurrentUser => {
+            Self::CurrentUser => {
                 dirs::config_dir()
                     .ok_or(DirError::CurrentUserCfgDir)
                     .map(|cfg| cfg.pushing("Ocean"))
             },
-            InstallTarget::SpecificUser(username) => {
+            Self::SpecificUser(username) => {
                 unimplemented!("TODO: Get config directory for {:?}", username);
             },
-            InstallTarget::Global => {
+            Self::Global => {
                 unimplemented!("TODO: Get global config directory");
             },
         }

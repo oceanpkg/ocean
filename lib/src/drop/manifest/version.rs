@@ -32,11 +32,11 @@ impl<'a> From<Version<'a>> for drop::Version<'a> {
 impl PartialEq<str> for Version<'_> {
     fn eq(&self, s: &str) -> bool {
         match self {
-            Version::Simple(v) |
-            Version::Detailed(drop::Version::SemVer(v)) => {
+            Self::Simple(v) |
+            Self::Detailed(drop::Version::SemVer(v)) => {
                 Ok(v) == SemVer::parse(s).as_ref()
             },
-            Version::Detailed(drop::Version::Custom(v)) => {
+            Self::Detailed(drop::Version::Custom(v)) => {
                 v == s
             },
         }
@@ -62,7 +62,7 @@ impl<'a> Version<'a> {
     #[inline]
     pub fn normalized(self) -> Self {
         match self {
-            Version::Detailed(drop::Version::SemVer(semver)) => {
+            Self::Detailed(drop::Version::SemVer(semver)) => {
                 Self::Simple(semver)
             },
             other => other,
@@ -73,8 +73,8 @@ impl<'a> Version<'a> {
     #[inline]
     pub fn into_standard(self) -> drop::Version<'a> {
         match self {
-            Version::Simple(semver) => semver.into(),
-            Version::Detailed(v) => v,
+            Self::Simple(semver) => semver.into(),
+            Self::Detailed(v) => v,
         }
     }
 }
