@@ -146,3 +146,39 @@ impl fmt::Display for ParseError {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn eq_str() {
+        fn test(name: ScopedName) {
+            fn bad_names(name: &str) -> Vec<String> {
+                let name = name.to_string();
+                vec![
+                    name.to_uppercase(),
+                    format!("{}/", name),
+                    format!("/{}", name),
+                    format!("/{}/", name),
+                    name.replace("/", ""),
+                ]
+            }
+
+            let name_string = name.to_string();
+            assert_eq!(name, *name_string);
+
+            for bad_name in bad_names(&name_string) {
+                assert_ne!(name, *bad_name);
+            }
+        }
+
+        let names = Name::RESERVED_SCOPES;
+
+        for &name in names {
+            for &scope in names {
+                test(ScopedName { scope, name });
+            }
+        }
+    }
+}

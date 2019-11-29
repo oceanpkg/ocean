@@ -141,3 +141,55 @@ impl<'a> QueryName<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn eq_name() {
+        let names = Name::RESERVED_SCOPES;
+
+        for &name in names {
+            assert_eq!(name, QueryName::from(name));
+            for &scope in names {
+                assert_ne!(name, QueryName::new(scope, name));
+            }
+        }
+    }
+
+    #[test]
+    fn eq_str() {
+        fn test(query: QueryName) {
+            fn bad_queries(query: &str) -> Vec<String> {
+                let query = query.to_string();
+                let mut result = vec![
+                    query.to_uppercase(),
+                    format!("{}/", query),
+                    format!("/{}", query),
+                    format!("/{}/", query),
+                ];
+                if query.contains("/") {
+                    result.push(query.replace("/", ""));
+                }
+                result
+            }
+
+            let query_string = query.to_string();
+            assert_eq!(query, *query_string);
+
+            for bad_query in bad_queries(&query_string) {
+                assert_ne!(query, *bad_query);
+            }
+        }
+
+        let names = Name::RESERVED_SCOPES;
+
+        for &name in names {
+            test(name.into());
+            for &scope in names {
+                test(QueryName::new(scope, name));
+            }
+        }
+    }
+}
