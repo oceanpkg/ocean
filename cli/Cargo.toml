@@ -14,5 +14,5 @@ name = "ocean"
 path = "src/main.rs"
 
 [dependencies]
-oceanpkg = { path = "../lib", version = "0.0.6" }
+oceanpkg = { path = "../lib", version = "0.0.7" }
 clap = "2.33"
