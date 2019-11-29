@@ -37,6 +37,28 @@ impl fmt::Display for QueryName<'_> {
     }
 }
 
+impl PartialEq<str> for QueryName<'_> {
+    fn eq(&self, s: &str) -> bool {
+        let mut parts = s.split('/');
+        match (parts.next(), parts.next(), parts.next(), self.scope) {
+            (Some(scope), Some(name), None, Some(self_scope)) => {
+                self_scope == scope && self.name == name
+            },
+            (Some(name), None, None, None) => {
+                self.name == name
+            },
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq<QueryName<'_>> for str {
+    #[inline]
+    fn eq(&self, n: &QueryName) -> bool {
+        n == self
+    }
+}
+
 impl<'a> QueryName<'a> {
     /// Attempts to create a new instance by parsing `query`.
     #[inline]

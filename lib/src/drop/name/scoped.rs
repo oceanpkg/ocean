@@ -33,6 +33,25 @@ impl fmt::Display for ScopedName<'_> {
     }
 }
 
+impl PartialEq<str> for ScopedName<'_> {
+    fn eq(&self, s: &str) -> bool {
+        let mut parts = s.split('/');
+        match (parts.next(), parts.next(), parts.next()) {
+            (Some(scope), Some(name), None) => {
+                self.scope == scope && self.name == name
+            },
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq<ScopedName<'_>> for str {
+    #[inline]
+    fn eq(&self, n: &ScopedName) -> bool {
+        n == self
+    }
+}
+
 impl<'a> ScopedName<'a> {
     /// Attempts to create a new instance by parsing `name`.
     #[inline]
