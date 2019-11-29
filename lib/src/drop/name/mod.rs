@@ -22,6 +22,26 @@ pub use self::{
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Name(str);
 
+impl From<&Name> for Box<Name> {
+    #[inline]
+    fn from(name: &Name) -> Self {
+        let raw = Box::<str>::into_raw(name.0.into()) as *mut Name;
+        unsafe { Box::from_raw(raw) }
+    }
+}
+
+impl Clone for Box<Name> {
+    #[inline]
+    fn clone(&self) -> Self {
+        let str_box: &Box<str> = unsafe {
+            &*(self as *const Self as *const Box<str>)
+        };
+        let str_box = str_box.clone();
+        let raw = Box::into_raw(str_box) as *mut Name;
+        unsafe { Box::from_raw(raw) }
+    }
+}
+
 // Allows for creating a `&Name` in a `const` from a `&str`.
 macro_rules! valid_name {
     ($name:expr) => {
