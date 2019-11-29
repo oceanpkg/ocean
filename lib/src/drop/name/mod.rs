@@ -119,21 +119,20 @@ impl Name {
     /// Returns whether `name` is valid.
     #[inline]
     pub fn is_valid<N: AsRef<[u8]>>(name: N) -> bool {
-        // Monomorphization
+        // Monomorphized
         fn imp(bytes: &[u8]) -> bool {
             match (bytes.first(), bytes.last()) {
                 // Cannot be empty or begin/end with '-'
                 (None, _) |
                 (Some(b'-'), _) |
-                (_, Some(b'-')) => return false,
-                _ => {},
+                (_, Some(b'-')) => false,
+                _ => bytes.iter().all(|&b| match b {
+                    b'0'..=b'9' |
+                    b'a'..=b'z' |
+                    b'-' => true,
+                    _ => false,
+                }),
             }
-            bytes.iter().all(|&b| match b {
-                b'0'..=b'9' |
-                b'a'..=b'z' |
-                b'-' => true,
-                _ => false,
-            })
         }
         imp(name.as_ref())
     }
