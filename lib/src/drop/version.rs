@@ -2,6 +2,7 @@
 
 use std::borrow::Cow;
 
+#[doc(inline)]
 pub use semver::Version as SemVer;
 
 /// A drop version.
