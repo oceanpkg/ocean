@@ -72,7 +72,7 @@ impl<'a> Manifest<'a> {
     /// assert_eq!(meta.git.unwrap().repo(), "https://github.com/oceanpkg/ocean");
     ///
     /// for (name, info) in manifest.deps.unwrap() {
-    ///     assert_eq!(name, *"wget");
+    ///     assert_eq!(name, "wget");
     ///     assert_eq!(info.version(), "*");
     /// }
     /// ```

@@ -45,7 +45,22 @@ impl PartialEq<str> for ScopedName<'_> {
     }
 }
 
+// Seems redundant but required to make `assert_eq!` prettier.
+impl PartialEq<&str> for ScopedName<'_> {
+    #[inline]
+    fn eq(&self, s: &&str) -> bool {
+        *self == **s
+    }
+}
+
 impl PartialEq<ScopedName<'_>> for str {
+    #[inline]
+    fn eq(&self, n: &ScopedName) -> bool {
+        n == self
+    }
+}
+
+impl PartialEq<ScopedName<'_>> for &str {
     #[inline]
     fn eq(&self, n: &ScopedName) -> bool {
         n == self
