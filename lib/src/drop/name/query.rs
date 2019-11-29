@@ -20,6 +20,13 @@ pub struct QueryName<'a> {
     pub name: &'a Name,
 }
 
+impl<'a> From<&'a Name> for QueryName<'a> {
+    #[inline]
+    fn from(name: &'a Name) -> Self {
+        Self { scope: None, name }
+    }
+}
+
 impl<'a> From<ScopedName<'a>> for QueryName<'a> {
     #[inline]
     fn from(n: ScopedName<'a>) -> Self {
@@ -34,6 +41,36 @@ impl fmt::Display for QueryName<'_> {
         } else {
             self.name.fmt(f)
         }
+    }
+}
+
+impl PartialEq<Name> for QueryName<'_> {
+    #[inline]
+    fn eq(&self, n: &Name) -> bool {
+        self.scope.is_none() && self.name == n
+    }
+}
+
+// Seems redundant but required to make `assert_eq!` prettier.
+impl PartialEq<&Name> for QueryName<'_> {
+    #[inline]
+    fn eq(&self, n: &&Name) -> bool {
+        *self == **n
+    }
+}
+
+impl PartialEq<QueryName<'_>> for Name {
+    #[inline]
+    fn eq(&self, n: &QueryName) -> bool {
+        n == self
+    }
+}
+
+// Seems redundant but required to make `assert_eq!` prettier.
+impl PartialEq<QueryName<'_>> for &Name {
+    #[inline]
+    fn eq(&self, n: &QueryName) -> bool {
+        n == self
     }
 }
 
