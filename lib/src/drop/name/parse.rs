@@ -73,6 +73,14 @@ impl<'de> Visitor<'de> for NameVisitor {
     {
         Name::new(v).map_err(E::custom)
     }
+
+    #[inline]
+    fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        Name::new(v).map_err(E::custom)
+    }
 }
 
 impl<'de: 'a, 'a> Deserialize<'de> for &'a Name {
@@ -140,6 +148,14 @@ impl<'de> Visitor<'de> for ScopedNameVisitor {
 
     #[inline]
     fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        ScopedName::parse(v).map_err(E::custom)
+    }
+
+    #[inline]
+    fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E>
     where
         E: de::Error,
     {
@@ -214,6 +230,14 @@ impl<'de> Visitor<'de> for QueryNameVisitor {
 
     #[inline]
     fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        QueryName::parse(v).map_err(E::custom)
+    }
+
+    #[inline]
+    fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E>
     where
         E: de::Error,
     {
