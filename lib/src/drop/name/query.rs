@@ -112,6 +112,16 @@ impl PartialEq<QueryName<'_>> for &str {
 }
 
 impl<'a> QueryName<'a> {
+    /// Creates a new instance from `scope` and `name`.
+    #[inline]
+    pub fn new<S, N>(scope: S, name: N) -> Self
+    where
+        S: Into<Option<&'a Name>>,
+        N: Into<&'a Name>,
+    {
+        Self { scope: scope.into(), name: name.into() }
+    }
+
     /// Attempts to create a new instance by parsing `query`.
     #[inline]
     pub fn parse<Q>(query: Q) -> Result<Self, scoped::ParseError>
