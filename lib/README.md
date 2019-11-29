@@ -58,7 +58,6 @@ searching for `mod tests` within the `lib` folder.
 To perform these tests, simply run:
 
 ```sh
-cd lib
 cargo test
 ```
 
