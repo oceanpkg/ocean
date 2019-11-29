@@ -142,6 +142,12 @@ impl Name {
     pub const fn as_str(&self) -> &str {
         &self.0
     }
+
+    /// Returns whether Ocean reserves the right to use this name as a scope.
+    #[inline]
+    pub fn is_reserved_scope(&self) -> bool {
+        Self::RESERVED_SCOPES.contains(&self)
+    }
 }
 
 /// Error returned when a [`Name`](struct.Name.html) could not be created.
