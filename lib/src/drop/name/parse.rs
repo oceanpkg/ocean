@@ -68,16 +68,14 @@ impl<'de> Visitor<'de> for NameVisitor {
 
     #[inline]
     fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
-    where
-        E: de::Error,
+        where E: de::Error
     {
         Name::new(v).map_err(E::custom)
     }
 
     #[inline]
     fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E>
-    where
-        E: de::Error,
+        where E: de::Error
     {
         Name::new(v).map_err(E::custom)
     }
@@ -86,8 +84,7 @@ impl<'de> Visitor<'de> for NameVisitor {
 impl<'de: 'a, 'a> Deserialize<'de> for &'a Name {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>
+        where D: Deserializer<'de>
     {
         deserializer.deserialize_str(NameVisitor)
     }
@@ -148,16 +145,14 @@ impl<'de> Visitor<'de> for ScopedNameVisitor {
 
     #[inline]
     fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
-    where
-        E: de::Error,
+        where E: de::Error
     {
         ScopedName::parse(v).map_err(E::custom)
     }
 
     #[inline]
     fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E>
-    where
-        E: de::Error,
+        where E: de::Error
     {
         ScopedName::parse(v).map_err(E::custom)
     }
@@ -166,8 +161,7 @@ impl<'de> Visitor<'de> for ScopedNameVisitor {
 impl<'de: 'a, 'a> Deserialize<'de> for ScopedName<'a> {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>
+        where D: Deserializer<'de>
     {
         deserializer.deserialize_str(ScopedNameVisitor)
     }
@@ -230,16 +224,14 @@ impl<'de> Visitor<'de> for QueryNameVisitor {
 
     #[inline]
     fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
-    where
-        E: de::Error,
+        where E: de::Error
     {
         QueryName::parse(v).map_err(E::custom)
     }
 
     #[inline]
     fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E>
-    where
-        E: de::Error,
+        where E: de::Error
     {
         QueryName::parse(v).map_err(E::custom)
     }
@@ -248,8 +240,7 @@ impl<'de> Visitor<'de> for QueryNameVisitor {
 impl<'de: 'a, 'a> Deserialize<'de> for QueryName<'a> {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>
+        where D: Deserializer<'de>
     {
         deserializer.deserialize_str(QueryNameVisitor)
     }
