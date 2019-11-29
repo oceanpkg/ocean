@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use crate::drop::{
     license::Expr,
-    name::ValidName,
+    Name,
 };
 use super::{Git, Version};
 
@@ -10,7 +10,7 @@ use super::{Git, Version};
 #[serde(rename_all = "kebab-case")]
 pub struct Meta<'a> {
     /// The drop's name.
-    pub name: &'a ValidName,
+    pub name: &'a Name,
 
     /// What is this drop?
     pub description: &'a str,
@@ -19,7 +19,7 @@ pub struct Meta<'a> {
     pub version: Version<'a>,
 
     /// The versions that this version conflicts with.
-    pub conflicts: Option<BTreeMap<&'a ValidName, &'a str>>,
+    pub conflicts: Option<BTreeMap<&'a Name, &'a str>>,
 
     /// The license used.
     pub license: Option<Expr>,

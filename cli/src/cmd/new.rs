@@ -1,5 +1,5 @@
 use std::path::{Path, PathBuf};
-use oceanpkg::drop::name::ValidName;
+use oceanpkg::drop::Name;
 use super::prelude::*;
 
 pub const NAME: &str = "new";
@@ -31,7 +31,7 @@ pub fn run(matches: &ArgMatches) {
     };
 
     let name = path.file_name().unwrap_or("".as_ref());
-    match ValidName::new(name) {
+    match Name::new(name) {
         Ok(name) => {
             unimplemented!("TODO: Spit out manifest for '{}'", name);
         },

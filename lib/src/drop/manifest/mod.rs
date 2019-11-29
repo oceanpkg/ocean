@@ -5,7 +5,7 @@ use std::{
     fmt,
 };
 use serde::Deserialize;
-use crate::drop::name::ValidName;
+use crate::drop::Name;
 
 mod dep;
 mod meta;
@@ -32,7 +32,7 @@ pub struct Manifest<'a> {
 
     /// What does this drop rely on?
     #[serde(rename = "dependencies")]
-    pub deps: Option<BTreeMap<&'a ValidName, Dep<'a>>>,
+    pub deps: Option<BTreeMap<&'a Name, Dep<'a>>>,
 }
 
 impl fmt::Display for Manifest<'_> {

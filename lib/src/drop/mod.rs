@@ -13,6 +13,7 @@ pub use self::{
     kind::Kind,
     license::License,
     manifest::Manifest,
+    name::Name,
     version::Version,
 };
 
@@ -59,7 +60,7 @@ impl From<Lib> for Drop {
 
 impl Drop {
     ///
-    pub fn query(query: &name::DropQuery) -> Result<Self, ()> {
+    pub fn query(query: &name::QueryName) -> Result<Self, ()> {
         unimplemented!("TODO: Find '{}' drop", query);
     }
 

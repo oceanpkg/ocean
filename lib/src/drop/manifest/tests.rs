@@ -1,7 +1,7 @@
 use super::*;
 use crate::drop::{
-    name::ValidName,
     license::SpdxLicense,
+    Name,
 };
 
 fn manifests() -> Vec<(String, Manifest<'static>)> {
@@ -9,8 +9,9 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
     let repo = env!("CARGO_PKG_REPOSITORY");
     let home = "https://www.oceanpkg.org";
     let docs = "https://docs.oceanpkg.org";
+    let wget = Name::new("wget").unwrap();
     let meta = Meta {
-        name: ValidName::OCEAN,
+        name: Name::OCEAN,
         description: "Cross-platform package manager",
         version: Version::parse_semver(version).unwrap(),
         conflicts: None,
@@ -46,7 +47,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
     );
     let detailed_deps: BTreeMap<_, _> = vec![
         (
-            ValidName::new("wget").unwrap(),
+            wget,
             Dep::Detailed {
                 version: "*",
                 git: Some(Git::Detailed {
@@ -69,7 +70,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
             Manifest {
                 meta: meta.clone(),
                 deps: Some(vec![
-                    (ValidName::new("wget").unwrap(), Dep::Simple("*"))
+                    (wget, Dep::Simple("*"))
                 ].into_iter().collect()),
             }
         ),

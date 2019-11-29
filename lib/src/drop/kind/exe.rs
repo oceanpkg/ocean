@@ -5,7 +5,7 @@ use std::{
 use crate::{
     drop::{
         Metadata,
-        name::DropQuery,
+        name::QueryName,
     },
     install::InstallTarget,
 };
@@ -19,7 +19,7 @@ pub struct Exe {
 
 impl Exe {
     /// Returns an executable matching `query`, installed for `target`.
-    pub fn installed(query: DropQuery, target: &InstallTarget) -> Result<Self, ()> {
+    pub fn installed(query: QueryName, target: &InstallTarget) -> Result<Self, ()> {
         unimplemented!("TODO: Find installation of {:?} for {:?}", query, target)
     }
 
