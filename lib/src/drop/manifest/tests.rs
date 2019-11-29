@@ -1,7 +1,7 @@
 use super::*;
 use crate::drop::{
     license::SpdxLicense,
-    Name,
+    name::{Name, QueryName},
 };
 
 fn manifests() -> Vec<(String, Manifest<'static>)> {
@@ -9,7 +9,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
     let repo = env!("CARGO_PKG_REPOSITORY");
     let home = "https://www.oceanpkg.org";
     let docs = "https://docs.oceanpkg.org";
-    let wget = Name::new("wget").unwrap();
+    let wget = QueryName::parse("wget").unwrap();
     let meta = Meta {
         name: Name::OCEAN,
         description: "Cross-platform package manager",
