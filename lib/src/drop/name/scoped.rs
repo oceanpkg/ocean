@@ -20,6 +20,24 @@ pub struct ScopedName<'a> {
     pub name: &'a Name,
 }
 
+impl<'a, N: Into<&'a Name>> From<[N; 2]> for ScopedName<'a> {
+    #[inline]
+    fn from([scope, name]: [N; 2]) -> Self {
+        Self::new(scope, name)
+    }
+}
+
+impl<'a, S, N> From<(S, N)> for ScopedName<'a>
+where
+    S: Into<&'a Name>,
+    N: Into<&'a Name>,
+{
+    #[inline]
+    fn from((scope, name): (S, N)) -> Self {
+        Self::new(scope, name)
+    }
+}
+
 impl<'a> AsRef<QueryName<'a>> for ScopedName<'a> {
     #[inline]
     fn as_ref(&self) -> &QueryName<'a> {
@@ -132,6 +150,13 @@ impl<'a> ScopedName<'a> {
     pub fn as_query(&self) -> &QueryName<'a> {
         // SAFETY: Checked above that the memory layout of both is the same
         unsafe { &*(self as *const Self as *const QueryName) }
+    }
+
+    /// Converts `self` into a slice of `Name`s.
+    #[inline]
+    pub fn as_names(&self) -> &[&'a Name] {
+        // SAFETY: This type consists of exactly two `Name` references.
+        unsafe { &*(self as *const Self as *const [&Name; 2]) }
     }
 }
 

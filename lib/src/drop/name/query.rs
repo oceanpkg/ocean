@@ -1,6 +1,7 @@
 use std::{
     convert::TryInto,
     fmt,
+    slice,
 };
 use super::{
     Name,
@@ -24,6 +25,24 @@ impl<'a> From<&'a Name> for QueryName<'a> {
     #[inline]
     fn from(name: &'a Name) -> Self {
         Self { scope: None, name }
+    }
+}
+
+impl<'a, N: Into<&'a Name>> From<[N; 2]> for QueryName<'a> {
+    #[inline]
+    fn from([scope, name]: [N; 2]) -> Self {
+        Self::new(scope.into(), name)
+    }
+}
+
+impl<'a, S, N> From<(S, N)> for QueryName<'a>
+where
+    S: Into<Option<&'a Name>>,
+    N: Into<&'a Name>,
+{
+    #[inline]
+    fn from((scope, name): (S, N)) -> Self {
+        Self::new(scope, name)
     }
 }
 
@@ -149,6 +168,14 @@ impl<'a> QueryName<'a> {
         } else {
             None
         }
+    }
+
+    /// Converts `self` into a slice of `Name`s.
+    #[inline]
+    pub fn as_names(&self) -> &[&'a Name] {
+        self.to_scoped()
+            .map(|s| s.as_names())
+            .unwrap_or(slice::from_ref(&self.name))
     }
 }
 
