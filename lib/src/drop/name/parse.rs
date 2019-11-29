@@ -128,6 +128,42 @@ impl<'a> TryFrom<&'a OsStr> for ScopedName<'a> {
     }
 }
 
+struct ScopedNameVisitor;
+
+impl<'de> Visitor<'de> for ScopedNameVisitor {
+    type Value = ScopedName<'de>;
+
+    #[inline]
+    fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str("a valid scoped drop name")
+    }
+
+    #[inline]
+    fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        ScopedName::parse(v).map_err(E::custom)
+    }
+}
+
+impl<'de: 'a, 'a> Deserialize<'de> for ScopedName<'a> {
+    #[inline]
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>
+    {
+        deserializer.deserialize_str(ScopedNameVisitor)
+    }
+}
+
+impl Serialize for ScopedName<'_> {
+    #[inline]
+    fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        s.collect_str(self)
+    }
+}
+
 //==============================================================================
 
 impl<'a> TryFrom<&'a str> for QueryName<'a> {
