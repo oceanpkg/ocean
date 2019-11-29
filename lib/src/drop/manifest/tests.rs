@@ -45,10 +45,10 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
         homepage = home,
         documentation = docs,
     );
-    let detailed_deps: BTreeMap<_, _> = vec![
+    let detailed_deps: Deps = vec![
         (
             wget,
-            Dep::Detailed {
+            DepInfo::Detailed {
                 version: "*",
                 git: Some(Git::Detailed {
                     repo: "https://git.savannah.gnu.org/git/wget.git",
@@ -70,7 +70,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
             Manifest {
                 meta: meta.clone(),
                 deps: Some(vec![
-                    (wget, Dep::Simple("*"))
+                    (wget, DepInfo::Version("*"))
                 ].into_iter().collect()),
             }
         ),

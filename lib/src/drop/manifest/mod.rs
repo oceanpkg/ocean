@@ -1,13 +1,9 @@
 //! Meta manifest data.
 
-use std::{
-    collections::BTreeMap,
-    fmt,
-};
+use std::fmt;
 use serde::Deserialize;
-use crate::drop::Name;
 
-mod dep;
+mod deps;
 mod meta;
 mod version;
 pub mod git;
@@ -17,7 +13,7 @@ mod tests;
 
 #[doc(inline)]
 pub use self::{
-    dep::Dep,
+    deps::{Deps, DepInfo},
     git::Git,
     meta::Meta,
     version::Version,
@@ -30,9 +26,9 @@ pub struct Manifest<'a> {
     #[serde(borrow)]
     pub meta: Meta<'a>,
 
-    /// What does this drop rely on?
+    /// The drops that this drop relies on.
     #[serde(rename = "dependencies")]
-    pub deps: Option<BTreeMap<&'a Name, Dep<'a>>>,
+    pub deps: Option<Deps<'a>>,
 }
 
 impl fmt::Display for Manifest<'_> {
