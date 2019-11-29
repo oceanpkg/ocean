@@ -36,7 +36,7 @@ See [`cli/README.md`] for info.
 
 ## Library
 
-![[Crates.io badge](https://crates.io/crates/oceanpkg)](https://img.shields.io/crates/v/oceanpkg.svg)
+[![Crates.io badge](https://img.shields.io/crates/v/oceanpkg.svg)](https://crates.io/crates/oceanpkg)
 
 The `oceanpkg` library serves as core reusable components for:
 - The `ocean` [CLI] client
