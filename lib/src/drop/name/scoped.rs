@@ -68,6 +68,16 @@ impl PartialEq<ScopedName<'_>> for &str {
 }
 
 impl<'a> ScopedName<'a> {
+    /// Creates a new instance from `scope` and `name`.
+    #[inline]
+    pub fn new<S, N>(scope: S, name: N) -> Self
+    where
+        S: Into<&'a Name>,
+        N: Into<&'a Name>,
+    {
+        Self { scope: scope.into(), name: name.into() }
+    }
+
     /// Attempts to create a new instance by parsing `name`.
     #[inline]
     pub fn parse<N>(name: N) -> Result<Self, ParseError>
