@@ -37,7 +37,7 @@ impl<'a> Git<'a> {
             Self::Detailed { repo, checkout } => {
                 write!(f, r#"git = {{ repo = "{}""#, repo)?;
                 if let Some(checkout) = checkout {
-                    write!(f, r#", {} = "{}""#, checkout.variant_name(), checkout.as_str())?;
+                    write!(f, r#", {} = "{}""#, checkout.kind(), checkout)?;
                 }
                 write!(f, " }}")
             },
@@ -98,9 +98,9 @@ impl<'a> Checkout<'a> {
         }
     }
 
-    /// Returns the name of the variant: `branch`, `tag`, or `rev`.
+    /// Returns the name of the checkout kind: `branch`, `tag`, or `rev`.
     #[inline]
-    pub fn variant_name(&self) -> &'static str {
+    pub fn kind(&self) -> &'static str {
         match self {
             Self::Branch(_) => "branch",
             Self::Tag(_) => "tag",
