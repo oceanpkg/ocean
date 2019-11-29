@@ -140,6 +140,16 @@ impl<'a> QueryName<'a> {
             Some(unsafe { &*(self as *const Self as *const ScopedName) })
         }
     }
+
+    /// Converts `self` to a simple name if it has no scope.
+    #[inline]
+    pub fn to_name(&self) -> Option<&'a Name> {
+        if self.scope.is_none() {
+            Some(self.name)
+        } else {
+            None
+        }
+    }
 }
 
 #[cfg(test)]
