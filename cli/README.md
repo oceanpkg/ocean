@@ -21,6 +21,23 @@ TODO: Wrap "working directory" in a link to somewhere that explains the term.
 **Note:** All shell commands assume that the current working directory is `cli`.
 This can be done by running `cd cli` to "change directory" from the root folder.
 
+## Build
+
+To build `ocean` without running it immediately, simply replace `run` with
+`build`:
+
+```sh
+cargo build
+```
+
+This will generate a binary at `../target/debug/ocean`.
+
+To build with optimizations, add the `--release` flag. The binary will then be
+made available at `../target/release/ocean`.
+
+Notice that the default build folder is `../target`. To change this, use the
+`--target-dir` option.
+
 ## Run
 
 This client is written in [Rust] and is built with [`cargo`]. See [rustup.rs]
@@ -38,29 +55,22 @@ To build _with_ optimizations, run:
 cargo run --release
 ```
 
-Both of these will simply output a help message and exit with a non-0 code. To
-pass arguments via `cargo`, run:
+### Run With Arguments
+
+Both of the above examples will simply output a help message and exit with a
+non-0 code.
+
+To pass arguments via `cargo`, place them after a lone `--`:
 
 ```sh
-ocean run -- install [FLAGS] [OPTIONS] <drop>...
+cargo run -- install [FLAGS] [OPTIONS] <drop>...
 ```
 
-## Build
-
-To build `ocean` without running it immediately, simply replace `run` with
-`build`:
+Otherwise, arguments can be passed to the compiled binary directly:
 
 ```sh
-cargo build
+../target/debug/ocean install [FLAGS] [OPTIONS] <drop>...
 ```
-
-This will generate a binary at `../target/debug/ocean`.
-
-To build with optimizations, add the `--release` flag. The binary will then be
-made available at `../target/release/ocean`.
-
-Notice that the default build folder is `../target`. To change this, use the
-`--target-dir` option.
 
 [CLI]: https://en.wikipedia.org/wiki/Command-line_interface
 [Rust]: https://www.rust-lang.org
