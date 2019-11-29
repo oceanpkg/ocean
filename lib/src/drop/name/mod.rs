@@ -110,8 +110,8 @@ impl Name {
     }
 
     /// Creates a new instance without parsing `name`.
-    pub unsafe fn new_unchecked<'a, B>(name: &'a B) -> &'a Self
-        where B: ?Sized + AsRef<[u8]>
+    pub unsafe fn new_unchecked<'a, N>(name: &'a N) -> &'a Self
+        where N: ?Sized + AsRef<[u8]>
     {
         &*(name.as_ref() as *const [u8] as *const Self)
     }

@@ -111,7 +111,7 @@ impl<'a> TryFrom<&'a [u8]> for ScopedName<'a> {
         if let Some((index, _)) = index {
             let scope = &bytes[..index];
             let name  = &bytes[(index + 1)..];
-            Self::new(scope, name)
+            Self::from_pair(scope, name)
         } else {
             Err(scoped::ParseError::MissingSeparator)
         }

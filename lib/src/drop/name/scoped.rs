@@ -78,13 +78,14 @@ impl<'a> ScopedName<'a> {
 
     /// Creates a new instance by verifying `scope` and `name`.
     #[inline]
-    pub fn new(scope: &'a [u8], name: &'a [u8]) -> Result<Self, ParseError> {
-        match Name::new(scope) {
-            Ok(scope) => match Name::new(name) {
-                Ok(name) => Ok(Self {
-                    scope,
-                    name,
-                }),
+    pub fn from_pair<S, N>(scope: &'a S, name: &'a N) -> Result<Self, ParseError>
+    where
+        S: ?Sized + AsRef<[u8]>,
+        N: ?Sized + AsRef<[u8]>,
+    {
+        match Name::new(scope.as_ref()) {
+            Ok(scope) => match Name::new(name.as_ref()) {
+                Ok(name) => Ok(Self { scope, name }),
                 Err(err) => Err(ParseError::Name(err)),
             },
             Err(err) => Err(ParseError::Scope(err)),
@@ -93,7 +94,11 @@ impl<'a> ScopedName<'a> {
 
     /// Creates a new instance without attempting to verify `scope` or `name`.
     #[inline]
-    pub unsafe fn new_unchecked(scope: &'a [u8], name: &'a [u8]) -> Self {
+    pub unsafe fn from_pair_unchecked<S, N>(scope: &'a S, name: &'a N) -> Self
+    where
+        S: ?Sized + AsRef<[u8]>,
+        N: ?Sized + AsRef<[u8]>,
+    {
         Self {
             scope: Name::new_unchecked(scope),
             name: Name::new_unchecked(name),
