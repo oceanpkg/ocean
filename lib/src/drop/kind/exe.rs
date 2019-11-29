@@ -18,9 +18,9 @@ pub struct Exe {
 }
 
 impl Exe {
-    /// Returns an installed executable that matches `metadata`.
-    pub fn query(query: DropQuery) -> Result<Self, ()> {
-        unimplemented!("TODO: Find executable for '{}'Z", query);
+    /// Returns an executable matching `query`, installed for `target`.
+    pub fn installed(query: DropQuery, target: &InstallTarget) -> Result<Self, ()> {
+        unimplemented!("TODO: Find installation of {:?} for {:?}", query, target)
     }
 
     /// Returns basic metadata for the drop.
