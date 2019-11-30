@@ -1,47 +1,39 @@
 //! Git repository information.
 
 use std::fmt;
+use super::{Detailed};
 
 /// Information about a git repository where a drop or dependency can be found.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum Git<'a> {
-    /// Simply point to the repository.
-    Repo(&'a str),
-    /// Detailed information about the repository.
-    Detailed {
-        /// Where the git repository is located.
-        #[serde(alias = "repository")]
-        repo: &'a str,
-        /// The specific branch to use.
-        #[serde(flatten)]
-        checkout: Option<Checkout<'a>>,
+pub struct Git<'a> {
+    /// Where the git repository is located.
+    #[serde(alias = "repository")]
+    pub repo: &'a str,
+    /// The specific branch to use.
+    #[serde(flatten)]
+    pub checkout: Option<Checkout<'a>>,
+}
+
+impl<'a> Detailed for Git<'a> {
+    type Simple = &'a str;
+}
+
+impl<'a> From<&'a str> for Git<'a> {
+    #[inline]
+    fn from(repo: &'a str) -> Self {
+        Self { repo, checkout: None }
     }
 }
 
 impl<'a> Git<'a> {
-    /// Returns the git repository.
-    #[inline]
-    pub fn repo(&self) -> &'a str {
-        match self {
-            Self::Repo(repo) |
-            Self::Detailed { repo, .. } => repo
-        }
-    }
-
-    /// WRites the TOML form of `self` to `f`.
+    /// Writes the TOML form of `self` to `f`.
     #[inline]
     pub fn write_toml(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Repo(repo) => write!(f, "git = \"{}\"", repo),
-            Self::Detailed { repo, checkout } => {
-                write!(f, r#"git = {{ repo = "{}""#, repo)?;
-                if let Some(checkout) = checkout {
-                    write!(f, r#", {} = "{}""#, checkout.kind(), checkout)?;
-                }
-                write!(f, " }}")
-            },
+        write!(f, r#"git = {{ repo = "{}""#, self.repo)?;
+        if let Some(checkout) = &self.checkout {
+            write!(f, r#", {} = "{}""#, checkout.kind(), checkout)?;
         }
+        write!(f, " }}")
     }
 
     /// Returns a type that can be used to as `{}` to display TOML.
@@ -111,12 +103,15 @@ impl<'a> Checkout<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{
+        *,
+        super::Flexible,
+    };
 
     #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
     struct Parsed<'a> {
         #[serde(borrow)]
-        git: Git<'a>,
+        git: Flexible<Git<'a>>,
     }
 
     impl<'a> Parsed<'a> {
@@ -130,9 +125,8 @@ mod tests {
         let parsed = Parsed::parse(r#"
             git = "https://github.com/oceanpkg/ocean.git"
         "#);
-        let expected = Parsed {
-            git: Git::Repo("https://github.com/oceanpkg/ocean.git"),
-        };
+        let git = Flexible::<Git>::Simple("https://github.com/oceanpkg/ocean.git");
+        let expected = Parsed { git };
         assert_eq!(parsed, expected);
     }
 
@@ -144,10 +138,10 @@ mod tests {
             tag = "lib-v0.0.7"
         "#);
         let expected = Parsed {
-            git: Git::Detailed {
+            git: Git {
                 repo: "https://github.com/oceanpkg/ocean.git",
                 checkout: Some(Checkout::Tag("lib-v0.0.7")),
-            },
+            }.into(),
         };
         assert_eq!(parsed, expected);
     }
@@ -158,10 +152,10 @@ mod tests {
             git = { repo = "https://github.com/oceanpkg/ocean.git", tag = "lib-v0.0.7" }
         "#);
         let expected = Parsed {
-            git: Git::Detailed {
+            git: Git {
                 repo: "https://github.com/oceanpkg/ocean.git",
                 checkout: Some(Checkout::Tag("lib-v0.0.7")),
-            },
+            }.into(),
         };
         assert_eq!(parsed, expected);
     }

@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
 use crate::drop::name::QueryName;
-use super::Git;
+use super::{Detailed, Flexible, Git};
 
 /// A mapping from drop names to dependency specification information.
-pub type Deps<'a> = BTreeMap<QueryName<'a>, DepInfo<'a>>;
+pub type Deps<'a> = BTreeMap<QueryName<'a>, Flexible<DepInfo<'a>>>;
 
 /// The value associated with an element listed in the `dependencies` key in the
 /// manifest.
@@ -15,33 +15,30 @@ pub type Deps<'a> = BTreeMap<QueryName<'a>, DepInfo<'a>>;
 /// In the future, this should be defined as a `struct` to ease usage in Rust
 /// while retaining flexibility in parsing.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum DepInfo<'a> {
-    /// A simple version requirement string, e.g. `^1.0.0`.
-    Version(&'a str),
-    /// Detailed requirements beyond just a version requirement.
-    Detailed {
-        /// The version requirement string, e.g. `^1.0.0`.
-        version: &'a str,
+pub struct DepInfo<'a> {
+    /// The version requirement string, e.g. `^1.0.0`.
+    pub version: &'a str,
 
-        /// What git repository can it be fetched from if requested via git as
-        /// an alternative source. Note that this may differ from the
-        /// dependency's own `git` field in its drop manifest.
-        git: Option<Git<'a>>,
+    /// What git repository can it be fetched from if requested via git as
+    /// an alternative source. Note that this may differ from the
+    /// dependency's own `git` field in its drop manifest.
+    pub git: Option<Flexible<Git<'a>>>,
 
-        /// Whether the dependency is optional. The default is `false`.
-        #[serde(default)]
-        optional: bool,
-    },
+    /// Whether the dependency is optional. The default is `false`.
+    #[serde(default)]
+    pub optional: bool,
 }
 
-impl<'a> DepInfo<'a> {
-    /// Returns the version requirement string, e.g. `^1.0.0`.
-    #[inline]
-    pub fn version(&self) -> &'a str {
-        match self {
-            Self::Version(version) |
-            Self::Detailed { version, .. } => version
+impl<'a> From<&'a str> for DepInfo<'a> {
+    fn from(version: &'a str) -> Self {
+        Self {
+            version,
+            git: None,
+            optional: false,
         }
     }
+}
+
+impl<'a> Detailed for DepInfo<'a> {
+    type Simple = &'a str;
 }

@@ -2,10 +2,12 @@ use super::*;
 use crate::drop::{
     license::SpdxLicense,
     name::{Name, QueryName},
+    version::SemVer,
 };
 
-fn manifests() -> Vec<(String, Manifest<'static>)> {
+fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
     let version = "0.1.0";
+    let semver = SemVer::parse(version).unwrap();
     let repo = env!("CARGO_PKG_REPOSITORY");
     let home = "https://www.oceanpkg.org";
     let docs = "https://docs.oceanpkg.org";
@@ -13,16 +15,16 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
     let meta = Meta {
         name: Name::OCEAN,
         description: "Cross-platform package manager",
-        version: Version::parse_semver(version).unwrap(),
+        version: Flexible::Simple(semver),
         conflicts: None,
         license: Some(SpdxLicense::Apache2.into()),
         authors: Some(vec!["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]),
         readme: Some("README.md"),
         changelog: Some("CHANGELOG.md"),
-        git: Some(Git::Detailed {
+        git: Some(Git {
             repo,
             checkout: Some(git::Checkout::Tag(version)),
-        }),
+        }.into()),
         homepage: Some(home),
         documentation: Some(docs),
     };
@@ -48,14 +50,14 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
     let detailed_deps: Deps = vec![
         (
             wget,
-            DepInfo::Detailed {
+            DepInfo {
                 version: "*",
-                git: Some(Git::Detailed {
+                git: Some(Git {
                     repo: "https://git.savannah.gnu.org/git/wget.git",
                     checkout: Some(git::Checkout::Branch("1.0")),
-                }),
+                }.into()),
                 optional: false,
-            },
+            }.into(),
         )
     ].into_iter().collect();
     vec![
@@ -71,7 +73,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
             Manifest {
                 meta: meta.clone(),
                 deps: Some(vec![
-                    (wget, DepInfo::Version("*"))
+                    (wget, Flexible::Simple("*"))
                 ].into_iter().collect()),
             }
         ),
@@ -104,12 +106,26 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
     ]
 }
 
-// FIXME: Support non-strict parsing for missing dots
 #[test]
 fn parse_manfiest() {
+    fn test<'t, 'm: 't>(toml: &'t str, manifest: &Manifest<'m>) {
+        let parsed = Manifest::<'t>::parse_toml(&toml).unwrap();
+
+        // FIXME: Remove need to make lifetimes match to appease the borrow
+        // checker. This is required because introducing `Flexible` causes the
+        // the borrow checker to think that 't and 'm are invariant, complaining
+        // that 't does not live as long as 'm. This behavior of the `PartialEq`
+        // impl for `Manifest` seems to be a compiler bug.
+        //
+        // Note that changing it to 't: 'm results in the compiler complaining
+        // that `toml` at the call site in the loop does not live long enough.
+        let manifest: &Manifest<'t> = unsafe {
+            std::mem::transmute(manifest)
+        };
+
+        assert_eq!(*manifest, parsed, "\n{} != {}", manifest, parsed);
+    }
     for (toml, manifest) in manifests() {
-        let parsed = Manifest::parse_toml(&toml)
-            .unwrap_or_else(|error| panic!("{}", error));
-        assert_eq!(manifest, parsed, "\n{} != {}", manifest, parsed);
+        test(&*toml, &manifest);
     }
 }

@@ -6,17 +6,19 @@ use serde::Deserialize;
 mod deps;
 mod meta;
 mod version;
+pub mod detailed;
 pub mod git;
 
 #[cfg(test)]
 mod tests;
+
+use self::detailed::{Detailed, Flexible};
 
 #[doc(inline)]
 pub use self::{
     deps::{Deps, DepInfo},
     git::Git,
     meta::Meta,
-    version::Version,
 };
 
 /// A drop manifest.
@@ -60,23 +62,8 @@ impl<'a> Manifest<'a> {
     ///     wget = "*"
     /// "#;
     /// let manifest = Manifest::parse_toml(toml).unwrap();
-    /// let meta = &manifest.meta;
-    ///
-    /// assert_eq!(meta.name, "ocean");
-    /// assert_eq!(meta.description, "Cross-platform package manager");
-    /// assert_eq!(&meta.version, "0.1.0");
-    /// assert_eq!(meta.license.as_ref().unwrap(), "Apache-2.0");
-    /// assert_eq!(meta.authors.as_ref().unwrap().as_slice(), ["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]);
-    /// assert_eq!(meta.readme.unwrap(), "README.md");
-    /// assert_eq!(meta.changelog.unwrap(), "CHANGELOG.md");
-    /// assert_eq!(meta.git.unwrap().repo(), "https://github.com/oceanpkg/ocean");
-    ///
-    /// for (name, info) in manifest.deps.unwrap() {
-    ///     assert_eq!(name, "wget");
-    ///     assert_eq!(info.version(), "*");
-    /// }
     /// ```
-    pub fn parse_toml(toml: &'a str) -> Result<Manifest<'a>, toml::de::Error> {
+    pub fn parse_toml<'de: 'a>(toml: &'de str) -> Result<Self, toml::de::Error> {
         toml::de::from_str(toml)
     }
 
