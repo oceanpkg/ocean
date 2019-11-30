@@ -28,6 +28,10 @@ pub enum DepInfo<'a> {
         /// an alternative source. Note that this may differ from the
         /// dependency's own `git` field in its drop manifest.
         git: Option<Git<'a>>,
+
+        /// Whether the dependency is optional. The default is `false`.
+        #[serde(default)]
+        optional: bool,
     },
 }
 

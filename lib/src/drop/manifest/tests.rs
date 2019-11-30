@@ -54,6 +54,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
                     repo: "https://git.savannah.gnu.org/git/wget.git",
                     checkout: Some(git::Checkout::Branch("1.0")),
                 }),
+                optional: false,
             },
         )
     ].into_iter().collect();
