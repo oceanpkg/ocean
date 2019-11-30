@@ -24,7 +24,7 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
         git: Some(Git {
             repo,
             checkout: Some(git::Checkout::Tag(version)),
-        }.into()),
+        }),
         homepage: Some(home),
         documentation: Some(docs),
     };
@@ -108,24 +108,8 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
 
 #[test]
 fn parse_manfiest() {
-    fn test<'t, 'm: 't>(toml: &'t str, manifest: &Manifest<'m>) {
-        let parsed = Manifest::<'t>::parse_toml(&toml).unwrap();
-
-        // FIXME: Remove need to make lifetimes match to appease the borrow
-        // checker. This is required because introducing `Flexible` causes the
-        // the borrow checker to think that 't and 'm are invariant, complaining
-        // that 't does not live as long as 'm. This behavior of the `PartialEq`
-        // impl for `Manifest` seems to be a compiler bug.
-        //
-        // Note that changing it to 't: 'm results in the compiler complaining
-        // that `toml` at the call site in the loop does not live long enough.
-        let manifest: &Manifest<'t> = unsafe {
-            std::mem::transmute(manifest)
-        };
-
-        assert_eq!(*manifest, parsed, "\n{} != {}", manifest, parsed);
-    }
     for (toml, manifest) in manifests() {
-        test(&*toml, &manifest);
+        let parsed = Manifest::parse_toml(&toml).unwrap();
+        assert_eq!(manifest, parsed, "\n{} != {}", manifest, parsed);
     }
 }

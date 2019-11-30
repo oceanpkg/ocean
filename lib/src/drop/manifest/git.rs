@@ -1,34 +1,24 @@
 //! Git repository information.
 
 use std::fmt;
-use super::{Detailed, Flexible};
 
-/// Information about a git repository where a drop or dependency can be found.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Git<'a> {
-    /// Where the git repository is located.
-    #[serde(alias = "repository")]
-    pub repo: &'a str,
-    /// The specific branch to use.
-    #[serde(flatten)]
-    pub checkout: Option<Checkout<'a>>,
-}
-
-impl<'a> Detailed for Git<'a> {
-    type Simple = &'a str;
+flexible! {
+    /// Information about a git repository where a drop or dependency can be found.
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize)]
+    pub struct Git<'a> {
+        /// Where the git repository is located.
+        #[serde(alias = "repository")]
+        pub repo: &'a str,
+        /// The specific branch to use.
+        #[serde(flatten)]
+        pub checkout: Option<Checkout<'a>>,
+    }
 }
 
 impl<'a> From<&'a str> for Git<'a> {
     #[inline]
     fn from(repo: &'a str) -> Self {
         Self { repo, checkout: None }
-    }
-}
-
-impl<'a> From<&'a str> for Flexible<Git<'a>> {
-    #[inline]
-    fn from(repo: &'a str) -> Self {
-        Self::Simple(repo)
     }
 }
 
@@ -110,15 +100,12 @@ impl<'a> Checkout<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        *,
-        super::Flexible,
-    };
+    use super::*;
 
     #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
     struct Parsed<'a> {
         #[serde(borrow)]
-        git: Flexible<Git<'a>>,
+        git: Git<'a>,
     }
 
     impl<'a> Parsed<'a> {
@@ -132,8 +119,9 @@ mod tests {
         let parsed = Parsed::parse(r#"
             git = "https://github.com/oceanpkg/ocean.git"
         "#);
-        let git = Flexible::<Git>::Simple("https://github.com/oceanpkg/ocean.git");
-        let expected = Parsed { git };
+        let expected = Parsed {
+            git: "https://github.com/oceanpkg/ocean.git".into()
+        };
         assert_eq!(parsed, expected);
     }
 
@@ -148,7 +136,7 @@ mod tests {
             git: Git {
                 repo: "https://github.com/oceanpkg/ocean.git",
                 checkout: Some(Checkout::Tag("lib-v0.0.7")),
-            }.into(),
+            },
         };
         assert_eq!(parsed, expected);
     }
@@ -162,7 +150,7 @@ mod tests {
             git: Git {
                 repo: "https://github.com/oceanpkg/ocean.git",
                 checkout: Some(Checkout::Tag("lib-v0.0.7")),
-            }.into(),
+            },
         };
         assert_eq!(parsed, expected);
     }

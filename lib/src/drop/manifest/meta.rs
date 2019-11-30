@@ -4,7 +4,7 @@ use crate::drop::{
     Name,
     version::Version,
 };
-use super::{Git, Flexible};
+use super::Git;
 
 /// The value for the `meta` key in the drop manifest.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -17,7 +17,7 @@ pub struct Meta<'a> {
     pub description: &'a str,
 
     /// The drop version.
-    pub version: Flexible<Version<'a>>,
+    pub version: Version<'a>,
 
     /// The versions that this version conflicts with.
     pub conflicts: Option<BTreeMap<&'a Name, &'a str>>,
@@ -37,7 +37,7 @@ pub struct Meta<'a> {
     /// The git repository where this drop can be fetched from.
     ///
     /// Repository info is taKen from here.
-    pub git: Option<Flexible<Git<'a>>>,
+    pub git: Option<Git<'a>>,
 
     /// This drop's corner of the internet.
     pub homepage: Option<&'a str>,

@@ -5,14 +5,10 @@ use serde::Deserialize;
 
 mod deps;
 mod meta;
-mod version;
-pub mod detailed;
 pub mod git;
 
 #[cfg(test)]
 mod tests;
-
-use self::detailed::{Detailed, Flexible};
 
 #[doc(inline)]
 pub use self::{

@@ -14,6 +14,9 @@
 #[macro_use] extern crate serde;
 #[macro_use] extern crate static_assertions;
 
+#[macro_use]
+pub(crate) mod flexible;
+
 pub mod cfg;
 pub mod drop;
 pub mod ext;

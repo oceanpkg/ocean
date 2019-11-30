@@ -5,15 +5,17 @@ use std::borrow::Cow;
 #[doc(inline)]
 pub use semver::Version as SemVer;
 
-/// A drop version.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Version<'a> {
-    /// [Semantic versioning](http://semver.org). This is the default.
-    #[serde(rename = "semver")]
-    SemVer(SemVer),
-    /// A custom versioning scheme.
-    #[serde(rename = "custom")]
-    Custom(Cow<'a, str>),
+flexible! {
+    /// A drop version.
+    #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+    pub enum Version<'a> {
+        /// [Semantic versioning](http://semver.org). This is the default.
+        #[serde(rename = "semver")]
+        SemVer(SemVer),
+        /// A custom versioning scheme.
+        #[serde(rename = "custom")]
+        Custom(Cow<'a, str>),
+    }
 }
 
 impl From<SemVer> for Version<'_> {
