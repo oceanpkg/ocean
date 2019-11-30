@@ -39,6 +39,12 @@ impl<'a> From<&'a str> for DepInfo<'a> {
     }
 }
 
+impl<'a> From<&'a str> for Flexible<DepInfo<'a>> {
+    fn from(version: &'a str) -> Self {
+        Self::Simple(version)
+    }
+}
+
 impl<'a> Detailed for DepInfo<'a> {
     type Simple = &'a str;
 }

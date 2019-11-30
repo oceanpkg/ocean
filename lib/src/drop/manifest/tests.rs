@@ -15,7 +15,7 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
     let meta = Meta {
         name: Name::OCEAN,
         description: "Cross-platform package manager",
-        version: Flexible::Simple(semver),
+        version: semver.into(),
         conflicts: None,
         license: Some(SpdxLicense::Apache2.into()),
         authors: Some(vec!["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]),
@@ -73,7 +73,7 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
             Manifest {
                 meta: meta.clone(),
                 deps: Some(vec![
-                    (wget, Flexible::Simple("*"))
+                    (wget, "*".into())
                 ].into_iter().collect()),
             }
         ),

@@ -1,7 +1,7 @@
 //! Git repository information.
 
 use std::fmt;
-use super::{Detailed};
+use super::{Detailed, Flexible};
 
 /// Information about a git repository where a drop or dependency can be found.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -22,6 +22,13 @@ impl<'a> From<&'a str> for Git<'a> {
     #[inline]
     fn from(repo: &'a str) -> Self {
         Self { repo, checkout: None }
+    }
+}
+
+impl<'a> From<&'a str> for Flexible<Git<'a>> {
+    #[inline]
+    fn from(repo: &'a str) -> Self {
+        Self::Simple(repo)
     }
 }
 

@@ -32,6 +32,9 @@ impl<D: Detailed> From<D> for Flexible<D> {
     }
 }
 
+// TODO: Implement `From<D::Simple>` for `Flexible<D>` when specialization is
+// made stable. See https://github.com/rust-lang/rust/issues/31844.
+
 impl<A, B> PartialEq<Flexible<B>> for Flexible<A>
 where
     A: Detailed + PartialEq<B>,
