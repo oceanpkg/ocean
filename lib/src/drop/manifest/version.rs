@@ -5,16 +5,16 @@ use crate::drop;
 /// defining a specific version type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum Version<'a> {
+pub enum Version {
     /// The default version format as a string literal.
     Simple(SemVer),
     /// A specific format choice, e.g. `{ semver = "0.1.0" }` in TOML.
-    Detailed(drop::Version<'a>),
+    Detailed(drop::Version),
 }
 
-impl<'a> From<drop::Version<'a>> for Version<'a> {
+impl From<drop::Version> for Version {
     #[inline]
-    fn from(v: drop::Version<'a>) -> Self {
+    fn from(v: drop::Version) -> Self {
         match v {
             drop::Version::SemVer(v) => Version::Simple(v),
             other => Version::Detailed(other),
@@ -22,14 +22,14 @@ impl<'a> From<drop::Version<'a>> for Version<'a> {
     }
 }
 
-impl<'a> From<Version<'a>> for drop::Version<'a> {
+impl From<Version> for drop::Version {
     #[inline]
-    fn from(v: Version<'a>) -> Self {
+    fn from(v: Version) -> Self {
         v.into_standard()
     }
 }
 
-impl PartialEq<str> for Version<'_> {
+impl PartialEq<str> for Version {
     fn eq(&self, s: &str) -> bool {
         match self {
             Self::Simple(v) |
@@ -43,7 +43,7 @@ impl PartialEq<str> for Version<'_> {
     }
 }
 
-impl<'a> Version<'a> {
+impl Version {
     /// Attempts to parse `version` as SemVer.
     #[inline]
     pub fn parse_semver(version: &str) -> Result<Self, semver::SemVerError> {
@@ -52,7 +52,7 @@ impl<'a> Version<'a> {
 
     /// Converts `version` into a `Detailed` variant.
     #[inline]
-    pub fn choice<V: Into<drop::Version<'a>>>(version: V) -> Self {
+    pub fn choice<V: Into<drop::Version>>(version: V) -> Self {
         Self::Detailed(version.into())
     }
 
@@ -71,7 +71,7 @@ impl<'a> Version<'a> {
 
     /// Converts `self` into a normal `Version` type used elsewhere.
     #[inline]
-    pub fn into_standard(self) -> drop::Version<'a> {
+    pub fn into_standard(self) -> drop::Version {
         match self {
             Self::Simple(semver) => semver.into(),
             Self::Detailed(v) => v,

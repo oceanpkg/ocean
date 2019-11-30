@@ -11,7 +11,7 @@ use serde::{
 use crate::ext::OsStrExt;
 use super::{
     Name,
-    QueryName,
+    query::{QueryName, OwnedQueryName},
     scoped::{self, ScopedName},
     ValidateError,
 };
@@ -94,6 +94,44 @@ impl Serialize for Name {
     #[inline]
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
         s.serialize_str(self.as_str())
+    }
+}
+
+struct BoxedNameVisitor;
+
+impl<'de> Visitor<'de> for BoxedNameVisitor {
+    type Value = Box<Name>;
+
+    #[inline]
+    fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str("a valid drop name")
+    }
+
+    #[inline]
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where E: de::Error
+    {
+        Name::new(v)
+            .map(Into::into)
+            .map_err(E::custom)
+    }
+
+    #[inline]
+    fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
+        where E: de::Error
+    {
+        Name::new(v)
+            .map(Into::into)
+            .map_err(E::custom)
+    }
+}
+
+impl<'de> Deserialize<'de> for Box<Name> {
+    #[inline]
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        deserializer.deserialize_str(BoxedNameVisitor)
     }
 }
 
@@ -247,6 +285,51 @@ impl<'de: 'a, 'a> Deserialize<'de> for QueryName<'a> {
 }
 
 impl Serialize for QueryName<'_> {
+    #[inline]
+    fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        s.collect_str(self)
+    }
+}
+
+struct OwnedQueryNameVisitor;
+
+impl<'de> Visitor<'de> for OwnedQueryNameVisitor {
+    type Value = OwnedQueryName;
+
+    #[inline]
+    fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str("a valid drop name")
+    }
+
+    #[inline]
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where E: de::Error
+    {
+        QueryName::parse(v)
+            .map(Into::into)
+            .map_err(E::custom)
+    }
+
+    #[inline]
+    fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
+        where E: de::Error
+    {
+        QueryName::parse(v)
+            .map(Into::into)
+            .map_err(E::custom)
+    }
+}
+
+impl<'de> Deserialize<'de> for OwnedQueryName {
+    #[inline]
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        deserializer.deserialize_str(OwnedQueryNameVisitor)
+    }
+}
+
+impl Serialize for OwnedQueryName {
     #[inline]
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
         s.collect_str(self)

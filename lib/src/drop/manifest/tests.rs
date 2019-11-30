@@ -4,27 +4,31 @@ use crate::drop::{
     name::{Name, QueryName},
 };
 
-fn manifests() -> Vec<(String, Manifest<'static>)> {
+fn manifests() -> Vec<(String, Manifest)> {
     let version = "0.1.0";
     let repo = env!("CARGO_PKG_REPOSITORY");
     let home = "https://www.oceanpkg.org";
     let docs = "https://docs.oceanpkg.org";
     let wget = QueryName::parse("wget").unwrap();
     let meta = Meta {
-        name: Name::OCEAN,
-        description: "Cross-platform package manager",
+        name: Name::OCEAN.into(),
+        description: "Cross-platform package manager".into(),
         version: Version::parse_semver(version).unwrap(),
         conflicts: None,
         license: Some(SpdxLicense::Apache2.into()),
-        authors: Some(vec!["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]),
-        readme: Some("README.md"),
-        changelog: Some("CHANGELOG.md"),
+        authors: Some(vec![
+            "Nikolai Vazquez".into(),
+            "Alex Farra".into(),
+            "Nicole Zhao".into(),
+        ]),
+        readme: Some("README.md".into()),
+        changelog: Some("CHANGELOG.md".into()),
         git: Some(Git::Detailed {
-            repo,
-            checkout: Some(git::Checkout::Tag(version)),
+            repo: repo.into(),
+            checkout: Some(git::Checkout::Tag(version.into())),
         }),
-        homepage: Some(home),
-        documentation: Some(docs),
+        homepage: Some(home.into()),
+        documentation: Some(docs.into()),
     };
     let header = format!(
         r#"
@@ -47,12 +51,12 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
     );
     let detailed_deps: Deps = vec![
         (
-            wget,
+            wget.into_owned(),
             DepInfo::Detailed {
-                version: "*",
+                version: "*".into(),
                 git: Some(Git::Detailed {
-                    repo: "https://git.savannah.gnu.org/git/wget.git",
-                    checkout: Some(git::Checkout::Branch("1.0")),
+                    repo: "https://git.savannah.gnu.org/git/wget.git".into(),
+                    checkout: Some(git::Checkout::Branch("1.0".into())),
                 }),
                 optional: false,
             },
@@ -71,7 +75,7 @@ fn manifests() -> Vec<(String, Manifest<'static>)> {
             Manifest {
                 meta: meta.clone(),
                 deps: Some(vec![
-                    (wget, DepInfo::Version("*"))
+                    (wget.into_owned(), DepInfo::Version("*".into()))
                 ].into_iter().collect()),
             }
         ),

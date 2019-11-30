@@ -21,17 +21,16 @@ pub use self::{
 
 /// A drop manifest.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Manifest<'a> {
+pub struct Manifest {
     /// The drop's info.
-    #[serde(borrow)]
-    pub meta: Meta<'a>,
+    pub meta: Meta,
 
     /// The drops that this drop relies on.
     #[serde(rename = "dependencies")]
-    pub deps: Option<Deps<'a>>,
+    pub deps: Option<Deps>,
 }
 
-impl fmt::Display for Manifest<'_> {
+impl fmt::Display for Manifest {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.to_toml(true)
             .map_err(|_| fmt::Error)
@@ -39,7 +38,7 @@ impl fmt::Display for Manifest<'_> {
     }
 }
 
-impl<'a> Manifest<'a> {
+impl Manifest {
     /// Parses a manifest from [TOML](https://en.wikipedia.org/wiki/TOML).
     ///
     /// ```
@@ -76,7 +75,7 @@ impl<'a> Manifest<'a> {
     ///     assert_eq!(info.version(), "*");
     /// }
     /// ```
-    pub fn parse_toml(toml: &'a str) -> Result<Manifest<'a>, toml::de::Error> {
+    pub fn parse_toml(toml: &str) -> Result<Self, toml::de::Error> {
         toml::de::from_str(toml)
     }
 

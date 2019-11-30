@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
-use crate::drop::name::QueryName;
+use crate::drop::name::query::OwnedQueryName;
 use super::Git;
 
 /// A mapping from drop names to dependency specification information.
-pub type Deps<'a> = BTreeMap<QueryName<'a>, DepInfo<'a>>;
+pub type Deps = BTreeMap<OwnedQueryName, DepInfo>;
 
 /// The value associated with an element listed in the `dependencies` key in the
 /// manifest.
@@ -16,18 +16,18 @@ pub type Deps<'a> = BTreeMap<QueryName<'a>, DepInfo<'a>>;
 /// while retaining flexibility in parsing.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DepInfo<'a> {
+pub enum DepInfo {
     /// A simple version requirement string, e.g. `^1.0.0`.
-    Version(&'a str),
+    Version(String),
     /// Detailed requirements beyond just a version requirement.
     Detailed {
         /// The version requirement string, e.g. `^1.0.0`.
-        version: &'a str,
+        version: String,
 
         /// What git repository can it be fetched from if requested via git as
         /// an alternative source. Note that this may differ from the
         /// dependency's own `git` field in its drop manifest.
-        git: Option<Git<'a>>,
+        git: Option<Git>,
 
         /// Whether the dependency is optional. The default is `false`.
         #[serde(default)]
@@ -35,10 +35,10 @@ pub enum DepInfo<'a> {
     },
 }
 
-impl<'a> DepInfo<'a> {
+impl DepInfo {
     /// Returns the version requirement string, e.g. `^1.0.0`.
     #[inline]
-    pub fn version(&self) -> &'a str {
+    pub fn version(&self) -> &str {
         match self {
             Self::Version(version) |
             Self::Detailed { version, .. } => version

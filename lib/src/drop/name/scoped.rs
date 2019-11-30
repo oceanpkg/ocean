@@ -194,7 +194,7 @@ impl fmt::Display for ParseError {
 }
 
 /// Name in the format `<owner>/<drop>`, with ownership over its names.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(C)] // `scope` must be first to be bitwise-compatible with `QueryName`
 pub struct OwnedScopedName {
     /// The namespace of the drop.
@@ -213,6 +213,20 @@ impl From<ScopedName<'_>> for OwnedScopedName {
             scope: n.scope.into(),
             name:  n.name.into(),
         }
+    }
+}
+
+impl fmt::Debug for OwnedScopedName {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.as_scoped_name().fmt(f)
+    }
+}
+
+impl fmt::Display for OwnedScopedName {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.as_scoped_name().fmt(f)
     }
 }
 

@@ -1,29 +1,27 @@
 //! Versioning schemes.
 
-use std::borrow::Cow;
-
 #[doc(inline)]
 pub use semver::Version as SemVer;
 
 /// A drop version.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Version<'a> {
+pub enum Version {
     /// [Semantic versioning](http://semver.org). This is the default.
     #[serde(rename = "semver")]
     SemVer(SemVer),
     /// A custom versioning scheme.
     #[serde(rename = "custom")]
-    Custom(Cow<'a, str>),
+    Custom(String),
 }
 
-impl From<SemVer> for Version<'_> {
+impl From<SemVer> for Version {
     #[inline]
     fn from(v: SemVer) -> Self {
         Version::SemVer(v)
     }
 }
 
-impl PartialEq<str> for Version<'_> {
+impl PartialEq<str> for Version {
     fn eq(&self, s: &str) -> bool {
         match self {
             // TODO: Switch to a `SemVer` type that supports string equality
@@ -34,11 +32,11 @@ impl PartialEq<str> for Version<'_> {
     }
 }
 
-impl<'a> Version<'a> {
+impl Version {
     /// Creates a new instance from a custom `version`.
     #[inline]
     pub fn custom<V>(version: V) -> Self
-        where V: Into<Cow<'a, str>>
+        where V: Into<String>
     {
         Self::Custom(version.into())
     }

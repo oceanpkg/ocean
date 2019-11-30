@@ -188,7 +188,7 @@ impl<'a> QueryName<'a> {
 }
 
 /// A drop name that may or may not be scoped, with ownership over its names.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedName`
 pub struct OwnedQueryName {
     /// The scope scope if the query is scoped to a specific owner.
@@ -210,6 +210,20 @@ impl From<QueryName<'_>> for OwnedQueryName {
             scope: n.scope.map(|s| s.into()),
             name:  n.name.into(),
         }
+    }
+}
+
+impl fmt::Debug for OwnedQueryName {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.as_query_name().fmt(f)
+    }
+}
+
+impl fmt::Display for OwnedQueryName {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.as_query_name().fmt(f)
     }
 }
 
