@@ -145,6 +145,12 @@ impl<'a> ScopedName<'a> {
         Self { scope: Name::OCEAN, name }
     }
 
+    /// Copies the data referred to by `self` and takes ownership of it.
+    #[inline]
+    pub fn into_owned(self) -> OwnedScopedName {
+        self.into()
+    }
+
     /// Returns `self` as a `QueryName`.
     #[inline]
     pub fn as_query(&self) -> &QueryName<'a> {
@@ -184,6 +190,47 @@ impl fmt::Display for ParseError {
                 write!(f, "missing '/' separator in scoped name")
             },
         }
+    }
+}
+
+/// Name in the format `<owner>/<drop>`, with ownership over its names.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(C)] // `scope` must be first to be bitwise-compatible with `QueryName`
+pub struct OwnedScopedName {
+    /// The namespace of the drop.
+    pub scope: Box<Name>,
+    /// The drop's given name.
+    pub name: Box<Name>,
+}
+
+assert_eq_size!(OwnedScopedName, ScopedName);
+assert_eq_align!(OwnedScopedName, ScopedName);
+
+impl From<ScopedName<'_>> for OwnedScopedName {
+    #[inline]
+    fn from(n: ScopedName) -> Self {
+        Self {
+            scope: n.scope.into(),
+            name:  n.name.into(),
+        }
+    }
+}
+
+impl OwnedScopedName {
+    /// Returns `self` as a [`ScopedName`] reference.
+    ///
+    /// [`ScopedName`]: struct.ScopedName.html
+    #[inline]
+    pub fn as_scoped_name<'s>(&'s self) -> &'s ScopedName<'s> {
+        unsafe { &*(self as *const Self as *const ScopedName) }
+    }
+
+    /// Returns a [`ScopedName`] for `self`.
+    ///
+    /// [`ScopedName`]: struct.ScopedName.html
+    #[inline]
+    pub fn to_scoped_name<'s>(&'s self) -> ScopedName<'s> {
+        *self.as_scoped_name()
     }
 }
 

@@ -1,3 +1,5 @@
+//! A drop name that may or may not be scoped.
+
 use std::{
     convert::TryInto,
     fmt,
@@ -149,6 +151,12 @@ impl<'a> QueryName<'a> {
         query.try_into()
     }
 
+    /// Copies the data referred to by `self` and takes ownership of it.
+    #[inline]
+    pub fn into_owned(self) -> OwnedQueryName {
+        self.into()
+    }
+
     /// Converts `self` to a scoped name if it is one.
     #[inline]
     pub fn to_scoped(&self) -> Option<&ScopedName<'a>> {
@@ -176,6 +184,50 @@ impl<'a> QueryName<'a> {
         self.to_scoped()
             .map(|s| s.as_names())
             .unwrap_or(slice::from_ref(&self.name))
+    }
+}
+
+/// A drop name that may or may not be scoped, with ownership over its names.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedName`
+pub struct OwnedQueryName {
+    /// The scope scope if the query is scoped to a specific owner.
+    ///
+    /// If this scope is `None`, then drops are checked against the main trusted
+    /// set of packages. It is not yet decided as to what goes there.
+    pub scope: Option<Box<Name>>,
+    /// The name of the drop itself.
+    pub name: Box<Name>,
+}
+
+assert_eq_size!(OwnedQueryName, QueryName);
+assert_eq_align!(OwnedQueryName, QueryName);
+
+impl From<QueryName<'_>> for OwnedQueryName {
+    #[inline]
+    fn from(n: QueryName) -> Self {
+        Self {
+            scope: n.scope.map(|s| s.into()),
+            name:  n.name.into(),
+        }
+    }
+}
+
+impl OwnedQueryName {
+    /// Returns `self` as a [`QueryName`] reference.
+    ///
+    /// [`QueryName`]: struct.QueryName.html
+    #[inline]
+    pub fn as_query_name<'s>(&'s self) -> &'s QueryName<'s> {
+        unsafe { &*(self as *const Self as *const QueryName) }
+    }
+
+    /// Returns a [`QueryName`] for `self`.
+    ///
+    /// [`QueryName`]: struct.QueryName.html
+    #[inline]
+    pub fn to_query_name<'s>(&'s self) -> QueryName<'s> {
+        *self.as_query_name()
     }
 }
 

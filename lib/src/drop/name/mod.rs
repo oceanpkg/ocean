@@ -6,7 +6,7 @@ use std::{
 };
 
 mod parse;
-mod query;
+pub mod query;
 pub mod scoped;
 
 #[doc(inline)]
