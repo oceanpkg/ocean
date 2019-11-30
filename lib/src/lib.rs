@@ -12,6 +12,7 @@
 #![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
 
 #[macro_use] extern crate serde;
+#[macro_use] extern crate static_assertions;
 
 pub mod cfg;
 pub mod drop;

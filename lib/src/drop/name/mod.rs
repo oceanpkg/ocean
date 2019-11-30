@@ -15,6 +15,9 @@ pub use self::{
     scoped::ScopedName,
 };
 
+assert_eq_size!(QueryName, ScopedName);
+assert_eq_align!(QueryName, ScopedName);
+
 /// A valid drop name.
 ///
 /// Valid names are non-empty, lowercase ASCII alphanumeric, and can have dashes
