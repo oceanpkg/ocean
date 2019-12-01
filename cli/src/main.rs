@@ -1,6 +1,9 @@
 extern crate clap;
 extern crate oceanpkg;
 
+#[macro_use]
+mod macros;
+
 mod cmd;
 
 const ABOUT: &str = "
