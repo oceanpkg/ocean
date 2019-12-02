@@ -12,14 +12,14 @@ flexible! {
         pub repo: &'a str,
         /// The specific branch to use.
         #[serde(flatten)]
-        pub checkout: Option<Checkout<'a>>,
+        pub reference: Option<Ref<'a>>,
     }
 }
 
 impl<'a> From<&'a str> for Git<'a> {
     #[inline]
     fn from(repo: &'a str) -> Self {
-        Self { repo, checkout: None }
+        Self { repo, reference: None }
     }
 }
 
@@ -28,8 +28,8 @@ impl<'a> Git<'a> {
     #[inline]
     pub fn write_toml(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, r#"git = {{ repo = "{}""#, self.repo)?;
-        if let Some(checkout) = &self.checkout {
-            write!(f, r#", {} = "{}""#, checkout.kind(), checkout)?;
+        if let Some(reference) = &self.reference {
+            write!(f, r#", {} = "{}""#, reference.kind(), reference)?;
         }
         write!(f, " }}")
     }
@@ -51,11 +51,11 @@ impl<'a> Git<'a> {
     }
 }
 
-/// The git checkout to use.
+/// A reference to a git branch/tag/revision.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum Checkout<'a> {
-    // When adding a case, make sure to add it to `Checkout::all`.
+pub enum Ref<'a> {
+    // When adding a case, make sure to add it to `Ref::all`.
 
     /// The specific git branch.
     Branch(&'a str),
@@ -65,28 +65,28 @@ pub enum Checkout<'a> {
     Rev(&'a str),
 }
 
-impl Default for Checkout<'_> {
+impl Default for Ref<'_> {
     #[inline]
     fn default() -> Self {
         Self::MASTER
     }
 }
 
-impl fmt::Display for Checkout<'_> {
+impl fmt::Display for Ref<'_> {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.as_str().fmt(f)
     }
 }
 
-impl AsRef<str> for Checkout<'_> {
+impl AsRef<str> for Ref<'_> {
     #[inline]
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl Serialize for Checkout<'_> {
+impl Serialize for Ref<'_> {
     fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error>
         where S: Serializer
     {
@@ -98,13 +98,13 @@ impl Serialize for Checkout<'_> {
     }
 }
 
-impl<'a> Checkout<'a> {
+impl<'a> Ref<'a> {
     #[cfg(test)]
-    pub(crate) const fn all(checkout: &'a str) -> [Self; 3] {
+    pub(crate) const fn all(reference: &'a str) -> [Self; 3] {
         [
-            Checkout::Branch(checkout),
-            Checkout::Tag(checkout),
-            Checkout::Rev(checkout),
+            Ref::Branch(reference),
+            Ref::Tag(reference),
+            Ref::Rev(reference),
         ]
     }
 
@@ -115,19 +115,17 @@ impl<'a> Checkout<'a> {
     );
 
     /// A reference to the master branch.
-    pub const MASTER: Self = Checkout::Branch("master");
+    pub const MASTER: Self = Ref::Branch("master");
 
-    /// Returns the checkout string.
+    /// Returns the reference string.
     #[inline]
     pub fn as_str(&self) -> &'a str {
         match self {
-            Self::Branch(ch) |
-            Self::Tag(ch) |
-            Self::Rev(ch) => ch
+            Self::Branch(r) | Self::Tag(r) | Self::Rev(r) => r
         }
     }
 
-    /// Returns the name of the checkout kind: `branch`, `tag`, or `rev`.
+    /// Returns the name of the reference kind: `branch`, `tag`, or `rev`.
     #[inline]
     pub fn kind(&self) -> &'static str {
         match self {
@@ -177,7 +175,7 @@ mod tests {
         let expected = Parsed {
             git: Git {
                 repo: "https://github.com/oceanpkg/ocean.git",
-                checkout: Some(Checkout::Tag("lib-v0.0.8")),
+                reference: Some(Ref::Tag("lib-v0.0.8")),
             },
         };
         assert_eq!(parsed, expected);
@@ -191,7 +189,7 @@ mod tests {
         let expected = Parsed {
             git: Git {
                 repo: "https://github.com/oceanpkg/ocean.git",
-                checkout: Some(Checkout::Tag("lib-v0.0.8")),
+                reference: Some(Ref::Tag("lib-v0.0.8")),
             },
         };
         assert_eq!(parsed, expected);
@@ -199,9 +197,9 @@ mod tests {
 
     #[test]
     fn serialize_toml_checkout() {
-        for checkout in Checkout::TEST_ALL.iter() {
-            toml::to_string(checkout).unwrap();
-            toml::to_string_pretty(checkout).unwrap();
+        for reference in Ref::TEST_ALL.iter() {
+            toml::to_string(reference).unwrap();
+            toml::to_string_pretty(reference).unwrap();
         }
     }
 
@@ -209,17 +207,17 @@ mod tests {
     fn serialize_toml_git() {
         use std::iter;
 
-        // Creates `Option::Some` cases for known checkout types and a `None`
+        // Creates `Option::Some` cases for known reference types and a `None`
         // case to be thorough.
-        let checkouts = Checkout::TEST_ALL.iter()
+        let checkouts = Ref::TEST_ALL.iter()
             .cloned()
             .map(Some)
             .chain(iter::once(None));
 
-        for checkout in checkouts {
+        for reference in checkouts {
             let git = Git {
                 repo: OCEAN_REPO,
-                checkout,
+                reference,
             };
             toml::to_string(&git).unwrap();
             toml::to_string_pretty(&git).unwrap();

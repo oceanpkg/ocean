@@ -6,7 +6,7 @@ pub mod git;
 
 pub use self::git::Git;
 
-use self::git::Checkout;
+use self::git::Ref;
 
 const OCEAN_REGISTRY: &str = "https://registry.oceanpkg.org";
 
@@ -39,13 +39,13 @@ impl<'a> Source<'a> {
     /// A drop source at a `Url` for to a git repository.
     #[inline]
     pub const fn from_git(url: Url) -> Self {
-        Self::from_git_at(url, Checkout::MASTER)
+        Self::from_git_at(url, Ref::MASTER)
     }
 
-    /// A drop source at a `Url` for a git repository at a specific checkout.
+    /// A drop source at a `Url` for a git repository at a specific reference.
     #[inline]
-    pub const fn from_git_at(url: Url, checkout: Checkout<'a>) -> Self {
-        Source { url, kind: Kind::Git(checkout) }
+    pub const fn from_git_at(url: Url, reference: Ref<'a>) -> Self {
+        Source { url, kind: Kind::Git(reference) }
     }
 
     /// Where this source is located.
@@ -64,8 +64,9 @@ impl<'a> Source<'a> {
 /// Determines how to treat a [`Source`](struct.Source.html).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Kind<'a> {
-    /// The drop is located in a git repository, referenced at `Checkout`.
-    Git(Checkout<'a>),
+    /// The drop is located in a git repository and the given reference should
+    /// be used.
+    Git(Ref<'a>),
     /// The drop is located in a registry.
     Registry,
 }

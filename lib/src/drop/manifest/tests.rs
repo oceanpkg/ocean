@@ -26,7 +26,7 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
         changelog: Some("CHANGELOG.md"),
         git: Some(Git {
             repo,
-            checkout: Some(git::Checkout::Tag(version)),
+            reference: Some(git::Ref::Tag(version)),
         }),
         homepage: Some(home),
         documentation: Some(docs),
@@ -57,7 +57,7 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
                 version: "*",
                 git: Some(Git {
                     repo: "https://git.savannah.gnu.org/git/wget.git",
-                    checkout: Some(git::Checkout::Branch("1.0")),
+                    reference: Some(git::Ref::Branch("1.0")),
                 }.into()),
                 optional: false,
             }.into(),
@@ -131,7 +131,7 @@ fn serialize_toml_manifest() {
             changelog: Some("../CHANGELOG.md"),
             git: Some(Git {
                 repo: OCEAN_REPO,
-                checkout: Some(git::Checkout::Tag("v0.1.0")),
+                reference: Some(git::Ref::Tag("v0.1.0")),
             }),
             homepage: Some("https://example.com"),
             documentation: Some("https://example.com/docs"),
