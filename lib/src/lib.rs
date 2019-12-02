@@ -15,6 +15,8 @@
 #[macro_use] extern crate serde;
 #[macro_use] extern crate static_assertions;
 
+extern crate serde_json as json;
+
 #[macro_use]
 pub(crate) mod flexible;
 

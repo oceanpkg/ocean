@@ -83,8 +83,8 @@ impl<'a> Manifest<'a> {
     /// }"#;
     /// let manifest = Manifest::parse_json(json).unwrap();
     /// ```
-    pub fn parse_json<'de: 'a>(json: &'de str) -> serde_json::Result<Self> {
-        serde_json::from_str(json)
+    pub fn parse_json<'de: 'a>(json: &'de str) -> json::Result<Self> {
+        json::from_str(json)
     }
 
     /// Returns `self` as a TOML string.
@@ -97,11 +97,11 @@ impl<'a> Manifest<'a> {
     }
 
     /// Returns `self` as a JSON string.
-    pub fn to_json(&self, pretty: bool) -> serde_json::Result<String> {
+    pub fn to_json(&self, pretty: bool) -> json::Result<String> {
         if pretty {
-            serde_json::to_string_pretty(self)
+            json::to_string_pretty(self)
         } else {
-            serde_json::to_string(self)
+            json::to_string(self)
         }
     }
 }

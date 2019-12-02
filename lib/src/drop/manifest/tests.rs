@@ -151,6 +151,6 @@ fn serialize_toml_manifest() {
 #[test]
 fn serialize_json_manifest() {
     let manifest = example_manifest();
-    serde_json::to_string(&manifest).unwrap();
-    serde_json::to_string_pretty(&manifest).unwrap();
+    json::to_string(&manifest).unwrap();
+    json::to_string_pretty(&manifest).unwrap();
 }
