@@ -50,4 +50,13 @@ impl<'a> Version<'a> {
     pub fn parse_semver(version: &str) -> Result<Self, semver::SemVerError> {
         SemVer::parse(version).map(Self::SemVer)
     }
+
+    /// Returns the name of the version kind: `semver` or `custom`.
+    #[inline]
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Version::SemVer(_) => "semver",
+            Version::Custom(_) => "custom",
+        }
+    }
 }
