@@ -36,6 +36,25 @@ impl From<QueryNameRef<'_>> for QueryName {
     }
 }
 
+impl PartialEq<QueryNameRef<'_>> for QueryName {
+    fn eq(&self, other: &QueryNameRef) -> bool {
+        let eq_scope = match (&self.scope, other.scope) {
+            (Some(self_scope), Some(other_scope)) => {
+                &**self_scope == other_scope
+            },
+            (None, None) => true,
+            _ => false,
+        };
+        eq_scope && &*self.name == other.name
+    }
+}
+
+impl PartialEq<QueryName> for QueryNameRef<'_> {
+    fn eq(&self, other: &QueryName) -> bool {
+        other == self
+    }
+}
+
 impl fmt::Display for QueryName {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

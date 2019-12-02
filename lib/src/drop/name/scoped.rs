@@ -33,6 +33,18 @@ impl From<ScopedNameRef<'_>> for ScopedName {
     }
 }
 
+impl PartialEq<ScopedNameRef<'_>> for ScopedName {
+    fn eq(&self, other: &ScopedNameRef) -> bool {
+        &*self.scope == other.scope && &*self.name == other.name
+    }
+}
+
+impl PartialEq<ScopedName> for ScopedNameRef<'_> {
+    fn eq(&self, other: &ScopedName) -> bool {
+        other == self
+    }
+}
+
 impl fmt::Display for ScopedName {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
