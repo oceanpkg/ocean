@@ -19,10 +19,8 @@ lazy_static! {
 /// The source of a drop.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Source<'a> {
-    /// Where this source is located.
-    pub url: Url,
-    /// The type of source.
-    pub kind: Kind<'a>,
+    url: Url,
+    kind: Kind<'a>,
 }
 
 impl<'a> Source<'a> {
@@ -50,7 +48,7 @@ impl<'a> Source<'a> {
         Source { url, kind: Kind::Git(checkout) }
     }
 
-    /// The source's location.
+    /// Where this source is located.
     #[inline]
     pub const fn url(&self) -> &Url {
         &self.url
