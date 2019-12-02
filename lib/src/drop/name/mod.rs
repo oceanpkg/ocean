@@ -145,18 +145,35 @@ impl Name {
         fn imp(bytes: &[u8]) -> bool {
             match (bytes.first(), bytes.last()) {
                 // Cannot be empty or begin/end with '-'
-                (None, _) |
-                (Some(b'-'), _) |
-                (_, Some(b'-')) => false,
-                _ => bytes.iter().all(|&b| match b {
-                    b'0'..=b'9' |
-                    b'a'..=b'z' |
-                    b'-' => true,
-                    _ => false,
-                }),
+                (None, _) | (Some(b'-'), _) | (_, Some(b'-')) => false,
+                _ => bytes.iter().cloned().all(Name::is_valid_ascii),
             }
         }
         imp(name.as_ref())
+    }
+
+    /// Returns whether `byte` is valid within a name.
+    ///
+    /// Regex: `[0-9a-z-]`.
+    ///
+    /// Note that this returns `true` for `-` despite it being invalid at the
+    /// start and end of a full name.
+    #[inline]
+    pub fn is_valid_ascii(byte: u8) -> bool {
+        match byte {
+            b'0'..=b'9' |
+            b'a'..=b'z' |
+            b'-' => true,
+            _ => false,
+        }
+    }
+
+    /// Returns whether the unicode scalar is valid within a name.
+    ///
+    /// See [`is_valid_ascii`](#method.is_valid_ascii) for more info.
+    #[inline]
+    pub fn is_valid_char(ch: char) -> bool {
+        ch.is_ascii() && Self::is_valid_ascii(ch as u8)
     }
 
     /// Converts `self` to the underlying UTF-8 string slice.
