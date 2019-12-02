@@ -52,6 +52,21 @@ impl Manifest {
         toml::de::from_str(toml)
     }
 
+    /// Parses a manifest from a [TOML](https://en.wikipedia.org/wiki/TOML) file
+    /// at the given path.
+    #[cfg(feature = "toml")]
+    pub fn read_toml_file<T>(toml: T) -> Result<Self, std::io::Error>
+        where T: AsRef<std::path::Path>
+    {
+        use std::io::{Error, ErrorKind, Read};
+
+        let mut buf = String::with_capacity(128);
+        std::fs::File::open(toml)?.read_to_string(&mut buf)?;
+        Self::parse_toml(&buf).map_err(|error| {
+            Error::new(ErrorKind::InvalidData, error)
+        })
+    }
+
     /// Parses a manifest from [JSON](https://en.wikipedia.org/wiki/JSON).
     ///
     /// ```
