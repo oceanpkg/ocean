@@ -58,14 +58,14 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
     let detailed_deps: Deps = vec![
         (
             wget.into_owned(),
-            DepInfo::new(
-                "*",
-                false,
-                Git::new(
+            DepInfo {
+                version: "*".to_owned(),
+                optional: false,
+                git: Some(Git::new(
                     "https://git.savannah.gnu.org/git/wget.git",
                     git::Ref::branch("1.0"),
-                ),
-            ),
+                )),
+            },
         )
     ].into_iter().collect();
     vec![

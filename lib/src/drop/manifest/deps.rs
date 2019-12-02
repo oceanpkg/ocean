@@ -45,23 +45,3 @@ impl From<String> for DepInfo {
         }
     }
 }
-
-impl DepInfo {
-    /// Creates a new instance with the given fields.
-    pub fn new<A, B, C>(
-        version: A,
-        optional: B,
-        git: C,
-    ) -> Self
-    where
-        A: Into<String>,
-        B: Into<bool>,
-        C: Into<Option<Git>>,
-    {
-        Self {
-            version: version.into(),
-            optional: optional.into(),
-            git: git.into(),
-        }
-    }
-}
