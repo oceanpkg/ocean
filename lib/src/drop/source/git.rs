@@ -3,8 +3,8 @@
 use std::fmt;
 use serde::{Serialize, Serializer};
 
-#[cfg(test)]
-pub(crate) const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
+/// Ocean's git repository.
+pub const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
 flexible! {
     /// Information about a git repository where a drop or dependency can be found.
