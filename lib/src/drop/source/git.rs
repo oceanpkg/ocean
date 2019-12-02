@@ -8,25 +8,37 @@ pub const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
 flexible! {
     /// Information about a git repository where a drop or dependency can be found.
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize)]
-    pub struct Git<'a> {
+    #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+    pub struct Git {
         /// Where the git repository is located.
         #[serde(alias = "repository")]
-        pub repo: &'a str,
+        pub repo: String,
         /// The specific branch to use.
         #[serde(flatten)]
-        pub reference: Option<Ref<'a>>,
+        pub reference: Option<Ref>,
     }
 }
 
-impl<'a> From<&'a str> for Git<'a> {
+impl From<String> for Git {
     #[inline]
-    fn from(repo: &'a str) -> Self {
+    fn from(repo: String) -> Self {
         Self { repo, reference: None }
     }
 }
 
-impl<'a> Git<'a> {
+impl Git {
+    /// Creates a new instance with the given fields.
+    pub fn new<A, B>(repo: A, reference: B) -> Self
+    where
+        A: Into<String>,
+        B: Into<Option<Ref>>,
+    {
+        Self {
+            repo: repo.into(),
+            reference: reference.into(),
+        }
+    }
+
     /// Writes the TOML form of `self` to `f`.
     #[inline]
     pub fn write_toml(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -39,9 +51,9 @@ impl<'a> Git<'a> {
 
     /// Returns a type that can be used to as `{}` to display TOML.
     #[inline]
-    pub fn display_toml(&self) -> impl fmt::Display + Copy + 'a {
+    pub fn display_toml<'a>(&'a self) -> impl fmt::Display + Copy + 'a {
         #[derive(Clone, Copy)]
-        struct Displayer<'a>(Git<'a>);
+        struct Displayer<'a>(&'a Git);
 
         impl fmt::Display for Displayer<'_> {
             #[inline]
@@ -50,46 +62,46 @@ impl<'a> Git<'a> {
             }
         }
 
-        Displayer(*self)
+        Displayer(self)
     }
 }
 
 /// A reference to a git branch/tag/revision.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum Ref<'a> {
+pub enum Ref {
     // When adding a case, make sure to add it to `Ref::all`.
 
     /// The specific git branch.
-    Branch(&'a str),
+    Branch(String),
     /// A specific git tag.
-    Tag(&'a str),
+    Tag(String),
     /// A specific git revision.
-    Rev(&'a str),
+    Rev(String),
 }
 
-impl Default for Ref<'_> {
+impl Default for Ref {
     #[inline]
     fn default() -> Self {
-        Self::MASTER
+        Self::master()
     }
 }
 
-impl fmt::Display for Ref<'_> {
+impl fmt::Display for Ref {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.as_str().fmt(f)
     }
 }
 
-impl AsRef<str> for Ref<'_> {
+impl AsRef<str> for Ref {
     #[inline]
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl Serialize for Ref<'_> {
+impl Serialize for Ref {
     fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error>
         where S: Serializer
     {
@@ -101,22 +113,40 @@ impl Serialize for Ref<'_> {
     }
 }
 
-impl<'a> Ref<'a> {
+impl Ref {
     /// Returns an array of all `Ref` variants, each pointing to `reference`.
-    pub const fn all(reference: &'a str) -> [Self; 3] {
+    pub fn all(reference: String) -> [Self; 3] {
         [
-            Ref::Branch(reference),
-            Ref::Tag(reference),
+            Ref::Branch(reference.clone()),
+            Ref::Tag(reference.clone()),
             Ref::Rev(reference),
         ]
     }
 
+    /// Creates a new `Branch` instance pointing to `reference`.
+    pub fn branch<R: Into<String>>(reference: R) -> Self {
+        Ref::Branch(reference.into())
+    }
+
+    /// Creates a new `Tag` instance pointing to `reference`.
+    pub fn tag<R: Into<String>>(reference: R) -> Self {
+        Ref::Tag(reference.into())
+    }
+
+    /// Creates a new `Rev` instance pointing to `reference`.
+    pub fn rev<R: Into<String>>(reference: R) -> Self {
+        Ref::Rev(reference.into())
+    }
+
     /// A reference to the master branch.
-    pub const MASTER: Self = Ref::Branch("master");
+    #[inline]
+    pub fn master() -> Self {
+        Ref::branch("master")
+    }
 
     /// Returns the reference string.
     #[inline]
-    pub fn as_str(&self) -> &'a str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Branch(r) | Self::Tag(r) | Self::Rev(r) => r
         }

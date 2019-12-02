@@ -16,17 +16,16 @@ pub use self::{
 
 /// A drop manifest.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Manifest<'a> {
+pub struct Manifest {
     /// The drop's info.
-    #[serde(borrow)]
-    pub meta: Meta<'a>,
+    pub meta: Meta,
 
     /// The drops that this drop relies on.
     #[serde(rename = "dependencies")]
-    pub deps: Option<Deps<'a>>,
+    pub deps: Option<Deps>,
 }
 
-impl<'a> Manifest<'a> {
+impl Manifest {
     /// Parses a manifest from [TOML](https://en.wikipedia.org/wiki/TOML).
     ///
     /// ```
@@ -49,7 +48,7 @@ impl<'a> Manifest<'a> {
     /// let manifest = Manifest::parse_toml(toml).unwrap();
     /// ```
     #[cfg(feature = "toml")]
-    pub fn parse_toml<'de: 'a>(toml: &'de str) -> Result<Self, toml::de::Error> {
+    pub fn parse_toml(toml: &str) -> Result<Self, toml::de::Error> {
         toml::de::from_str(toml)
     }
 
@@ -76,7 +75,7 @@ impl<'a> Manifest<'a> {
     /// let manifest = Manifest::parse_json(json).unwrap();
     /// ```
     #[cfg(feature = "serde_json")]
-    pub fn parse_json<'de: 'a>(json: &'de str) -> Result<Self, json::Error> {
+    pub fn parse_json(json: &str) -> Result<Self, json::Error> {
         json::from_str(json)
     }
 

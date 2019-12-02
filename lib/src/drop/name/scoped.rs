@@ -6,28 +6,76 @@ use std::{
 };
 use super::{
     Name,
-    QueryName,
+    QueryNameRef,
     ValidateError,
 };
 
+/// Name in the format `<owner>/<drop>`, with ownership over its names.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(C)] // `scope` must be first to be bitwise-compatible with `QueryNameRef`
+pub struct ScopedName {
+    /// The namespace of the drop.
+    pub scope: Box<Name>,
+    /// The drop's given name.
+    pub name: Box<Name>,
+}
+
+assert_eq_size!(ScopedName,  ScopedNameRef);
+assert_eq_align!(ScopedName, ScopedNameRef);
+
+impl From<ScopedNameRef<'_>> for ScopedName {
+    #[inline]
+    fn from(n: ScopedNameRef) -> Self {
+        Self {
+            scope: n.scope.into(),
+            name:  n.name.into(),
+        }
+    }
+}
+
+impl fmt::Display for ScopedName {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        (self.as_ref() as &ScopedNameRef).fmt(f)
+    }
+}
+
+impl ScopedName {
+    /// Returns `self` as a [`ScopedNameRef`] reference.
+    ///
+    /// [`ScopedNameRef`]: struct.ScopedNameRef.html
+    #[inline]
+    pub fn as_ref<'s>(&'s self) -> &'s ScopedNameRef<'s> {
+        unsafe { &*(self as *const Self as *const ScopedNameRef) }
+    }
+
+    /// Returns a [`ScopedNameRef`] for `self`.
+    ///
+    /// [`ScopedNameRef`]: struct.ScopedNameRef.html
+    #[inline]
+    pub fn to_ref<'s>(&'s self) -> ScopedNameRef<'s> {
+        *self.as_ref()
+    }
+}
+
 /// Name in the format `<owner>/<drop>`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(C)] // `scope` must be first to be bitwise-compatible with `QueryName`
-pub struct ScopedName<'a> {
+#[repr(C)] // `scope` must be first to be bitwise-compatible with `QueryNameRef`
+pub struct ScopedNameRef<'a> {
     /// The namespace of the drop.
     pub scope: &'a Name,
     /// The drop's given name.
     pub name: &'a Name,
 }
 
-impl<'a, N: Into<&'a Name>> From<[N; 2]> for ScopedName<'a> {
+impl<'a, N: Into<&'a Name>> From<[N; 2]> for ScopedNameRef<'a> {
     #[inline]
     fn from([scope, name]: [N; 2]) -> Self {
         Self::new(scope, name)
     }
 }
 
-impl<'a, S, N> From<(S, N)> for ScopedName<'a>
+impl<'a, S, N> From<(S, N)> for ScopedNameRef<'a>
 where
     S: Into<&'a Name>,
     N: Into<&'a Name>,
@@ -38,20 +86,20 @@ where
     }
 }
 
-impl<'a> AsRef<QueryName<'a>> for ScopedName<'a> {
+impl<'a> AsRef<QueryNameRef<'a>> for ScopedNameRef<'a> {
     #[inline]
-    fn as_ref(&self) -> &QueryName<'a> {
+    fn as_ref(&self) -> &QueryNameRef<'a> {
         self.as_query()
     }
 }
 
-impl fmt::Display for ScopedName<'_> {
+impl fmt::Display for ScopedNameRef<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}/{}", self.scope, self.name)
     }
 }
 
-impl PartialEq<str> for ScopedName<'_> {
+impl PartialEq<str> for ScopedNameRef<'_> {
     fn eq(&self, s: &str) -> bool {
         let mut parts = s.split('/');
         match (parts.next(), parts.next(), parts.next()) {
@@ -64,28 +112,28 @@ impl PartialEq<str> for ScopedName<'_> {
 }
 
 // Seems redundant but required to make `assert_eq!` prettier.
-impl PartialEq<&str> for ScopedName<'_> {
+impl PartialEq<&str> for ScopedNameRef<'_> {
     #[inline]
     fn eq(&self, s: &&str) -> bool {
         *self == **s
     }
 }
 
-impl PartialEq<ScopedName<'_>> for str {
+impl PartialEq<ScopedNameRef<'_>> for str {
     #[inline]
-    fn eq(&self, n: &ScopedName) -> bool {
+    fn eq(&self, n: &ScopedNameRef) -> bool {
         n == self
     }
 }
 
-impl PartialEq<ScopedName<'_>> for &str {
+impl PartialEq<ScopedNameRef<'_>> for &str {
     #[inline]
-    fn eq(&self, n: &ScopedName) -> bool {
+    fn eq(&self, n: &ScopedNameRef) -> bool {
         n == self
     }
 }
 
-impl<'a> ScopedName<'a> {
+impl<'a> ScopedNameRef<'a> {
     /// Creates a new instance from `scope` and `name`.
     #[inline]
     pub fn new<S, N>(scope: S, name: N) -> Self
@@ -147,15 +195,15 @@ impl<'a> ScopedName<'a> {
 
     /// Copies the data referred to by `self` and takes ownership of it.
     #[inline]
-    pub fn into_owned(self) -> OwnedScopedName {
+    pub fn into_owned(self) -> ScopedName {
         self.into()
     }
 
-    /// Returns `self` as a `QueryName`.
+    /// Returns `self` as a `QueryNameRef`.
     #[inline]
-    pub fn as_query(&self) -> &QueryName<'a> {
+    pub fn as_query(&self) -> &QueryNameRef<'a> {
         // SAFETY: Checked above that the memory layout of both is the same
-        unsafe { &*(self as *const Self as *const QueryName) }
+        unsafe { &*(self as *const Self as *const QueryNameRef) }
     }
 
     /// Converts `self` into a slice of `Name`s.
@@ -166,7 +214,7 @@ impl<'a> ScopedName<'a> {
     }
 }
 
-/// Error returned when parsing into a [`ScopedName`](struct.ScopedName.html).
+/// Error returned when parsing into a [`ScopedNameRef`](struct.ScopedNameRef.html).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum ParseError {
     /// Could not parse the scope (what comes before the separator).
@@ -193,54 +241,13 @@ impl fmt::Display for ParseError {
     }
 }
 
-/// Name in the format `<owner>/<drop>`, with ownership over its names.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(C)] // `scope` must be first to be bitwise-compatible with `QueryName`
-pub struct OwnedScopedName {
-    /// The namespace of the drop.
-    pub scope: Box<Name>,
-    /// The drop's given name.
-    pub name: Box<Name>,
-}
-
-assert_eq_size!(OwnedScopedName, ScopedName);
-assert_eq_align!(OwnedScopedName, ScopedName);
-
-impl From<ScopedName<'_>> for OwnedScopedName {
-    #[inline]
-    fn from(n: ScopedName) -> Self {
-        Self {
-            scope: n.scope.into(),
-            name:  n.name.into(),
-        }
-    }
-}
-
-impl OwnedScopedName {
-    /// Returns `self` as a [`ScopedName`] reference.
-    ///
-    /// [`ScopedName`]: struct.ScopedName.html
-    #[inline]
-    pub fn as_scoped_name<'s>(&'s self) -> &'s ScopedName<'s> {
-        unsafe { &*(self as *const Self as *const ScopedName) }
-    }
-
-    /// Returns a [`ScopedName`] for `self`.
-    ///
-    /// [`ScopedName`]: struct.ScopedName.html
-    #[inline]
-    pub fn to_scoped_name<'s>(&'s self) -> ScopedName<'s> {
-        *self.as_scoped_name()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn eq_str() {
-        fn test(name: ScopedName) {
+        fn test(name: ScopedNameRef) {
             fn bad_names(name: &str) -> Vec<String> {
                 let name = name.to_string();
                 vec![
@@ -264,7 +271,7 @@ mod tests {
 
         for &name in names {
             for &scope in names {
-                test(ScopedName { scope, name });
+                test(ScopedNameRef { scope, name });
             }
         }
     }

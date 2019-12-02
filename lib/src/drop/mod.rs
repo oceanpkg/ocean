@@ -62,7 +62,7 @@ impl From<Lib> for Drop {
 
 impl Drop {
     ///
-    pub fn query(query: &name::QueryName) -> Result<Self, ()> {
+    pub fn query(query: &name::QueryNameRef) -> Result<Self, ()> {
         unimplemented!("TODO: Find '{}' drop", query);
     }
 
@@ -90,7 +90,7 @@ impl Drop {
 /// Information common to all drops.
 #[derive(Clone, Debug)]
 pub struct Metadata {
-    // TODO: Replace `scope` and `name` with a `ScopedName`
+    // TODO: Replace `scope` and `name` with a `ScopedNameRef`
 
     /// The drop's namespace.
     pub scope: String,

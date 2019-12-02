@@ -9,30 +9,30 @@ use crate::drop::{
 /// The value for the `meta` key in the drop manifest.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct Meta<'a> {
+pub struct Meta {
     /// The drop's name.
-    pub name: &'a Name,
+    pub name: Box<Name>,
 
     /// What is this drop?
-    pub description: &'a str,
+    pub description: String,
 
     /// The license used.
     pub license: Option<Expr>,
 
     /// Authors of the drop.
-    pub authors: Option<Vec<&'a str>>,
+    pub authors: Option<Vec<String>>,
 
     /// A path to the package's "README" file.
-    pub readme: Option<&'a str>,
+    pub readme: Option<String>,
 
     /// A path to the package's change log file.
-    pub changelog: Option<&'a str>,
+    pub changelog: Option<String>,
 
     /// This drop's corner of the internet.
-    pub homepage: Option<&'a str>,
+    pub homepage: Option<String>,
 
     /// The URL where docs live.
-    pub documentation: Option<&'a str>,
+    pub documentation: Option<String>,
 
     // Tables: all types that serialize into maps (or "tables" in TOML)
     // them must be placed last to succeed.
@@ -40,11 +40,11 @@ pub struct Meta<'a> {
     /// The git repository where this drop can be fetched from.
     ///
     /// Repository info is taKen from here.
-    pub git: Option<Git<'a>>,
+    pub git: Option<Git>,
 
     /// The drop version.
-    pub version: Version<'a>,
+    pub version: Version,
 
     /// The versions that this version conflicts with.
-    pub conflicts: Option<BTreeMap<&'a Name, &'a str>>,
+    pub conflicts: Option<BTreeMap<Box<Name>, String>>,
 }

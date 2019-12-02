@@ -5,7 +5,7 @@ use crate::drop::{
 };
 
 /// A mapping from drop names to dependency specification information.
-pub type Deps<'a> = BTreeMap<QueryName<'a>, DepInfo<'a>>;
+pub type Deps = BTreeMap<QueryName, DepInfo>;
 
 flexible! {
     /// The value associated with an element listed in the `dependencies` key in the
@@ -18,9 +18,9 @@ flexible! {
     /// In the future, this should be defined as a `struct` to ease usage in Rust
     /// while retaining flexibility in parsing.
     #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
-    pub struct DepInfo<'a> {
+    pub struct DepInfo {
         /// The version requirement string, e.g. `^1.0.0`.
-        pub version: &'a str,
+        pub version: String,
 
         /// Whether the dependency is optional. The default is `false`.
         #[serde(default)]
@@ -32,16 +32,36 @@ flexible! {
         /// What git repository can it be fetched from if requested via git as
         /// an alternative source. Note that this may differ from the
         /// dependency's own `git` field in its drop manifest.
-        pub git: Option<Git<'a>>,
+        pub git: Option<Git>,
     }
 }
 
-impl<'a> From<&'a str> for DepInfo<'a> {
-    fn from(version: &'a str) -> Self {
+impl From<String> for DepInfo {
+    fn from(version: String) -> Self {
         Self {
             version,
             git: None,
             optional: false,
+        }
+    }
+}
+
+impl DepInfo {
+    /// Creates a new instance with the given fields.
+    pub fn new<A, B, C>(
+        version: A,
+        optional: B,
+        git: C,
+    ) -> Self
+    where
+        A: Into<String>,
+        B: Into<bool>,
+        C: Into<Option<Git>>,
+    {
+        Self {
+            version: version.into(),
+            optional: optional.into(),
+            git: git.into(),
         }
     }
 }

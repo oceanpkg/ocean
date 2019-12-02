@@ -3,34 +3,38 @@
 use super::*;
 use crate::drop::{
     license::{self, SpdxLicense},
-    name::{Name, QueryName},
+    name::{Name, QueryNameRef},
     source::git::{self, Git, OCEAN_REPO},
     version::SemVer,
 };
 
 #[cfg(feature = "toml")]
-fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
+fn manifests<'a>() -> Vec<(String, Manifest)> {
     let version = "0.1.0";
     let semver = SemVer::parse(version).unwrap();
     let repo = OCEAN_REPO;
     let home = "https://www.oceanpkg.org";
     let docs = "https://docs.oceanpkg.org";
-    let wget = QueryName::parse("wget").unwrap();
+    let wget = QueryNameRef::parse("wget").unwrap();
     let meta = Meta {
-        name: Name::OCEAN,
-        description: "Cross-platform package manager",
+        name: Name::OCEAN.into_boxed(),
+        description: "Cross-platform package manager".to_owned(),
         version: semver.into(),
         conflicts: None,
         license: Some(SpdxLicense::Apache2.into()),
-        authors: Some(vec!["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]),
-        readme: Some("README.md"),
-        changelog: Some("CHANGELOG.md"),
+        authors: Some(vec![
+            "Nikolai Vazquez".to_owned(),
+            "Alex Farra".to_owned(),
+            "Nicole Zhao".to_owned(),
+        ]),
+        readme: Some("README.md".to_owned()),
+        changelog: Some("CHANGELOG.md".to_owned()),
         git: Some(Git {
-            repo,
-            reference: Some(git::Ref::Tag(version)),
+            repo: repo.to_owned(),
+            reference: Some(git::Ref::Tag(version.to_owned())),
         }),
-        homepage: Some(home),
-        documentation: Some(docs),
+        homepage: Some(home.to_owned()),
+        documentation: Some(docs.to_owned()),
     };
     let header = format!(
         r#"
@@ -53,15 +57,15 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
     );
     let detailed_deps: Deps = vec![
         (
-            wget,
-            DepInfo {
-                version: "*",
-                git: Some(Git {
-                    repo: "https://git.savannah.gnu.org/git/wget.git",
-                    reference: Some(git::Ref::Branch("1.0")),
-                }.into()),
-                optional: false,
-            }.into(),
+            wget.into_owned(),
+            DepInfo::new(
+                "*",
+                false,
+                Git::new(
+                    "https://git.savannah.gnu.org/git/wget.git",
+                    git::Ref::branch("1.0"),
+                ),
+            ),
         )
     ].into_iter().collect();
     vec![
@@ -77,7 +81,7 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
             Manifest {
                 meta: meta.clone(),
                 deps: Some(vec![
-                    (wget, "*".into())
+                    (wget.into_owned(), "*".to_owned().into())
                 ].into_iter().collect()),
             }
         ),
@@ -111,23 +115,26 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
 }
 
 #[cfg(any(feature = "toml", feature = "serde_json"))]
-fn example_manifest() -> Manifest<'static> {
+fn example_manifest() -> Manifest {
     Manifest {
         meta: Meta {
-            name: Name::new("wumbo").unwrap(),
-            description: "Something silly",
+            name: Name::new("wumbo").unwrap().into_boxed(),
+            description: "Something silly".to_owned(),
             version: SemVer::new(0, 1, 0).into(),
             conflicts: None,
             license: Some(license::Expr::parse("MIT OR Apache-2.0").unwrap()),
-            authors: Some(vec!["Nikolai Vazquez", "Patrick Star"]),
-            readme: Some("../README.md"),
-            changelog: Some("../CHANGELOG.md"),
-            git: Some(Git {
-                repo: OCEAN_REPO,
-                reference: Some(git::Ref::Tag("v0.1.0")),
-            }),
-            homepage: Some("https://example.com"),
-            documentation: Some("https://example.com/docs"),
+            authors: Some(vec![
+                "Nikolai Vazquez".to_owned(),
+                "Patrick Star".to_owned(),
+            ]),
+            readme: Some("../README.md".to_owned()),
+            changelog: Some("../CHANGELOG.md".to_owned()),
+            git: Some(Git::new(
+                OCEAN_REPO,
+                git::Ref::tag("v0.1.0"),
+            )),
+            homepage: Some("https://example.com".to_owned()),
+            documentation: Some("https://example.com/docs".to_owned()),
         },
         deps: Some(vec![
 

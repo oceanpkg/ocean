@@ -7,13 +7,64 @@ use std::{
 };
 use super::{
     Name,
-    scoped::{self, ScopedName},
+    scoped::{self, ScopedNameRef},
 };
+
+/// A drop name that may or may not be scoped, with ownership over its names.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedNameRef`
+pub struct QueryName {
+    /// The scope scope if the query is scoped to a specific owner.
+    ///
+    /// If this scope is `None`, then drops are checked against the main trusted
+    /// set of packages. It is not yet decided as to what goes there.
+    pub scope: Option<Box<Name>>,
+    /// The name of the drop itself.
+    pub name: Box<Name>,
+}
+
+assert_eq_size!(QueryName,  QueryNameRef);
+assert_eq_align!(QueryName, QueryNameRef);
+
+impl From<QueryNameRef<'_>> for QueryName {
+    #[inline]
+    fn from(n: QueryNameRef) -> Self {
+        Self {
+            scope: n.scope.map(|s| s.into()),
+            name:  n.name.into(),
+        }
+    }
+}
+
+impl fmt::Display for QueryName {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        (self.as_ref() as &QueryNameRef).fmt(f)
+    }
+}
+
+impl QueryName {
+    /// Returns `self` as a [`QueryNameRef`] reference.
+    ///
+    /// [`QueryNameRef`]: struct.QueryNameRef.html
+    #[inline]
+    pub fn as_ref<'s>(&'s self) -> &'s QueryNameRef<'s> {
+        unsafe { &*(self as *const Self as *const QueryNameRef) }
+    }
+
+    /// Returns a [`QueryNameRef`] for `self`.
+    ///
+    /// [`QueryNameRef`]: struct.QueryNameRef.html
+    #[inline]
+    pub fn to_ref<'s>(&'s self) -> QueryNameRef<'s> {
+        *self.as_ref()
+    }
+}
 
 /// A drop name that may or may not be scoped.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedName`
-pub struct QueryName<'a> {
+#[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedNameRef`
+pub struct QueryNameRef<'a> {
     /// The scope scope if the query is scoped to a specific owner.
     ///
     /// If this scope is `None`, then drops are checked against the main trusted
@@ -23,21 +74,21 @@ pub struct QueryName<'a> {
     pub name: &'a Name,
 }
 
-impl<'a> From<&'a Name> for QueryName<'a> {
+impl<'a> From<&'a Name> for QueryNameRef<'a> {
     #[inline]
     fn from(name: &'a Name) -> Self {
         Self { scope: None, name }
     }
 }
 
-impl<'a, N: Into<&'a Name>> From<[N; 2]> for QueryName<'a> {
+impl<'a, N: Into<&'a Name>> From<[N; 2]> for QueryNameRef<'a> {
     #[inline]
     fn from([scope, name]: [N; 2]) -> Self {
         Self::new(scope.into(), name)
     }
 }
 
-impl<'a, S, N> From<(S, N)> for QueryName<'a>
+impl<'a, S, N> From<(S, N)> for QueryNameRef<'a>
 where
     S: Into<Option<&'a Name>>,
     N: Into<&'a Name>,
@@ -48,14 +99,14 @@ where
     }
 }
 
-impl<'a> From<ScopedName<'a>> for QueryName<'a> {
+impl<'a> From<ScopedNameRef<'a>> for QueryNameRef<'a> {
     #[inline]
-    fn from(n: ScopedName<'a>) -> Self {
+    fn from(n: ScopedNameRef<'a>) -> Self {
         Self { scope: Some(n.scope), name: n.name }
     }
 }
 
-impl fmt::Display for QueryName<'_> {
+impl fmt::Display for QueryNameRef<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(scoped) = self.to_scoped() {
             scoped.fmt(f)
@@ -65,7 +116,7 @@ impl fmt::Display for QueryName<'_> {
     }
 }
 
-impl PartialEq<Name> for QueryName<'_> {
+impl PartialEq<Name> for QueryNameRef<'_> {
     #[inline]
     fn eq(&self, n: &Name) -> bool {
         self.scope.is_none() && self.name == n
@@ -73,29 +124,29 @@ impl PartialEq<Name> for QueryName<'_> {
 }
 
 // Seems redundant but required to make `assert_eq!` prettier.
-impl PartialEq<&Name> for QueryName<'_> {
+impl PartialEq<&Name> for QueryNameRef<'_> {
     #[inline]
     fn eq(&self, n: &&Name) -> bool {
         *self == **n
     }
 }
 
-impl PartialEq<QueryName<'_>> for Name {
+impl PartialEq<QueryNameRef<'_>> for Name {
     #[inline]
-    fn eq(&self, n: &QueryName) -> bool {
+    fn eq(&self, n: &QueryNameRef) -> bool {
         n == self
     }
 }
 
 // Seems redundant but required to make `assert_eq!` prettier.
-impl PartialEq<QueryName<'_>> for &Name {
+impl PartialEq<QueryNameRef<'_>> for &Name {
     #[inline]
-    fn eq(&self, n: &QueryName) -> bool {
+    fn eq(&self, n: &QueryNameRef) -> bool {
         n == self
     }
 }
 
-impl PartialEq<str> for QueryName<'_> {
+impl PartialEq<str> for QueryNameRef<'_> {
     fn eq(&self, s: &str) -> bool {
         let mut parts = s.split('/');
         match (parts.next(), parts.next(), parts.next(), self.scope) {
@@ -111,28 +162,28 @@ impl PartialEq<str> for QueryName<'_> {
 }
 
 // Seems redundant but required to make `assert_eq!` prettier.
-impl PartialEq<&str> for QueryName<'_> {
+impl PartialEq<&str> for QueryNameRef<'_> {
     #[inline]
     fn eq(&self, s: &&str) -> bool {
         *self == **s
     }
 }
 
-impl PartialEq<QueryName<'_>> for str {
+impl PartialEq<QueryNameRef<'_>> for str {
     #[inline]
-    fn eq(&self, n: &QueryName) -> bool {
+    fn eq(&self, n: &QueryNameRef) -> bool {
         n == self
     }
 }
 
-impl PartialEq<QueryName<'_>> for &str {
+impl PartialEq<QueryNameRef<'_>> for &str {
     #[inline]
-    fn eq(&self, n: &QueryName) -> bool {
+    fn eq(&self, n: &QueryNameRef) -> bool {
         n == self
     }
 }
 
-impl<'a> QueryName<'a> {
+impl<'a> QueryNameRef<'a> {
     /// Creates a new instance from `scope` and `name`.
     #[inline]
     pub fn new<S, N>(scope: S, name: N) -> Self
@@ -153,18 +204,18 @@ impl<'a> QueryName<'a> {
 
     /// Copies the data referred to by `self` and takes ownership of it.
     #[inline]
-    pub fn into_owned(self) -> OwnedQueryName {
+    pub fn into_owned(self) -> QueryName {
         self.into()
     }
 
     /// Converts `self` to a scoped name if it is one.
     #[inline]
-    pub fn to_scoped(&self) -> Option<&ScopedName<'a>> {
+    pub fn to_scoped(&self) -> Option<&ScopedNameRef<'a>> {
         if self.scope.is_none() {
             None
         } else {
             // SAFETY: Checked above that the memory layout of both is the same
-            Some(unsafe { &*(self as *const Self as *const ScopedName) })
+            Some(unsafe { &*(self as *const Self as *const ScopedNameRef) })
         }
     }
 
@@ -187,50 +238,6 @@ impl<'a> QueryName<'a> {
     }
 }
 
-/// A drop name that may or may not be scoped, with ownership over its names.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedName`
-pub struct OwnedQueryName {
-    /// The scope scope if the query is scoped to a specific owner.
-    ///
-    /// If this scope is `None`, then drops are checked against the main trusted
-    /// set of packages. It is not yet decided as to what goes there.
-    pub scope: Option<Box<Name>>,
-    /// The name of the drop itself.
-    pub name: Box<Name>,
-}
-
-assert_eq_size!(OwnedQueryName, QueryName);
-assert_eq_align!(OwnedQueryName, QueryName);
-
-impl From<QueryName<'_>> for OwnedQueryName {
-    #[inline]
-    fn from(n: QueryName) -> Self {
-        Self {
-            scope: n.scope.map(|s| s.into()),
-            name:  n.name.into(),
-        }
-    }
-}
-
-impl OwnedQueryName {
-    /// Returns `self` as a [`QueryName`] reference.
-    ///
-    /// [`QueryName`]: struct.QueryName.html
-    #[inline]
-    pub fn as_query_name<'s>(&'s self) -> &'s QueryName<'s> {
-        unsafe { &*(self as *const Self as *const QueryName) }
-    }
-
-    /// Returns a [`QueryName`] for `self`.
-    ///
-    /// [`QueryName`]: struct.QueryName.html
-    #[inline]
-    pub fn to_query_name<'s>(&'s self) -> QueryName<'s> {
-        *self.as_query_name()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -240,16 +247,16 @@ mod tests {
         let names = Name::RESERVED_SCOPES;
 
         for &name in names {
-            assert_eq!(name, QueryName::from(name));
+            assert_eq!(name, QueryNameRef::from(name));
             for &scope in names {
-                assert_ne!(name, QueryName::new(scope, name));
+                assert_ne!(name, QueryNameRef::new(scope, name));
             }
         }
     }
 
     #[test]
     fn eq_str() {
-        fn test(query: QueryName) {
+        fn test(query: QueryNameRef) {
             fn bad_queries(query: &str) -> Vec<String> {
                 let query = query.to_string();
                 let mut result = vec![
@@ -277,7 +284,7 @@ mod tests {
         for &name in names {
             test(name.into());
             for &scope in names {
-                test(QueryName::new(scope, name));
+                test(QueryNameRef::new(scope, name));
             }
         }
     }

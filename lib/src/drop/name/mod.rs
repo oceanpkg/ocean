@@ -11,12 +11,12 @@ pub mod scoped;
 
 #[doc(inline)]
 pub use self::{
-    query::QueryName,
-    scoped::ScopedName,
+    query::{QueryName, QueryNameRef},
+    scoped::{ScopedName, ScopedNameRef},
 };
 
-assert_eq_size!(QueryName, ScopedName);
-assert_eq_align!(QueryName, ScopedName);
+assert_eq_size!(QueryNameRef, ScopedName);
+assert_eq_align!(QueryNameRef, ScopedName);
 
 /// A valid drop name.
 ///
@@ -28,8 +28,7 @@ pub struct Name(str);
 impl From<&Name> for Box<Name> {
     #[inline]
     fn from(name: &Name) -> Self {
-        let raw = Box::<str>::into_raw(name.0.into()) as *mut Name;
-        unsafe { Box::from_raw(raw) }
+        name.into_boxed()
     }
 }
 
@@ -164,6 +163,13 @@ impl Name {
     #[inline]
     pub const fn as_str(&self) -> &str {
         &self.0
+    }
+
+    /// Moves copied contents of `self` to the heap.
+    #[inline]
+    pub fn into_boxed(&self) -> Box<Self> {
+        let raw = Box::<str>::into_raw(self.0.into()) as *mut Name;
+        unsafe { Box::from_raw(raw) }
     }
 
     /// Returns whether Ocean reserves the right to use this name as a scope.
