@@ -1,17 +1,18 @@
+#![allow(unused_imports)]
+
 use super::*;
 use crate::drop::{
     license::{self, SpdxLicense},
     name::{Name, QueryName},
-    source::git::{self, Git},
+    source::git::{self, Git, OCEAN_REPO},
     version::SemVer,
 };
 
-const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
-
+#[cfg(feature = "toml")]
 fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
     let version = "0.1.0";
     let semver = SemVer::parse(version).unwrap();
-    let repo = env!("CARGO_PKG_REPOSITORY");
+    let repo = OCEAN_REPO;
     let home = "https://www.oceanpkg.org";
     let docs = "https://docs.oceanpkg.org";
     let wget = QueryName::parse("wget").unwrap();
@@ -109,14 +110,7 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
     ]
 }
 
-#[test]
-fn deserialize_toml_manfiest() {
-    for (toml, manifest) in manifests() {
-        let parsed = Manifest::parse_toml(&toml).unwrap();
-        assert_eq!(manifest, parsed, "\n{} != {}", manifest, parsed);
-    }
-}
-
+#[cfg(any(feature = "toml", feature = "serde_json"))]
 fn example_manifest() -> Manifest<'static> {
     Manifest {
         meta: Meta {
@@ -141,16 +135,34 @@ fn example_manifest() -> Manifest<'static> {
     }
 }
 
-#[test]
-fn serialize_toml_manifest() {
-    let manifest = example_manifest();
-    toml::to_string(&manifest).unwrap();
-    toml::to_string_pretty(&manifest).unwrap();
+#[cfg(feature = "toml")]
+mod toml {
+    use super::*;
+
+    #[test]
+    fn deserialize_manfiest() {
+        for (toml, manifest) in manifests() {
+            let parsed = Manifest::parse_toml(&toml).unwrap();
+            assert_eq!(manifest, parsed, "\n{} != {}", manifest, parsed);
+        }
+    }
+
+    #[test]
+    fn serialize_manifest() {
+        let manifest = example_manifest();
+        toml::to_string(&manifest).unwrap();
+        toml::to_string_pretty(&manifest).unwrap();
+    }
 }
 
-#[test]
-fn serialize_json_manifest() {
-    let manifest = example_manifest();
-    json::to_string(&manifest).unwrap();
-    json::to_string_pretty(&manifest).unwrap();
+#[cfg(feature = "serde_json")]
+mod json {
+    use super::*;
+
+    #[test]
+    fn serialize_manifest() {
+        let manifest = example_manifest();
+        json::to_string(&manifest).unwrap();
+        json::to_string_pretty(&manifest).unwrap();
+    }
 }

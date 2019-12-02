@@ -1,6 +1,5 @@
 //! Meta manifest data.
 
-use std::fmt;
 use serde::Deserialize;
 
 mod deps;
@@ -27,14 +26,6 @@ pub struct Manifest<'a> {
     pub deps: Option<Deps<'a>>,
 }
 
-impl fmt::Display for Manifest<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.to_toml(true)
-            .map_err(|_| fmt::Error)
-            .and_then(|s| s.fmt(f))
-    }
-}
-
 impl<'a> Manifest<'a> {
     /// Parses a manifest from [TOML](https://en.wikipedia.org/wiki/TOML).
     ///
@@ -57,6 +48,7 @@ impl<'a> Manifest<'a> {
     /// "#;
     /// let manifest = Manifest::parse_toml(toml).unwrap();
     /// ```
+    #[cfg(feature = "toml")]
     pub fn parse_toml<'de: 'a>(toml: &'de str) -> Result<Self, toml::de::Error> {
         toml::de::from_str(toml)
     }
@@ -83,11 +75,13 @@ impl<'a> Manifest<'a> {
     /// }"#;
     /// let manifest = Manifest::parse_json(json).unwrap();
     /// ```
+    #[cfg(feature = "serde_json")]
     pub fn parse_json<'de: 'a>(json: &'de str) -> Result<Self, json::Error> {
         json::from_str(json)
     }
 
     /// Returns `self` as a TOML string.
+    #[cfg(feature = "toml")]
     pub fn to_toml(&self, pretty: bool) -> Result<String, toml::ser::Error> {
         if pretty {
             toml::to_string_pretty(self)
@@ -97,6 +91,7 @@ impl<'a> Manifest<'a> {
     }
 
     /// Returns `self` as a JSON string.
+    #[cfg(feature = "serde_json")]
     pub fn to_json(&self, pretty: bool) -> Result<String, json::Error> {
         if pretty {
             json::to_string_pretty(self)

@@ -3,6 +3,9 @@
 use std::fmt;
 use serde::{Serialize, Serializer};
 
+#[cfg(test)]
+pub(crate) const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
+
 flexible! {
     /// Information about a git repository where a drop or dependency can be found.
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize)]
@@ -138,89 +141,94 @@ impl<'a> Ref<'a> {
 
 #[cfg(test)]
 mod tests {
+    #[allow(unused_imports)]
     use super::*;
 
-    const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
+    #[cfg(feature = "toml")]
+    mod toml {
+        use super::*;
 
-    #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
-    struct Parsed<'a> {
-        #[serde(borrow)]
-        git: Git<'a>,
-    }
-
-    impl<'a> Parsed<'a> {
-        fn parse(toml: &'a str) -> Self {
-            toml::de::from_str::<Parsed>(toml).unwrap()
+        #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+        struct Parsed<'a> {
+            #[serde(borrow)]
+            git: Git<'a>,
         }
-    }
 
-    #[test]
-    fn deserialize_toml_repo() {
-        let parsed = Parsed::parse(r#"
-            git = "https://github.com/oceanpkg/ocean.git"
-        "#);
-        let expected = Parsed {
-            git: "https://github.com/oceanpkg/ocean.git".into()
-        };
-        assert_eq!(parsed, expected);
-    }
-
-    #[test]
-    fn deserialize_toml_detailed() {
-        let parsed = Parsed::parse(r#"
-            [git]
-            repo = "https://github.com/oceanpkg/ocean.git"
-            tag = "lib-v0.0.8"
-        "#);
-        let expected = Parsed {
-            git: Git {
-                repo: "https://github.com/oceanpkg/ocean.git",
-                reference: Some(Ref::Tag("lib-v0.0.8")),
-            },
-        };
-        assert_eq!(parsed, expected);
-    }
-
-    #[test]
-    fn deserialize_toml_detailed_table() {
-        let parsed = Parsed::parse(r#"
-            git = { repo = "https://github.com/oceanpkg/ocean.git", tag = "lib-v0.0.8" }
-        "#);
-        let expected = Parsed {
-            git: Git {
-                repo: "https://github.com/oceanpkg/ocean.git",
-                reference: Some(Ref::Tag("lib-v0.0.8")),
-            },
-        };
-        assert_eq!(parsed, expected);
-    }
-
-    #[test]
-    fn serialize_toml_checkout() {
-        for reference in Ref::TEST_ALL.iter() {
-            toml::to_string(reference).unwrap();
-            toml::to_string_pretty(reference).unwrap();
+        impl<'a> Parsed<'a> {
+            fn parse(toml: &'a str) -> Self {
+                toml::de::from_str::<Parsed>(toml).unwrap()
+            }
         }
-    }
 
-    #[test]
-    fn serialize_toml_git() {
-        use std::iter;
-
-        // Creates `Option::Some` cases for known reference types and a `None`
-        // case to be thorough.
-        let checkouts = Ref::TEST_ALL.iter()
-            .cloned()
-            .map(Some)
-            .chain(iter::once(None));
-
-        for reference in checkouts {
-            let git = Git {
-                repo: OCEAN_REPO,
-                reference,
+        #[test]
+        fn deserialize_repo() {
+            let parsed = Parsed::parse(r#"
+                git = "https://github.com/oceanpkg/ocean.git"
+            "#);
+            let expected = Parsed {
+                git: "https://github.com/oceanpkg/ocean.git".into()
             };
-            toml::to_string(&git).unwrap();
-            toml::to_string_pretty(&git).unwrap();
+            assert_eq!(parsed, expected);
+        }
+
+        #[test]
+        fn deserialize_detailed() {
+            let parsed = Parsed::parse(r#"
+                [git]
+                repo = "https://github.com/oceanpkg/ocean.git"
+                tag = "lib-v0.0.8"
+            "#);
+            let expected = Parsed {
+                git: Git {
+                    repo: "https://github.com/oceanpkg/ocean.git",
+                    reference: Some(Ref::Tag("lib-v0.0.8")),
+                },
+            };
+            assert_eq!(parsed, expected);
+        }
+
+        #[test]
+        fn deserialize_detailed_table() {
+            let parsed = Parsed::parse(r#"
+                git = { repo = "https://github.com/oceanpkg/ocean.git", tag = "lib-v0.0.8" }
+            "#);
+            let expected = Parsed {
+                git: Git {
+                    repo: "https://github.com/oceanpkg/ocean.git",
+                    reference: Some(Ref::Tag("lib-v0.0.8")),
+                },
+            };
+            assert_eq!(parsed, expected);
+        }
+
+        #[test]
+        fn serialize_checkout() {
+            for reference in Ref::TEST_ALL.iter() {
+                toml::to_string(reference).unwrap();
+                toml::to_string_pretty(reference).unwrap();
+            }
+        }
+
+        #[test]
+        fn serialize_git() {
+            use std::iter;
+
+            // Creates `Option::Some` cases for known reference types and a
+            // `None` case to be thorough.
+            let checkouts = Ref::TEST_ALL.iter()
+                .cloned()
+                .map(Some)
+                .chain(iter::once(None));
+
+            for reference in checkouts {
+                let git = Git {
+                    repo: OCEAN_REPO,
+                    reference,
+                };
+                toml::to_string(&git).unwrap();
+                toml::to_string_pretty(&git).unwrap();
+            }
         }
     }
+
 }
