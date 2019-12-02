@@ -83,7 +83,7 @@ impl<'a> Manifest<'a> {
     /// }"#;
     /// let manifest = Manifest::parse_json(json).unwrap();
     /// ```
-    pub fn parse_json<'de: 'a>(json: &'de str) -> json::Result<Self> {
+    pub fn parse_json<'de: 'a>(json: &'de str) -> Result<Self, json::Error> {
         json::from_str(json)
     }
 
@@ -97,7 +97,7 @@ impl<'a> Manifest<'a> {
     }
 
     /// Returns `self` as a JSON string.
-    pub fn to_json(&self, pretty: bool) -> json::Result<String> {
+    pub fn to_json(&self, pretty: bool) -> Result<String, json::Error> {
         if pretty {
             json::to_string_pretty(self)
         } else {
