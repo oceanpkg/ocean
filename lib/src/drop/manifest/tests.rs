@@ -2,6 +2,7 @@ use super::*;
 use crate::drop::{
     license::{self, SpdxLicense},
     name::{Name, QueryName},
+    source::git::{self, Git},
     version::SemVer,
 };
 

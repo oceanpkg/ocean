@@ -2,9 +2,9 @@ use std::collections::BTreeMap;
 use crate::drop::{
     license::Expr,
     Name,
+    source::Git,
     version::Version,
 };
-use super::Git;
 
 /// The value for the `meta` key in the drop manifest.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

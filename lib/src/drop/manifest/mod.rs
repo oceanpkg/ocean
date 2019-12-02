@@ -5,7 +5,6 @@ use serde::Deserialize;
 
 mod deps;
 mod meta;
-pub mod git;
 
 #[cfg(test)]
 mod tests;
@@ -13,7 +12,6 @@ mod tests;
 #[doc(inline)]
 pub use self::{
     deps::{Deps, DepInfo},
-    git::Git,
     meta::Meta,
 };
 

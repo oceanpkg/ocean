@@ -11,6 +11,7 @@
 #![doc(html_root_url = "https://docs.rs/oceanpkg/0.0.8")]
 #![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
 
+#[macro_use] extern crate lazy_static;
 #[macro_use] extern crate serde;
 #[macro_use] extern crate static_assertions;
 

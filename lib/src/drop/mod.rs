@@ -4,6 +4,7 @@ pub mod kind;
 pub mod license;
 pub mod manifest;
 pub mod name;
+pub mod source;
 pub mod version;
 
 use self::kind::{App, Exe, Font, Lib};
@@ -14,6 +15,7 @@ pub use self::{
     license::License,
     manifest::Manifest,
     name::Name,
+    source::Source,
     version::Version,
 };
 
