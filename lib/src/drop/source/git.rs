@@ -102,8 +102,8 @@ impl Serialize for Ref<'_> {
 }
 
 impl<'a> Ref<'a> {
-    #[cfg(test)]
-    pub(crate) const fn all(reference: &'a str) -> [Self; 3] {
+    /// Returns an array of all `Ref` variants, each pointing to `reference`.
+    pub const fn all(reference: &'a str) -> [Self; 3] {
         [
             Ref::Branch(reference),
             Ref::Tag(reference),
