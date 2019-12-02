@@ -143,7 +143,7 @@ mod toml {
     fn deserialize_manfiest() {
         for (toml, manifest) in manifests() {
             let parsed = Manifest::parse_toml(&toml).unwrap();
-            assert_eq!(manifest, parsed, "\n{} != {}", manifest, parsed);
+            assert_eq!(manifest, parsed, "\n{:#?}\n{:#?}\n", manifest, parsed);
         }
     }
 
