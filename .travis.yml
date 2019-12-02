@@ -7,4 +7,6 @@ cache:
   directories:
   - $HOME/.cargo
   - ./target # OK to cache because `cargo` will pick up changes to the project.
-script: cargo test
+script:
+  - cargo test
+  - cargo test --all-features
