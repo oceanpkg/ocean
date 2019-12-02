@@ -117,9 +117,8 @@ fn deserialize_toml_manfiest() {
     }
 }
 
-#[test]
-fn serialize_toml_manifest() {
-    let manifest = Manifest {
+fn example_manifest() -> Manifest<'static> {
+    Manifest {
         meta: Meta {
             name: Name::new("wumbo").unwrap(),
             description: "Something silly",
@@ -139,7 +138,19 @@ fn serialize_toml_manifest() {
         deps: Some(vec![
 
         ].into_iter().collect()),
-    };
+    }
+}
+
+#[test]
+fn serialize_toml_manifest() {
+    let manifest = example_manifest();
     toml::to_string(&manifest).unwrap();
     toml::to_string_pretty(&manifest).unwrap();
+}
+
+#[test]
+fn serialize_json_manifest() {
+    let manifest = example_manifest();
+    serde_json::to_string(&manifest).unwrap();
+    serde_json::to_string_pretty(&manifest).unwrap();
 }

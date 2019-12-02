@@ -61,12 +61,47 @@ impl<'a> Manifest<'a> {
         toml::de::from_str(toml)
     }
 
+    /// Parses a manifest from [JSON](https://en.wikipedia.org/wiki/JSON).
+    ///
+    /// ```
+    /// use oceanpkg::drop::Manifest;
+    ///
+    /// let json = r#"{
+    ///     "meta": {
+    ///         "name": "ocean",
+    ///         "description": "Cross-platform package manager",
+    ///         "version": "0.1.0",
+    ///         "license": "Apache-2.0",
+    ///         "authors": ["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"],
+    ///         "readme": "README.md",
+    ///         "changelog": "CHANGELOG.md",
+    ///         "git": "https://github.com/oceanpkg/ocean"
+    ///     },
+    ///     "dependencies": {
+    ///         "wget": "*"
+    ///     }
+    /// }"#;
+    /// let manifest = Manifest::parse_json(json).unwrap();
+    /// ```
+    pub fn parse_json<'de: 'a>(json: &'de str) -> serde_json::Result<Self> {
+        serde_json::from_str(json)
+    }
+
     /// Returns `self` as a TOML string.
     pub fn to_toml(&self, pretty: bool) -> Result<String, toml::ser::Error> {
         if pretty {
             toml::to_string_pretty(self)
         } else {
             toml::to_string(self)
+        }
+    }
+
+    /// Returns `self` as a JSON string.
+    pub fn to_json(&self, pretty: bool) -> serde_json::Result<String> {
+        if pretty {
+            serde_json::to_string_pretty(self)
+        } else {
+            serde_json::to_string(self)
         }
     }
 }
