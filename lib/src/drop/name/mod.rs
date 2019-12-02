@@ -139,6 +139,9 @@ impl Name {
     }
 
     /// Returns whether `name` is valid.
+    ///
+    /// All characters in `name` must match the regex `[0-9a-z-]`, with the
+    /// exception of the first and last character where `-` is not allowed.
     #[inline]
     pub fn is_valid<N: AsRef<[u8]>>(name: N) -> bool {
         // Monomorphized
