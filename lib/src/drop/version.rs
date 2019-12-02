@@ -1,13 +1,14 @@
 //! Versioning schemes.
 
 use std::borrow::Cow;
+use serde::{Serialize, Serializer};
 
 #[doc(inline)]
 pub use semver::Version as SemVer;
 
 flexible! {
     /// A drop version.
-    #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+    #[derive(Clone, Debug, PartialEq, Eq, Hash)]
     pub enum Version<'a> {
         /// [Semantic versioning](http://semver.org). This is the default.
         #[serde(rename = "semver")]
@@ -33,6 +34,21 @@ impl PartialEq<str> for Version<'_> {
             Self::SemVer(v) => Ok(v) == SemVer::parse(s).as_ref(),
             Self::Custom(v) => v == s,
         }
+    }
+}
+
+impl Serialize for Version<'_> {
+    fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        use serde::ser::SerializeMap;
+
+        let mut map = ser.serialize_map(Some(1))?;
+        match self {
+            Version::SemVer(semver) => map.serialize_entry("semver", semver)?,
+            Version::Custom(custom) => map.serialize_entry("custom", custom)?,
+        }
+        map.end()
     }
 }
 

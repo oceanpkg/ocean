@@ -1,9 +1,11 @@
 use super::*;
 use crate::drop::{
-    license::SpdxLicense,
+    license::{self, SpdxLicense},
     name::{Name, QueryName},
     version::SemVer,
 };
+
+const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
 fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
     let version = "0.1.0";
@@ -107,9 +109,36 @@ fn manifests<'a>() -> Vec<(String, Manifest<'a>)> {
 }
 
 #[test]
-fn parse_manfiest() {
+fn deserialize_toml_manfiest() {
     for (toml, manifest) in manifests() {
         let parsed = Manifest::parse_toml(&toml).unwrap();
         assert_eq!(manifest, parsed, "\n{} != {}", manifest, parsed);
     }
+}
+
+#[test]
+fn serialize_toml_manifest() {
+    let manifest = Manifest {
+        meta: Meta {
+            name: Name::new("wumbo").unwrap(),
+            description: "Something silly",
+            version: SemVer::new(0, 1, 0).into(),
+            conflicts: None,
+            license: Some(license::Expr::parse("MIT OR Apache-2.0").unwrap()),
+            authors: Some(vec!["Nikolai Vazquez", "Patrick Star"]),
+            readme: Some("../README.md"),
+            changelog: Some("../CHANGELOG.md"),
+            git: Some(Git {
+                repo: OCEAN_REPO,
+                checkout: Some(git::Checkout::Tag("v0.1.0")),
+            }),
+            homepage: Some("https://example.com"),
+            documentation: Some("https://example.com/docs"),
+        },
+        deps: Some(vec![
+
+        ].into_iter().collect()),
+    };
+    toml::to_string(&manifest).unwrap();
+    toml::to_string_pretty(&manifest).unwrap();
 }

@@ -20,14 +20,17 @@ flexible! {
         /// The version requirement string, e.g. `^1.0.0`.
         pub version: &'a str,
 
+        /// Whether the dependency is optional. The default is `false`.
+        #[serde(default)]
+        pub optional: bool,
+
+        // Tables: all types that serialize into maps (or "tables" in TOML)
+        // them must be placed last to succeed.
+
         /// What git repository can it be fetched from if requested via git as
         /// an alternative source. Note that this may differ from the
         /// dependency's own `git` field in its drop manifest.
         pub git: Option<Git<'a>>,
-
-        /// Whether the dependency is optional. The default is `false`.
-        #[serde(default)]
-        pub optional: bool,
     }
 }
 

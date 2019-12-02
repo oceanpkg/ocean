@@ -1,6 +1,7 @@
 //! Git repository information.
 
 use std::fmt;
+use serde::{Serialize, Serializer};
 
 flexible! {
     /// Information about a git repository where a drop or dependency can be found.
@@ -51,9 +52,11 @@ impl<'a> Git<'a> {
 }
 
 /// The git checkout to use.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Checkout<'a> {
+    // When adding a case, make sure to add it to `Checkout::all`.
+
     /// The specific git branch.
     Branch(&'a str),
     /// A specific git tag.
@@ -76,7 +79,34 @@ impl AsRef<str> for Checkout<'_> {
     }
 }
 
+impl Serialize for Checkout<'_> {
+    fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        use serde::ser::SerializeMap;
+
+        let mut map = ser.serialize_map(Some(1))?;
+        map.serialize_entry(self.kind(), self.as_str())?;
+        map.end()
+    }
+}
+
 impl<'a> Checkout<'a> {
+    #[cfg(test)]
+    pub(crate) const fn all(checkout: &'a str) -> [Self; 3] {
+        [
+            Checkout::Branch(checkout),
+            Checkout::Tag(checkout),
+            Checkout::Rev(checkout),
+        ]
+    }
+
+    #[cfg(test)]
+    pub(crate) const TEST_ALL: [Self; 3] = Self::all(
+        // Commit hashes are 40 characters long.
+        "0000111122223333444455556666777788889999"
+    );
+
     /// Returns the checkout string.
     #[inline]
     pub fn as_str(&self) -> &'a str {
@@ -102,6 +132,8 @@ impl<'a> Checkout<'a> {
 mod tests {
     use super::*;
 
+    const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
+
     #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
     struct Parsed<'a> {
         #[serde(borrow)]
@@ -115,7 +147,7 @@ mod tests {
     }
 
     #[test]
-    fn toml_repo() {
+    fn deserialize_toml_repo() {
         let parsed = Parsed::parse(r#"
             git = "https://github.com/oceanpkg/ocean.git"
         "#);
@@ -126,7 +158,7 @@ mod tests {
     }
 
     #[test]
-    fn toml_detailed() {
+    fn deserialize_toml_detailed() {
         let parsed = Parsed::parse(r#"
             [git]
             repo = "https://github.com/oceanpkg/ocean.git"
@@ -142,7 +174,7 @@ mod tests {
     }
 
     #[test]
-    fn toml_detailed_table() {
+    fn deserialize_toml_detailed_table() {
         let parsed = Parsed::parse(r#"
             git = { repo = "https://github.com/oceanpkg/ocean.git", tag = "lib-v0.0.8" }
         "#);
@@ -153,5 +185,34 @@ mod tests {
             },
         };
         assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn serialize_toml_checkout() {
+        for checkout in Checkout::TEST_ALL.iter() {
+            toml::to_string(checkout).unwrap();
+            toml::to_string_pretty(checkout).unwrap();
+        }
+    }
+
+    #[test]
+    fn serialize_toml_git() {
+        use std::iter;
+
+        // Creates `Option::Some` cases for known checkout types and a `None`
+        // case to be thorough.
+        let checkouts = Checkout::TEST_ALL.iter()
+            .cloned()
+            .map(Some)
+            .chain(iter::once(None));
+
+        for checkout in checkouts {
+            let git = Git {
+                repo: OCEAN_REPO,
+                checkout,
+            };
+            toml::to_string(&git).unwrap();
+            toml::to_string_pretty(&git).unwrap();
+        }
     }
 }
