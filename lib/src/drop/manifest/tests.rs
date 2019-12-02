@@ -150,8 +150,8 @@ mod toml {
     #[test]
     fn serialize_manifest() {
         let manifest = example_manifest();
-        toml::to_string(&manifest).unwrap();
-        toml::to_string_pretty(&manifest).unwrap();
+        manifest.to_toml(false).unwrap();
+        manifest.to_toml(true).unwrap();
     }
 }
 
@@ -162,7 +162,7 @@ mod json {
     #[test]
     fn serialize_manifest() {
         let manifest = example_manifest();
-        json::to_string(&manifest).unwrap();
-        json::to_string_pretty(&manifest).unwrap();
+        manifest.to_json(false).unwrap();
+        manifest.to_json(true).unwrap();
     }
 }
