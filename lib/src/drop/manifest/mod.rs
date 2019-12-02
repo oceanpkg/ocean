@@ -79,6 +79,25 @@ impl Manifest {
         json::from_str(json)
     }
 
+    /// Parses a manifest from [JSON](https://en.wikipedia.org/wiki/JSON)
+    /// provided by the reader.
+    #[cfg(feature = "serde_json")]
+    pub fn read_json<J>(json: J) -> Result<Self, json::Error>
+        where J: std::io::Read
+    {
+        json::from_reader(json)
+    }
+
+    /// Parses a manifest from a [JSON](https://en.wikipedia.org/wiki/JSON) file
+    /// at the given path.
+    #[cfg(feature = "serde_json")]
+    pub fn read_json_file<J>(json: J) -> Result<Self, std::io::Error>
+        where J: AsRef<std::path::Path>
+    {
+        let reader = std::io::BufReader::new(std::fs::File::open(json)?);
+        Self::read_json(reader).map_err(Into::into)
+    }
+
     /// Returns `self` as a TOML string.
     #[cfg(feature = "toml")]
     pub fn to_toml(&self, pretty: bool) -> Result<String, toml::ser::Error> {
