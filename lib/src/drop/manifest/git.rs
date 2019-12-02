@@ -65,6 +65,13 @@ pub enum Checkout<'a> {
     Rev(&'a str),
 }
 
+impl Default for Checkout<'_> {
+    #[inline]
+    fn default() -> Self {
+        Self::MASTER
+    }
+}
+
 impl fmt::Display for Checkout<'_> {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -106,6 +113,9 @@ impl<'a> Checkout<'a> {
         // Commit hashes are 40 characters long.
         "0000111122223333444455556666777788889999"
     );
+
+    /// A reference to the master branch.
+    pub const MASTER: Self = Checkout::Branch("master");
 
     /// Returns the checkout string.
     #[inline]
