@@ -111,12 +111,6 @@ impl<'a> Ref<'a> {
         ]
     }
 
-    #[cfg(test)]
-    pub(crate) const TEST_ALL: [Self; 3] = Self::all(
-        // Commit hashes are 40 characters long.
-        "0000111122223333444455556666777788889999"
-    );
-
     /// A reference to the master branch.
     pub const MASTER: Self = Ref::Branch("master");
 
@@ -147,6 +141,11 @@ mod tests {
     #[cfg(feature = "toml")]
     mod toml {
         use super::*;
+
+        const TEST_ALL: [Ref; 3] = Ref::all(
+            // Commit hashes are 40 characters long.
+            "0000111122223333444455556666777788889999"
+        );
 
         #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
         struct Parsed<'a> {
