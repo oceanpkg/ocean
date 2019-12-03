@@ -13,6 +13,9 @@ pub struct Meta {
     /// The drop's name.
     pub name: Box<Name>,
 
+    /// The pretty name displayed when viewing a drop.
+    pub display_name: Option<String>,
+
     /// What is this drop?
     pub description: String,
 
