@@ -227,15 +227,21 @@ impl<'a> QueryNameRef<'a> {
         self.into()
     }
 
-    /// Converts `self` to a scoped name if it is one.
+    /// Converts `self` to a scoped name reference if it is one.
     #[inline]
-    pub fn to_scoped(&self) -> Option<&ScopedNameRef<'a>> {
+    pub fn as_scoped(&self) -> Option<&ScopedNameRef<'a>> {
         if self.scope.is_none() {
             None
         } else {
             // SAFETY: Checked above that the memory layout of both is the same
             Some(unsafe { &*(self as *const Self as *const ScopedNameRef) })
         }
+    }
+
+    /// Converts `self` to a scoped name if it is one.
+    #[inline]
+    pub fn to_scoped(&self) -> Option<ScopedNameRef<'a>> {
+        self.as_scoped().map(|s| *s)
     }
 
     /// Converts `self` to a simple name if it has no scope.
@@ -251,7 +257,7 @@ impl<'a> QueryNameRef<'a> {
     /// Converts `self` into a slice of `Name`s.
     #[inline]
     pub fn as_names(&self) -> &[&'a Name] {
-        self.to_scoped()
+        self.as_scoped()
             .map(|s| s.as_names())
             .unwrap_or(slice::from_ref(&self.name))
     }
