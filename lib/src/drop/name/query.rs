@@ -5,6 +5,7 @@ use std::{
     convert::TryInto,
     fmt,
 };
+use super::ScopedName;
 
 /// A drop lookup in the form `(<scope>/)?<name>(@<version>)?`.
 ///
@@ -249,6 +250,12 @@ impl<N, V> Query<N, V> {
             name:    self.name.as_mut(),
             version: self.version.as_mut().map(AsMut::as_mut),
         }
+    }
+
+    /// Returns the scoped name for `self` if `scope` exists.
+    #[inline]
+    pub fn scoped_name<'a>(&'a self) -> Option<ScopedName<&'a N>> {
+        self.scope.as_ref().map(|scope| ScopedName { scope, name: &self.name })
     }
 
     /// Performs a partial version comparison between `self` and `other`.
