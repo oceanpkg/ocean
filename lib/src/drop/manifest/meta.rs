@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 use crate::drop::{
-    license::Expr,
     source::Git,
     version::Version,
 };
@@ -18,8 +17,10 @@ pub struct Meta {
     /// What is this drop?
     pub description: String,
 
-    /// The license used.
-    pub license: Option<Expr>,
+    /// The licenses used.
+    ///
+    /// This can be a single license or multiple delimited by "AND" or "OR".
+    pub license: Option<String>,
 
     /// Authors of the drop.
     pub authors: Option<Vec<String>>,
