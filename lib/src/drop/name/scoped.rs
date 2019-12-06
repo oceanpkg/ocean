@@ -204,6 +204,16 @@ impl<N> ScopedName<N> {
 }
 
 impl<'n, N: ?Sized> ScopedName<&'n N> {
+    /// Returns the result of calling [`Clone::clone`] on the fields of `self`.
+    ///
+    /// [`Clone::clone`]: https://doc.rust-lang.org/std/clone/trait.Clone.html#tymethod.clone
+    #[inline]
+    pub fn cloned(&self) -> ScopedName<N>
+        where N: Clone
+    {
+        self.map(Clone::clone)
+    }
+
     /// Returns the result of calling [`ToOwned::to_owned`] on the fields of
     /// `self`.
     ///
