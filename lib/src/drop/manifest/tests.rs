@@ -17,13 +17,13 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
     let docs = "https://docs.oceanpkg.org";
     let wget = Query::<&str>::parse_liberal("wget");
     let meta = Meta {
-        name: Name::OCEAN.into_boxed(),
+        name: "ocean".to_owned(),
         display_name: Some("Ocean".to_owned()),
         description: "Cross-platform package manager".to_owned(),
         exe_name: None,
         version: semver.into(),
         conflicts: None,
-        license: Some(SpdxLicense::Apache2.into()),
+        license: Some(SpdxLicense::Apache2.id().to_owned()),
         authors: Some(vec![
             "Nikolai Vazquez".to_owned(),
             "Alex Farra".to_owned(),
@@ -121,12 +121,13 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
 fn example_manifest() -> Manifest {
     Manifest {
         meta: Meta {
-            name: Name::new("wumbo").unwrap().into_boxed(),
+            name: "wumbo".to_owned(),
             display_name: Some("Wumbo".to_owned()),
             description: "Something silly".to_owned(),
+            exe_name: Some("wumbo".to_owned()),
             version: SemVer::new(0, 1, 0).into(),
             conflicts: None,
-            license: Some(license::Expr::parse("MIT OR Apache-2.0").unwrap()),
+            license: Some("MIT OR Apache-2.0".to_owned()),
             authors: Some(vec![
                 "Nikolai Vazquez".to_owned(),
                 "Patrick Star".to_owned(),
