@@ -1,4 +1,4 @@
-//! A drop lookup in the form `(<owner>/)?<drop>(@<version>)?`.
+//! A drop lookup in the form `(<scope>/)?<drop>(@<version>)?`.
 
 use std::{
     cmp::Ordering,
