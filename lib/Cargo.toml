@@ -12,6 +12,7 @@ documentation = "https://docs.rs/oceanpkg"
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "CHANGELOG.md", "LICENSE*"]
 
 [dependencies]
+cfg-if = "0.1"
 dirs = "1"
 lazy_static = "1.4"
 linfo = { version = "0.1.3", features = ["phf", "serde"] }

@@ -11,6 +11,7 @@
 #![doc(html_root_url = "https://docs.rs/oceanpkg/0.0.9")]
 #![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
 
+#[macro_use] extern crate cfg_if;
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate serde;
 #[macro_use] extern crate static_assertions;
@@ -25,6 +26,7 @@ pub mod cfg;
 pub mod drop;
 pub mod ext;
 pub mod install;
+pub mod system;
 
 #[doc(inline)]
 pub use self::drop::Drop;
