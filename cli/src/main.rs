@@ -5,6 +5,9 @@ extern crate oceanpkg;
 mod macros;
 
 mod cmd;
+mod state;
+
+use self::state::State;
 
 type Result<T = ()> = failure::Fallible<T>;
 
@@ -37,8 +40,7 @@ fn app() -> clap::App<'static, 'static> {
 
 fn main() {
     let matches = app().get_matches();
-
-    if let (command, Some(command_matches)) = matches.subcommand() {
+    if let (command, Some(matches)) = matches.subcommand() {
         let run = match command {
             cmd::list::NAME      => cmd::list::run,
             cmd::new::NAME       => cmd::new::run,
@@ -51,9 +53,10 @@ fn main() {
             cmd::self_::NAME     => cmd::self_::run,
             _ => unreachable!("could not match command {:?}", command),
         };
-        if let Err(error) = run(command_matches) {
-            exit_error!(error);
-        }
+        let mut state = State::new()
+            .unwrap_or_else(|error| exit_error!(error));
+        run(&mut state, matches)
+            .unwrap_or_else(|error| exit_error!(error));
     } else {
         // SubcommandRequiredElseHelp
     }

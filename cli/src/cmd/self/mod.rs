@@ -1,4 +1,3 @@
-use clap::ArgMatches;
 use super::prelude::*;
 
 mod uninstall;
@@ -19,14 +18,14 @@ pub fn cmd() -> App {
         ])
 }
 
-pub fn run(matches: &ArgMatches) -> crate::Result {
-    if let (command, Some(command_matches)) = matches.subcommand() {
+pub fn run(state: &mut crate::State, matches: &ArgMatches) -> crate::Result {
+    if let (command, Some(matches)) = matches.subcommand() {
         let run = match command {
             update::NAME    => update::run,
             uninstall::NAME => uninstall::run,
             _ => unreachable!("could not match command {:?}", command),
         };
-        run(command_matches)
+        run(state, matches)
     } else {
         // SubcommandRequiredElseHelp
         unreachable!()

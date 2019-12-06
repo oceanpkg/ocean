@@ -1,4 +1,3 @@
-use clap::ArgMatches;
 use super::super::prelude::*;
 
 pub const NAME: &str = "uninstall";
@@ -8,6 +7,6 @@ pub fn cmd() -> App {
         .about("Uninstall Ocean")
 }
 
-pub fn run(_matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut crate::State, _matches: &ArgMatches) -> crate::Result {
     unimplemented!()
 }

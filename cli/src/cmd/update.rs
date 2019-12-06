@@ -18,7 +18,7 @@ pub fn cmd() -> App {
             .required_unless("all"))
 }
 
-pub fn run(matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut crate::State, matches: &ArgMatches) -> crate::Result {
     let install_target = matches.install_target();
     println!("Updating for {:?}", install_target);
 

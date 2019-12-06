@@ -17,7 +17,7 @@ pub fn cmd() -> App {
             .help("The path where to write the manifest"))
 }
 
-pub fn run(matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut crate::State, matches: &ArgMatches) -> crate::Result {
     let path_buf: PathBuf;
     let path: &Path = match matches.value_of_os("path") {
         Some(path) => path.as_ref(),
