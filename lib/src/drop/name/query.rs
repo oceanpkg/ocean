@@ -246,6 +246,7 @@ impl<N, V> Query<N, V> {
     /// Takes a mutable reference to the fields of this query as type `A`.
     ///
     /// See [`Query::to_ref`](#method.to_ref) for the immutable equivalent.
+    #[inline]
     pub fn to_mut<A>(&mut self) -> Query<&mut A>
     where
         N: AsMut<A>,
