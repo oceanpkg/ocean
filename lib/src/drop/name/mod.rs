@@ -13,7 +13,7 @@ pub mod scoped;
 #[doc(inline)]
 pub use self::{
     query::Query,
-    scoped::{ScopedName, ScopedNameRef},
+    scoped::ScopedName,
 };
 
 /// A valid drop name.
