@@ -25,6 +25,15 @@ impl<'a> TryFrom<&'a str> for &'a Name {
     }
 }
 
+impl TryFrom<&str> for Box<Name> {
+    type Error = ValidateError;
+
+    #[inline]
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        <&Name>::try_from(s).map(|name| name.into_boxed())
+    }
+}
+
 impl<'a> TryFrom<&'a [u8]> for &'a Name {
     type Error = ValidateError;
 
