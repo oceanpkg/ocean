@@ -29,7 +29,7 @@ pub fn cmd() -> App {
             .multiple(true))
 }
 
-pub fn run(matches: &ArgMatches) {
+pub fn run(matches: &ArgMatches) -> crate::Result {
     let with_deps: Vec<&Name> = matches
         .values_of("with")
         .map(name_values)
@@ -52,6 +52,8 @@ pub fn run(matches: &ArgMatches) {
             // TODO: Install package
         }
     }
+
+    unimplemented!()
 }
 
 /// Converts `values` to a vector of `Name`s if they're all valid, or exits with

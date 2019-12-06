@@ -12,7 +12,7 @@ pub fn cmd() -> App {
             .help("List drops globally available to all users"))
 }
 
-pub fn run(matches: &ArgMatches) {
+pub fn run(matches: &ArgMatches) -> crate::Result {
     let install_target = matches.install_target();
     unimplemented!("TODO: List for {:?}", install_target);
 }

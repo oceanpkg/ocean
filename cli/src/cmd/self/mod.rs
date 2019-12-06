@@ -19,15 +19,16 @@ pub fn cmd() -> App {
         ])
 }
 
-pub fn run(matches: &ArgMatches) {
+pub fn run(matches: &ArgMatches) -> crate::Result {
     if let (command, Some(command_matches)) = matches.subcommand() {
         let run = match command {
             update::NAME    => update::run,
             uninstall::NAME => uninstall::run,
             _ => unreachable!("could not match command {:?}", command),
         };
-        run(command_matches);
+        run(command_matches)
     } else {
         // SubcommandRequiredElseHelp
+        unreachable!()
     }
 }

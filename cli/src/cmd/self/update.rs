@@ -8,6 +8,6 @@ pub fn cmd() -> App {
         .about("Download and install updates to Ocean")
 }
 
-pub fn run(_matches: &ArgMatches) {
+pub fn run(_matches: &ArgMatches) -> crate::Result {
     unimplemented!()
 }

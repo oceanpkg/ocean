@@ -13,6 +13,6 @@ pub fn cmd() -> App {
             .required(true))
 }
 
-pub fn run(_matches: &ArgMatches) {
+pub fn run(_matches: &ArgMatches) -> crate::Result {
     unimplemented!()
 }

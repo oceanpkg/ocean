@@ -33,7 +33,7 @@ pub fn cmd() -> App {
         .after_help(AFTER_HELP)
 }
 
-pub fn run(matches: &ArgMatches) {
+pub fn run(matches: &ArgMatches) -> crate::Result {
     let install_target = matches.install_target();
 
     #[allow(unreachable_code)]

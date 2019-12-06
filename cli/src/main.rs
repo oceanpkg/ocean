@@ -6,6 +6,8 @@ mod macros;
 
 mod cmd;
 
+type Result<T = ()> = failure::Fallible<T>;
+
 const ABOUT: &str = "
 Flexibly manages packages
 
@@ -49,7 +51,9 @@ fn main() {
             cmd::self_::NAME     => cmd::self_::run,
             _ => unreachable!("could not match command {:?}", command),
         };
-        run(command_matches);
+        if let Err(error) = run(command_matches) {
+            exit_error!(error);
+        }
     } else {
         // SubcommandRequiredElseHelp
     }

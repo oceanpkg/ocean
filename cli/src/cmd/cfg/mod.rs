@@ -12,7 +12,7 @@ pub fn cmd() -> App {
             .help("The global configuration file for all users"))
 }
 
-pub fn run(matches: &ArgMatches) {
+pub fn run(matches: &ArgMatches) -> crate::Result {
     let install_target = matches.install_target();
 
     let config_dir = match install_target.cfg_dir() {
@@ -73,6 +73,7 @@ pub fn run(matches: &ArgMatches) {
 
     process::Command::new(editor)
         .arg(&config_file.path)
-        .spawn()
-        .unwrap();
+        .spawn()?;
+
+    Ok(())
 }
