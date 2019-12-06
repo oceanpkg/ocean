@@ -5,6 +5,7 @@ use std::{
     convert::TryInto,
     fmt,
 };
+use url::Url;
 use super::ScopedName;
 
 /// A drop lookup in the form `(<scope>/)?<name>(@<version>)?`.
@@ -290,6 +291,41 @@ impl<N, V> Query<N, V> {
             (None, None) => Some(Ordering::Equal),
             _ => None,
         }
+    }
+
+    /// Returns a new `Url` with the fields of `self` appended.
+    ///
+    /// # Examples
+    ///
+    /// If `scope` is empty, it is replaced with `core`.
+    ///
+    /// ```
+    /// use oceanpkg::drop::name::Query;
+    /// use url::Url;
+    ///
+    /// let query = "wget@1.20";
+    /// let query = Query::<&str>::parse_liberal(query);
+    ///
+    /// let url = Url::parse("https://www.oceanpkg.org").unwrap();
+    /// let url = query.join_to_url(&url).unwrap();
+    ///
+    /// assert_eq!(url.as_str(), "https://www.oceanpkg.org/u/core/p/wget?version=1.20");
+    /// ```
+    pub fn join_to_url(&self, url: &Url) -> Result<Url, url::ParseError>
+    where
+        N: fmt::Display,
+        V: AsRef<str>,
+    {
+        let suffix = if let Some(scope) = &self.scope {
+            format!("u/{}/p/{}", scope, self.name)
+        } else {
+            format!("u/core/p/{}", self.name)
+        };
+        let mut url = url.join(&suffix)?;
+        if let Some(version) = &self.version {
+            url.query_pairs_mut().append_pair("version", version.as_ref());
+        }
+        Ok(url)
     }
 }
 
