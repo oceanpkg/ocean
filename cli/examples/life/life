@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Get the user's full display name.
+if [[ `uname` -eq "Darwin" ]]; then
+    FULL_NAME=$(osascript -e "long user name of (system info)")
+else
+    FULL_NAME=$(getent passwd "$USER" | cut -d ":" -f 5 )
+fi
+
+echo "Hello $FULL_NAME, the answer to the question of the meaning of life, the universe, and everything is... 42"

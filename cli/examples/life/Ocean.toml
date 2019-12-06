@@ -1,0 +1,5 @@
+[meta]
+name = "life"
+description = "Find the answer you're looking for."
+path = "life"
+version = "0.0.1"

@@ -1,3 +1,6 @@
+#[macro_use] extern crate failure;
+#[macro_use] extern crate serde;
+
 extern crate clap;
 extern crate oceanpkg;
 
@@ -12,6 +15,17 @@ const ABOUT: &str = "
 Flexibly manages packages
 
 See https://www.oceanpkg.org for more info.";
+
+fn api_url() -> std::result::Result<url::Url, url::ParseError> {
+    let url_buf: String;
+    let url: &str = if let Ok(url) = std::env::var("OCEAN_API_URL") {
+        url_buf = url;
+        &url_buf
+    } else {
+        "https://api.oceanpkg.org/"
+    };
+    url::Url::parse(url)
+}
 
 fn app() -> clap::App<'static, 'static> {
     clap::App::new("ocean")
@@ -49,6 +63,7 @@ fn main() {
             cmd::run::NAME       => cmd::run::run,
             cmd::cfg::NAME       => cmd::cfg::run,
             cmd::self_::NAME     => cmd::self_::run,
+            cmd::login::NAME     => cmd::login::run,
             _ => unreachable!("could not match command {:?}", command),
         };
         if let Err(error) = run(command_matches) {

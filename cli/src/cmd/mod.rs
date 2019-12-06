@@ -9,6 +9,7 @@ pub mod new;
 pub mod search;
 pub mod uninstall;
 pub mod update;
+pub mod login;
 
 #[path = "self/mod.rs"]
 pub mod self_; // `self` is a keyword
@@ -25,5 +26,6 @@ pub fn all() -> Vec<App> {
         run::cmd(),
         cfg::cmd(),
         self_::cmd(),
+        login::cmd(),
     ]
 }
