@@ -18,6 +18,7 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
     let wget = Query::<&str>::parse_liberal("wget");
     let meta = Meta {
         name: Name::OCEAN.into_boxed(),
+        display_name: Some("Ocean".to_owned()),
         description: "Cross-platform package manager".to_owned(),
         version: semver.into(),
         conflicts: None,
@@ -40,6 +41,7 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
         r#"
             [meta]
             name = "ocean"
+            display-name = "Ocean"
             description = "Cross-platform package manager"
             version = "{version}"
             license = "Apache-2.0"
@@ -57,7 +59,7 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
     );
     let detailed_deps: Deps = vec![
         (
-            wget.into_owned(),
+            wget.to_owned(),
             DepInfo {
                 version: "*".to_owned(),
                 optional: false,
@@ -81,7 +83,7 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
             Manifest {
                 meta: meta.clone(),
                 deps: Some(vec![
-                    (wget.into_owned(), "*".to_owned().into())
+                    (wget.to_owned(), "*".to_owned().into())
                 ].into_iter().collect()),
             }
         ),
@@ -119,6 +121,7 @@ fn example_manifest() -> Manifest {
     Manifest {
         meta: Meta {
             name: Name::new("wumbo").unwrap().into_boxed(),
+            display_name: Some("Wumbo".to_owned()),
             description: "Something silly".to_owned(),
             version: SemVer::new(0, 1, 0).into(),
             conflicts: None,
