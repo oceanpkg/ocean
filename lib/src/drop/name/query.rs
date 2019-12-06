@@ -94,8 +94,18 @@ impl<'a> Query<&'a str> {
 impl<N, V> Query<N, V> {
     /// Creates a new `Query` instance with `scope`, `name`, and `version`.
     ///
+    /// # Examples
+    ///
     /// This serves as a convenience to not need to deal with explicitly
     /// wrapping types with `Some`.
+    ///
+    /// ```
+    /// use oceanpkg::drop::name::Query;
+    ///
+    /// let query = Query::<&str>::new("core", "wget", "1.20");
+    ///
+    /// assert_eq!(query.to_string(), "core/wget@1.20");
+    /// ```
     #[inline]
     pub fn new<A, B, C>(scope: A, name: B, version: C) -> Self
     where
