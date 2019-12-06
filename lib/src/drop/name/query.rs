@@ -25,6 +25,13 @@ pub struct Query<Name = String, Version = Name> {
     pub version: Option<Version>,
 }
 
+impl<N, V> From<ScopedName<N>> for Query<N, V> {
+    #[inline]
+    fn from(n: ScopedName<N>) -> Self {
+        Self { scope: Some(n.scope), name: n.name, version: None }
+    }
+}
+
 impl<A, B, X, Y> PartialEq<Query<X, Y>> for Query<A, B>
 where
     A: PartialEq<X>,

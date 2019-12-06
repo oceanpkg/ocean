@@ -6,6 +6,7 @@ use std::{
 };
 use super::{
     Name,
+    Query,
     ValidateError,
 };
 
@@ -186,6 +187,22 @@ impl<N> ScopedName<N> {
         ScopedName {
             scope: f(self.scope),
             name:  f(self.name),
+        }
+    }
+
+    /// Converts `self` into a `Query`.
+    #[inline]
+    pub fn into_query(self) -> Query<N> {
+        self.into()
+    }
+
+    /// Converts `self` into a `Query` with the specified `version`.
+    #[inline]
+    pub fn into_query_with<V>(self, version: V) -> Query<N, V> {
+        Query {
+            scope: Some(self.scope),
+            name: self.name,
+            version: Some(version),
         }
     }
 
