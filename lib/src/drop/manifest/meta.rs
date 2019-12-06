@@ -17,6 +17,9 @@ pub struct Meta {
     /// What is this drop?
     pub description: String,
 
+    /// The name of the executable.
+    pub exe_name: Option<String>,
+
     /// The licenses used.
     ///
     /// This can be a single license or multiple delimited by "AND" or "OR".

@@ -20,6 +20,7 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
         name: Name::OCEAN.into_boxed(),
         display_name: Some("Ocean".to_owned()),
         description: "Cross-platform package manager".to_owned(),
+        exe_name: None,
         version: semver.into(),
         conflicts: None,
         license: Some(SpdxLicense::Apache2.into()),
