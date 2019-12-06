@@ -62,7 +62,10 @@ impl From<Lib> for Drop {
 
 impl Drop {
     ///
-    pub fn query(query: &name::QueryNameRef) -> Result<Self, ()> {
+    pub fn query<S>(query: &name::Query<S>) -> Result<Self, ()>
+        where S: AsRef<str>
+    {
+        let query = query.to_ref::<str>();
         unimplemented!("TODO: Find '{}' drop", query);
     }
 

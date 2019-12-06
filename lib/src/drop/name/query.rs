@@ -1,265 +1,320 @@
-//! A drop name that may or may not be scoped.
+//! A drop lookup in the form `(<owner>/)?<drop>(@<version>)?`.
 
 use std::{
+    cmp::Ordering,
     convert::TryInto,
     fmt,
-    slice,
-};
-use super::{
-    Name,
-    scoped::{self, ScopedNameRef},
 };
 
-/// A drop name that may or may not be scoped, with ownership over its names.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedNameRef`
-pub struct QueryName {
-    /// The scope scope if the query is scoped to a specific owner.
-    ///
-    /// If this scope is `None`, then drops are checked against the main trusted
-    /// set of packages. It is not yet decided as to what goes there.
-    pub scope: Option<Box<Name>>,
-    /// The name of the drop itself.
-    pub name: Box<Name>,
+/// A drop lookup in the form `(<scope>/)?<name>(@<version>)?`.
+///
+/// By default, [`String`] is used for the generic `Name` and `Version` types.
+///
+/// When performing [zero-copy] parsing, it is recommended to use `Query<&str>`.
+///
+/// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
+/// [zero-copy]: https://en.wikipedia.org/wiki/Zero-copy
+#[derive(Clone, Copy, Debug, Eq, PartialOrd, Ord, Hash)]
+pub struct Query<Name = String, Version = Name> {
+    /// The drop's owner.
+    pub scope: Option<Name>,
+    /// The drop's name.
+    pub name: Name,
+    /// The drop's version requirement.
+    pub version: Option<Version>,
 }
 
-assert_eq_size!(QueryName,  QueryNameRef);
-assert_eq_align!(QueryName, QueryNameRef);
-
-impl From<QueryNameRef<'_>> for QueryName {
-    #[inline]
-    fn from(n: QueryNameRef) -> Self {
-        Self {
-            scope: n.scope.map(|s| s.into()),
-            name:  n.name.into(),
-        }
-    }
-}
-
-impl PartialEq<QueryNameRef<'_>> for QueryName {
-    fn eq(&self, other: &QueryNameRef) -> bool {
-        let eq_scope = match (&self.scope, other.scope) {
-            (Some(self_scope), Some(other_scope)) => {
-                &**self_scope == other_scope
-            },
-            (None, None) => true,
-            _ => false,
-        };
-        eq_scope && &*self.name == other.name
-    }
-}
-
-impl PartialEq<QueryName> for QueryNameRef<'_> {
-    fn eq(&self, other: &QueryName) -> bool {
-        other == self
-    }
-}
-
-impl fmt::Display for QueryName {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        (self.as_ref() as &QueryNameRef).fmt(f)
-    }
-}
-
-impl QueryName {
-    /// Returns `self` as a [`QueryNameRef`] reference.
-    ///
-    /// [`QueryNameRef`]: struct.QueryNameRef.html
-    #[inline]
-    pub fn as_ref<'s>(&'s self) -> &'s QueryNameRef<'s> {
-        unsafe { &*(self as *const Self as *const QueryNameRef) }
-    }
-
-    /// Returns a [`QueryNameRef`] for `self`.
-    ///
-    /// [`QueryNameRef`]: struct.QueryNameRef.html
-    #[inline]
-    pub fn to_ref<'s>(&'s self) -> QueryNameRef<'s> {
-        *self.as_ref()
-    }
-}
-
-/// A drop name that may or may not be scoped.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(C)] // `scope` must be first to be bitwise-compatible with `ScopedNameRef`
-pub struct QueryNameRef<'a> {
-    /// The scope scope if the query is scoped to a specific owner.
-    ///
-    /// If this scope is `None`, then drops are checked against the main trusted
-    /// set of packages. It is not yet decided as to what goes there.
-    pub scope: Option<&'a Name>,
-    /// The name of the drop itself.
-    pub name: &'a Name,
-}
-
-impl<'a> From<&'a Name> for QueryNameRef<'a> {
-    #[inline]
-    fn from(name: &'a Name) -> Self {
-        Self { scope: None, name }
-    }
-}
-
-impl<'a, N: Into<&'a Name>> From<[N; 2]> for QueryNameRef<'a> {
-    #[inline]
-    fn from([scope, name]: [N; 2]) -> Self {
-        Self::new(scope.into(), name)
-    }
-}
-
-impl<'a, S, N> From<(S, N)> for QueryNameRef<'a>
+impl<A, B, X, Y> PartialEq<Query<X, Y>> for Query<A, B>
 where
-    S: Into<Option<&'a Name>>,
-    N: Into<&'a Name>,
+    A: PartialEq<X>,
+    B: PartialEq<Y>,
 {
-    #[inline]
-    fn from((scope, name): (S, N)) -> Self {
-        Self::new(scope, name)
+    fn eq(&self, other: &Query<X, Y>) -> bool {
+        // Needed because `Option<T>` only implements `PartialEq` over itself.
+        fn eq_option<A, B>(a: &Option<A>, b: &Option<B>) -> bool
+            where A: PartialEq<B>
+        {
+            match (a, b) {
+                (Some(a), Some(b)) => a == b,
+                (None, None) => true,
+                _ => false,
+            }
+        }
+        eq_option(&self.scope, &other.scope) &&
+            self.name == other.name &&
+            eq_option(&self.version, &other.version)
     }
 }
 
-impl<'a> From<ScopedNameRef<'a>> for QueryNameRef<'a> {
-    #[inline]
-    fn from(n: ScopedNameRef<'a>) -> Self {
-        Self { scope: Some(n.scope), name: n.name }
-    }
-}
-
-impl fmt::Display for QueryNameRef<'_> {
+impl<N: fmt::Display, V: fmt::Display> fmt::Display for Query<N, V> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(scoped) = self.to_scoped() {
-            scoped.fmt(f)
-        } else {
-            self.name.fmt(f)
+        if let Some(scope) = self.scope.as_ref() {
+            write!(f, "{}/", scope)?;
         }
-    }
-}
 
-impl PartialEq<Name> for QueryNameRef<'_> {
-    #[inline]
-    fn eq(&self, n: &Name) -> bool {
-        self.scope.is_none() && self.name == n
-    }
-}
+        write!(f, "{}", self.name)?;
 
-// Seems redundant but required to make `assert_eq!` prettier.
-impl PartialEq<&Name> for QueryNameRef<'_> {
-    #[inline]
-    fn eq(&self, n: &&Name) -> bool {
-        *self == **n
-    }
-}
-
-impl PartialEq<QueryNameRef<'_>> for Name {
-    #[inline]
-    fn eq(&self, n: &QueryNameRef) -> bool {
-        n == self
-    }
-}
-
-// Seems redundant but required to make `assert_eq!` prettier.
-impl PartialEq<QueryNameRef<'_>> for &Name {
-    #[inline]
-    fn eq(&self, n: &QueryNameRef) -> bool {
-        n == self
-    }
-}
-
-impl PartialEq<str> for QueryNameRef<'_> {
-    fn eq(&self, s: &str) -> bool {
-        let mut parts = s.split('/');
-        match (parts.next(), parts.next(), parts.next(), self.scope) {
-            (Some(scope), Some(name), None, Some(self_scope)) => {
-                self_scope == scope && self.name == name
-            },
-            (Some(name), None, None, None) => {
-                self.name == name
-            },
-            _ => false,
+        if let Some(version) = self.version.as_ref() {
+            write!(f, "@{}", version)?;
         }
+
+        Ok(())
     }
 }
 
-// Seems redundant but required to make `assert_eq!` prettier.
-impl PartialEq<&str> for QueryNameRef<'_> {
-    #[inline]
-    fn eq(&self, s: &&str) -> bool {
-        *self == **s
+impl<'a> Query<&'a str> {
+    // Monomorphized form of `parse_liberal` to slightly reduce the instruction
+    // count of the binary.
+    fn _parse_liberal(query: &'a str) -> Self {
+        let mut scope_iter = query.splitn(2, '/');
+        let (scope, rest) = match (scope_iter.next(), scope_iter.next()) {
+            (None, _) => unreachable!(),
+            (Some(rest), None) => (None, rest),
+            (scope, Some(rest)) => (scope, rest),
+        };
+
+        let mut version_iter = rest.splitn(2, '@');
+        let (name, version) = match (version_iter.next(), version_iter.next()) {
+            (None, _) => unreachable!(),
+            (Some(name), version) => (name, version),
+        };
+
+        Self { scope, name, version }
     }
 }
 
-impl PartialEq<QueryNameRef<'_>> for str {
+impl<N, V> Query<N, V> {
+    /// Creates a new `Query` instance with `scope`, `name`, and `version`.
+    ///
+    /// This serves as a convenience to not need to deal with explicitly
+    /// wrapping types with `Some`.
     #[inline]
-    fn eq(&self, n: &QueryNameRef) -> bool {
-        n == self
-    }
-}
-
-impl PartialEq<QueryNameRef<'_>> for &str {
-    #[inline]
-    fn eq(&self, n: &QueryNameRef) -> bool {
-        n == self
-    }
-}
-
-impl<'a> QueryNameRef<'a> {
-    /// Creates a new instance from `scope` and `name`.
-    #[inline]
-    pub fn new<S, N>(scope: S, name: N) -> Self
+    pub fn new<A, B, C>(scope: A, name: B, version: C) -> Self
     where
-        S: Into<Option<&'a Name>>,
-        N: Into<&'a Name>,
+        A: Into<N>,
+        B: Into<N>,
+        C: Into<V>,
     {
-        Self { scope: scope.into(), name: name.into() }
+        Self {
+            scope:   Some(scope.into()),
+            name:    name.into(),
+            version: Some(version.into()),
+        }
     }
 
-    /// Attempts to create a new instance by parsing `query`.
+    /// Attempts to create a new instance by strictly parsing `name`.
     #[inline]
-    pub fn parse<Q>(query: Q) -> Result<Self, scoped::ParseError>
-        where Q: TryInto<Self, Error = scoped::ParseError>
+    pub fn parse<Q, NE, VE>(query: Q) -> Result<Self, ParseError<NE, VE>>
+        where Q: TryInto<Self, Error = ParseError<NE, VE>>
     {
         query.try_into()
     }
 
-    /// Copies the data referred to by `self` and takes ownership of it.
+    /// Creates a new instance by parsing `query` in a non-strict manner.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use oceanpkg::drop::name::Query;
+    ///
+    /// let scope   = "core";
+    /// let name    = "ruby";
+    /// let version = "2.6";
+    ///
+    /// let query_string = format!("{}/{}@{}", scope, name, version);
+    /// let query = Query::<&str>::parse_liberal(&query_string);
+    ///
+    /// assert_eq!(query.scope,   Some(scope));
+    /// assert_eq!(query.name,    name);
+    /// assert_eq!(query.version, Some(version));
+    ///
+    /// assert_eq!(query.to_string(), query_string);
+    /// ```
     #[inline]
-    pub fn into_owned(self) -> QueryName {
-        self.into()
+    pub fn parse_liberal<'a>(query: &'a str) -> Self
+    where
+        &'a str: Into<N>,
+        &'a str: Into<V>,
+    {
+        Query::_parse_liberal(query).cast()
     }
 
-    /// Converts `self` to a scoped name reference if it is one.
+    /// Converts `self` into a new `Query` by performing an [`Into`] conversion
+    /// over all fields.
+    ///
+    /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
     #[inline]
-    pub fn as_scoped(&self) -> Option<&ScopedNameRef<'a>> {
-        if self.scope.is_none() {
-            None
-        } else {
-            // SAFETY: Checked above that the memory layout of both is the same
-            Some(unsafe { &*(self as *const Self as *const ScopedNameRef) })
+    pub fn cast<A, B>(self) -> Query<A, B>
+    where
+        N: Into<A>,
+        V: Into<B>,
+    {
+        Query {
+            scope:   self.scope.map(Into::into),
+            name:    self.name.into(),
+            version: self.version.map(Into::into),
         }
     }
 
-    /// Converts `self` to a scoped name if it is one.
-    #[inline]
-    pub fn to_scoped(&self) -> Option<ScopedNameRef<'a>> {
-        self.as_scoped().map(|s| *s)
+    /// Converts `self` into a new `Query` by performing an [`Into`] conversion
+    /// over all fields.
+    ///
+    /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
+    pub fn try_cast<A, B>(self) -> Result<Query<A, B>, ParseError<N::Error, V::Error>>
+    where
+        N: TryInto<A>,
+        V: TryInto<B>,
+    {
+        let scope = match self.scope.map(TryInto::try_into) {
+            Some(Err(error)) => return Err(ParseError::Scope(error)),
+            Some(Ok(error)) => Some(error),
+            None => None,
+        };
+        let name = match self.name.try_into() {
+            Err(error) => return Err(ParseError::Name(error)),
+            Ok(name) => name,
+        };
+        let version = match self.version.map(TryInto::try_into) {
+            Some(Err(error)) => return Err(ParseError::Version(error)),
+            Some(Ok(error)) => Some(error),
+            None => None,
+        };
+        Ok(Query { scope, name, version })
     }
 
-    /// Converts `self` to a simple name if it has no scope.
+    /// Takes a shared reference to the fields of this query.
+    ///
+    /// See [`Query::as_mut`](#method.as_mut) for the mutable equivalent.
     #[inline]
-    pub fn to_name(&self) -> Option<&'a Name> {
-        if self.scope.is_none() {
-            Some(self.name)
-        } else {
-            None
+    pub fn as_ref(&self) -> Query<&N, &V> {
+        Query {
+            scope:   self.scope.as_ref(),
+            name:    &self.name,
+            version: self.version.as_ref(),
         }
     }
 
-    /// Converts `self` into a slice of `Name`s.
+    /// Takes a shared reference to the fields of this query as type `A`.
+    ///
+    /// See [`Query::to_mut`](#method.to_mut) for the mutable equivalent.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use oceanpkg::drop::name::Query;
+    ///
+    /// let query: Query<String> = //
+    /// # Query::new("", "", "");
+    /// let by_ref: Query<&str> = query.to_ref();
+    ///
+    /// assert_eq!(query, by_ref);
+    /// ```
     #[inline]
-    pub fn as_names(&self) -> &[&'a Name] {
-        self.as_scoped()
-            .map(|s| s.as_names())
-            .unwrap_or(slice::from_ref(&self.name))
+    pub fn to_ref<A>(&self) -> Query<&A>
+    where
+        N: AsRef<A>,
+        V: AsRef<A>,
+        A: ?Sized,
+    {
+        Query {
+            scope:   self.scope.as_ref().map(AsRef::as_ref),
+            name:    self.name.as_ref(),
+            version: self.version.as_ref().map(AsRef::as_ref),
+        }
+    }
+
+    /// Takes a mutable reference to the fields of this query.
+    ///
+    /// See [`Query::as_ref`](#method.as_ref) for the immutable equivalent.
+    #[inline]
+    pub fn as_mut(&mut self) -> Query<&mut N, &mut V> {
+        Query {
+            scope:   self.scope.as_mut(),
+            name:    &mut self.name,
+            version: self.version.as_mut(),
+        }
+    }
+
+    /// Takes a mutable reference to the fields of this query as type `A`.
+    ///
+    /// See [`Query::to_ref`](#method.to_ref) for the immutable equivalent.
+    pub fn to_mut<A>(&mut self) -> Query<&mut A>
+    where
+        N: AsMut<A>,
+        V: AsMut<A>,
+        A: ?Sized,
+    {
+        Query {
+            scope:   self.scope.as_mut().map(AsMut::as_mut),
+            name:    self.name.as_mut(),
+            version: self.version.as_mut().map(AsMut::as_mut),
+        }
+    }
+
+    /// Performs a partial version comparison between `self` and `other`.
+    ///
+    /// Returns `None` if:
+    /// - One version is `Some` and the other is `Some`.
+    /// - `<V as PartialOrd<B>>::partial_cmp` returns `None`.
+    #[inline]
+    pub fn cmp_version<A, B>(&self, other: &Query<A, B>) -> Option<Ordering>
+        where V: PartialOrd<B>
+    {
+        match (&self.version, &other.version) {
+            (Some(this), Some(other)) => this.partial_cmp(other),
+            (None, None) => Some(Ordering::Equal),
+            _ => None,
+        }
+    }
+}
+
+impl<'n, 'v, N: ?Sized, V: ?Sized> Query<&'n N, &'v V> {
+    /// Returns the result of calling [`ToOwned::to_owned`] on the fields of
+    /// `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use oceanpkg::drop::name::Query;
+    ///
+    /// let query: Query<&str> = Query::new("core", "wget", "*");
+    /// let owned: Query<String> = query.to_owned();
+    ///
+    /// assert_eq!(query, owned);
+    /// ```
+    ///
+    /// [`ToOwned::to_owned`]: https://doc.rust-lang.org/std/borrow/trait.ToOwned.html#tymethod.to_owned
+    pub fn to_owned(&self) -> Query<N::Owned, V::Owned>
+    where
+        N: ToOwned,
+        V: ToOwned,
+    {
+        Query {
+            scope:   self.scope.map(ToOwned::to_owned),
+            name:    self.name.to_owned(),
+            version: self.version.map(ToOwned::to_owned),
+        }
+    }
+}
+
+/// An error returned when parsing a `Query`.
+pub enum ParseError<NameError, VersionError> {
+    /// An error occurred when parsing the `scope` field.
+    Scope(NameError),
+    /// An error occurred when parsing the `name` field.
+    Name(NameError),
+    /// An error occurred when parsing the `version` field.
+    Version(VersionError),
+}
+
+impl<N: fmt::Display, V: fmt::Display> fmt::Display for ParseError<N, V> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "failed to parse query ")?;
+        match self {
+            Self::Scope(error)   => write!(f, "scope: {}", error),
+            Self::Name(error)    => write!(f, "name: {}", error),
+            Self::Version(error) => write!(f, "version: {}", error),
+        }
     }
 }
 
@@ -268,49 +323,19 @@ mod tests {
     use super::*;
 
     #[test]
-    fn eq_name() {
-        let names = Name::RESERVED_SCOPES;
+    fn parse_liberal() {
+        let cases: &[(&str, (Option<&str>, &str, Option<&str>))] = &[
+            ("ocean",           (None,          "ocean",  None)),
+            ("ocean@1",         (None,          "ocean",  Some("1"))),
+            ("ocean/ocean@1",   (Some("ocean"), "ocean",  Some("1"))),
+            ("ocean//ocean@1",  (Some("ocean"), "/ocean", Some("1"))),
+            ("ocean//ocean@@1", (Some("ocean"), "/ocean", Some("@1"))),
+        ];
+        for &(query_string, (scope, name, version)) in cases {
+            let query = Query::<&str>::parse_liberal(query_string);
 
-        for &name in names {
-            assert_eq!(name, QueryNameRef::from(name));
-            for &scope in names {
-                assert_ne!(name, QueryNameRef::new(scope, name));
-            }
-        }
-    }
-
-    #[test]
-    fn eq_str() {
-        fn test(query: QueryNameRef) {
-            fn bad_queries(query: &str) -> Vec<String> {
-                let query = query.to_string();
-                let mut result = vec![
-                    query.to_uppercase(),
-                    format!("{}/", query),
-                    format!("/{}", query),
-                    format!("/{}/", query),
-                ];
-                if query.contains("/") {
-                    result.push(query.replace("/", ""));
-                }
-                result
-            }
-
-            let query_string = query.to_string();
-            assert_eq!(query, *query_string);
-
-            for bad_query in bad_queries(&query_string) {
-                assert_ne!(query, *bad_query);
-            }
-        }
-
-        let names = Name::RESERVED_SCOPES;
-
-        for &name in names {
-            test(name.into());
-            for &scope in names {
-                test(QueryNameRef::new(scope, name));
-            }
+            assert_eq!(query, Query { scope, name, version });
+            assert_eq!(query_string, query.to_string());
         }
     }
 }

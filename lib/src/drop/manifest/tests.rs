@@ -3,7 +3,7 @@
 use super::*;
 use crate::drop::{
     license::{self, SpdxLicense},
-    name::{Name, QueryNameRef},
+    name::{Name, Query},
     source::git::{self, Git, OCEAN_REPO},
     version::SemVer,
 };
@@ -15,7 +15,7 @@ fn manifests<'a>() -> Vec<(String, Manifest)> {
     let repo = OCEAN_REPO;
     let home = "https://www.oceanpkg.org";
     let docs = "https://docs.oceanpkg.org";
-    let wget = QueryNameRef::parse("wget").unwrap();
+    let wget = Query::<&str>::parse_liberal("wget");
     let meta = Meta {
         name: Name::OCEAN.into_boxed(),
         description: "Cross-platform package manager".to_owned(),

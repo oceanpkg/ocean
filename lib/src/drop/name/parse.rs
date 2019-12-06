@@ -1,5 +1,5 @@
 use std::{
-    convert::TryFrom,
+    convert::{TryFrom, TryInto},
     ffi::{CStr, OsStr},
     fmt,
     str,
@@ -11,8 +11,7 @@ use serde::{
 use crate::ext::OsStrExt;
 use super::{
     Name,
-    QueryName,
-    QueryNameRef,
+    query::{self, Query},
     scoped::{self, ScopedName, ScopedNameRef},
     ValidateError,
 };
@@ -253,43 +252,25 @@ impl Serialize for ScopedNameRef<'_> {
 
 //==============================================================================
 
-impl<'a> TryFrom<&'a str> for QueryNameRef<'a> {
-    type Error = scoped::ParseError;
+// TODO: Reintroduce `TryFrom<&[u8]>`.
+impl<'a, N, V> TryFrom<&'a str> for Query<N, V>
+where
+    &'a str: TryInto<N>,
+    &'a str: TryInto<V>,
+{
+    type Error = query::ParseError<
+        <&'a str as TryInto<N>>::Error,
+        <&'a str as TryInto<V>>::Error,
+    >;
 
     #[inline]
-    fn try_from(s: &'a str) -> Result<Self, Self::Error> {
-        TryFrom::try_from(s.as_bytes())
+    fn try_from(query: &'a str) -> Result<Self, Self::Error> {
+        Query::<&str>::parse_liberal(query).try_cast()
     }
 }
 
-impl<'a> TryFrom<&'a [u8]> for QueryNameRef<'a> {
-    type Error = scoped::ParseError;
-
-    fn try_from(bytes: &'a [u8]) -> Result<Self, Self::Error> {
-        match ScopedNameRef::parse(bytes) {
-            Ok(scoped) => Ok(scoped.into()),
-            Err(scoped::ParseError::MissingSeparator) => {
-                // No '/' means the query is only a name.
-                Name::new(bytes)
-                    .map(|name| Self { scope: None, name })
-                    .map_err(|err| scoped::ParseError::Name(err))
-            },
-            Err(error) => Err(error),
-        }
-    }
-}
-
-impl<'a> TryFrom<&'a OsStr> for QueryNameRef<'a> {
-    type Error = scoped::ParseError;
-
-    fn try_from(s: &'a OsStr) -> Result<Self, Self::Error> {
-        s.try_as_bytes()
-            .ok_or(scoped::ParseError::Name(ValidateError(())))
-            .and_then(TryFrom::try_from)
-    }
-}
-
-impl<'de> Deserialize<'de> for QueryName {
+// TODO: Generalize over `Query<N, V>`.
+impl<'de> Deserialize<'de> for Query {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: Deserializer<'de>
@@ -297,7 +278,7 @@ impl<'de> Deserialize<'de> for QueryName {
         struct Vis;
 
         impl<'de> Visitor<'de> for Vis {
-            type Value = QueryName;
+            type Value = Query;
 
             #[inline]
             fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -308,18 +289,7 @@ impl<'de> Deserialize<'de> for QueryName {
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: de::Error
             {
-                QueryNameRef::parse(v)
-                    .map(Into::into)
-                    .map_err(E::custom)
-            }
-
-            #[inline]
-            fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
-                where E: de::Error
-            {
-                QueryNameRef::parse(v)
-                    .map(Into::into)
-                    .map_err(E::custom)
+                Query::parse(v).map_err(E::custom)
             }
         }
 
@@ -327,48 +297,9 @@ impl<'de> Deserialize<'de> for QueryName {
     }
 }
 
-impl<'de: 'a, 'a> Deserialize<'de> for QueryNameRef<'a> {
-    #[inline]
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
-    {
-        struct Vis;
-
-        impl<'de> Visitor<'de> for Vis {
-            type Value = QueryNameRef<'de>;
-
-            #[inline]
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                f.write_str("a valid drop name")
-            }
-
-            #[inline]
-            fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
-                where E: de::Error
-            {
-                QueryNameRef::parse(v).map_err(E::custom)
-            }
-
-            #[inline]
-            fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E>
-                where E: de::Error
-            {
-                QueryNameRef::parse(v).map_err(E::custom)
-            }
-        }
-
-        deserializer.deserialize_str(Vis)
-    }
-}
-
-impl Serialize for QueryName {
-    #[inline]
-    fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
-        s.collect_str(self)
-    }
-}
-
-impl Serialize for QueryNameRef<'_> {
+impl<N, V> Serialize for Query<N, V>
+    where Query<N, V>: fmt::Display
+{
     #[inline]
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
         s.collect_str(self)

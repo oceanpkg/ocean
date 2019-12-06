@@ -7,16 +7,14 @@ use std::{
 
 mod parse;
 pub mod query;
+// pub mod query2;
 pub mod scoped;
 
 #[doc(inline)]
 pub use self::{
-    query::{QueryName, QueryNameRef},
+    query::Query,
     scoped::{ScopedName, ScopedNameRef},
 };
-
-assert_eq_size!(QueryNameRef, ScopedName);
-assert_eq_align!(QueryNameRef, ScopedName);
 
 /// A valid drop name.
 ///

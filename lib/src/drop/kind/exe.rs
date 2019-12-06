@@ -5,7 +5,7 @@ use std::{
 use crate::{
     drop::{
         Metadata,
-        name::QueryNameRef,
+        name::Query,
     },
     install::InstallTarget,
 };
@@ -19,7 +19,11 @@ pub struct Exe {
 
 impl Exe {
     /// Returns an executable matching `query`, installed for `target`.
-    pub fn installed(query: QueryNameRef, target: &InstallTarget) -> Result<Self, ()> {
+    pub fn installed<S: AsRef<str>>(
+        query: &Query<S>,
+        target: &InstallTarget,
+    ) -> Result<Self, ()> {
+        let query = query.to_ref::<str>();
         unimplemented!("TODO: Find installation of {:?} for {:?}", query, target)
     }
 

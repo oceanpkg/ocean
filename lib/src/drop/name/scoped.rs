@@ -6,7 +6,6 @@ use std::{
 };
 use super::{
     Name,
-    QueryNameRef,
     ValidateError,
 };
 
@@ -95,13 +94,6 @@ where
     #[inline]
     fn from((scope, name): (S, N)) -> Self {
         Self::new(scope, name)
-    }
-}
-
-impl<'a> AsRef<QueryNameRef<'a>> for ScopedNameRef<'a> {
-    #[inline]
-    fn as_ref(&self) -> &QueryNameRef<'a> {
-        self.as_query()
     }
 }
 
@@ -209,13 +201,6 @@ impl<'a> ScopedNameRef<'a> {
     #[inline]
     pub fn into_owned(self) -> ScopedName {
         self.into()
-    }
-
-    /// Returns `self` as a `QueryNameRef`.
-    #[inline]
-    pub fn as_query(&self) -> &QueryNameRef<'a> {
-        // SAFETY: Checked above that the memory layout of both is the same
-        unsafe { &*(self as *const Self as *const QueryNameRef) }
     }
 
     /// Converts `self` into a slice of `Name`s.
