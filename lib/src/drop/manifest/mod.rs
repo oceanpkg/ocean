@@ -15,6 +15,10 @@ pub use self::{
 };
 
 /// A drop manifest.
+///
+/// Note the lack of `drop::Name` usage throughout this type. This is because
+/// name validation is done by the backend in order for clients to be
+/// forward-compatible with later backend versions.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Manifest {
     /// The drop's info.

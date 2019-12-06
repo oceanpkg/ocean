@@ -1,11 +1,11 @@
 use std::collections::BTreeMap;
 use crate::drop::{
-    name::{Name, Query},
+    name::Query,
     source::Git,
 };
 
 /// A mapping from drop names to dependency specification information.
-pub type Deps = BTreeMap<Query<Box<Name>, String>, DepInfo>;
+pub type Deps = BTreeMap<Query, DepInfo>;
 
 flexible! {
     /// The value associated with an element listed in the `dependencies` key in the
