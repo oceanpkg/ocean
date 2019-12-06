@@ -2,6 +2,7 @@ use std::{
     convert::{TryFrom, TryInto},
     ffi::{CStr, OsStr},
     fmt,
+    marker::PhantomData,
     str,
 };
 use serde::{
@@ -222,16 +223,25 @@ where
     }
 }
 
-// TODO: Generalize over `Query<N, V>`.
-impl<'de> Deserialize<'de> for Query {
+assert_impl_all!(Query<Box<Name>, String>: Deserialize<'static>);
+
+impl<'de, N, V, NE, VE> Deserialize<'de> for Query<N, V>
+where
+    for<'a> &'a str: TryInto<Query<N, V>, Error = query::ParseError<NE, VE>>,
+    query::ParseError<NE, VE>: fmt::Display,
+{
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: Deserializer<'de>
     {
-        struct Vis;
+        struct Vis<N, V>(PhantomData<(N, V)>);
 
-        impl<'de> Visitor<'de> for Vis {
-            type Value = Query;
+        impl<'de, N, V, NE, VE> Visitor<'de> for Vis<N, V>
+        where
+            for<'a> &'a str: TryInto<Query<N, V>, Error = query::ParseError<NE, VE>>,
+            query::ParseError<NE, VE>: fmt::Display,
+        {
+            type Value = Query<N, V>;
 
             #[inline]
             fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -242,11 +252,11 @@ impl<'de> Deserialize<'de> for Query {
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: de::Error
             {
-                Query::parse(v).map_err(E::custom)
+                TryInto::<Self::Value>::try_into(v).map_err(E::custom)
             }
         }
 
-        deserializer.deserialize_str(Vis)
+        deserializer.deserialize_str(Vis(PhantomData))
     }
 }
 
