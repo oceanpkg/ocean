@@ -6,7 +6,13 @@ use std::{
     process::{Command, Child, ExitStatus},
 };
 
-/// The tool for opening resources in the users's preferred application.
+/// The tool for opening resources in the user's preferred application.
+///
+/// | Platform | Value |
+/// | :------- | :---- |
+/// | Linux    | `xdg-open` |
+/// | macOS    | `/usr/bin/open |
+/// | Windows  | `start` |
 pub const OPEN_TOOL: &str = {
     cfg_if! {
         if #[cfg(target_os = "macos")] {
