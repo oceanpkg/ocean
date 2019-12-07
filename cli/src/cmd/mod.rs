@@ -1,29 +1,44 @@
 pub mod prelude;
-use self::prelude::App;
+use self::prelude::{App, ArgMatches};
 
-pub mod cfg;
-pub mod install;
-pub mod run;
-pub mod list;
-pub mod new;
-pub mod search;
-pub mod uninstall;
-pub mod update;
+/// Handles the creation of modules for each subcommand as well as running the
+/// appropriate subcommand for a pair of name string and matches.
+macro_rules! cmds {
+    ($(
+        $(#[$meta:meta])*
+        $cmd:ident,
+    )+) => {
+        $(
+            $(#[$meta])*
+            pub mod $cmd;
+        )+
 
-#[path = "self/mod.rs"]
-pub mod self_; // `self` is a keyword
+        /// Returns all of Ocean's subcommands to pass into `App::subcommands`.
+        pub fn all() -> Vec<App> {
+            vec![$($cmd::cmd(),)+]
+        }
 
-/// Returns all of Ocean's subcommands to pass into `App::subcommands`.
-pub fn all() -> Vec<App> {
-    vec![
-        list::cmd(),
-        new::cmd(),
-        search::cmd(),
-        install::cmd(),
-        uninstall::cmd(),
-        update::cmd(),
-        run::cmd(),
-        cfg::cmd(),
-        self_::cmd(),
-    ]
+        /// Runs the command for `name` with its associated `ArgMatches`.
+        pub fn run(name: &str, matches: &ArgMatches) -> crate::Result {
+            let run = match name {
+                $($cmd::NAME => $cmd::run,)+
+                _ => unreachable!("could not match command {:?}", name),
+            };
+            run(&mut crate::State::new()?, matches)
+        }
+    };
+}
+
+cmds! {
+    list,
+    new,
+    search,
+    install,
+    uninstall,
+    update,
+    run,
+    cfg,
+
+    #[path = "self/mod.rs"]
+    self_, // `self` is a keyword
 }

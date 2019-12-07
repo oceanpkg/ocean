@@ -40,23 +40,8 @@ fn app() -> clap::App<'static, 'static> {
 
 fn main() {
     let matches = app().get_matches();
-    if let (command, Some(matches)) = matches.subcommand() {
-        let run = match command {
-            cmd::list::NAME      => cmd::list::run,
-            cmd::new::NAME       => cmd::new::run,
-            cmd::search::NAME    => cmd::search::run,
-            cmd::install::NAME   => cmd::install::run,
-            cmd::uninstall::NAME => cmd::uninstall::run,
-            cmd::update::NAME    => cmd::update::run,
-            cmd::run::NAME       => cmd::run::run,
-            cmd::cfg::NAME       => cmd::cfg::run,
-            cmd::self_::NAME     => cmd::self_::run,
-            _ => unreachable!("could not match command {:?}", command),
-        };
-        let mut state = State::new()
-            .unwrap_or_else(|error| exit_error!(error));
-        run(&mut state, matches)
-            .unwrap_or_else(|error| exit_error!(error));
+    if let (cmd, Some(matches)) = matches.subcommand() {
+        cmd::run(cmd, matches).unwrap_or_else(|error| exit_error!(error));
     } else {
         // SubcommandRequiredElseHelp
     }
