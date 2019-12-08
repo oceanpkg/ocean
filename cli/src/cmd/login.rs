@@ -24,7 +24,7 @@ pub fn run(state: &mut crate::State, matches: &ArgMatches) -> crate::Result {
         &formatln!("Password for \"{}\":", username)
     )?;
 
-    let token = api::request_login_token(username, &password)?;
+    let token = api::v1::request_login_token(username, &password)?;
     println!("Received API token: \"{}\"", token);
 
     // Serialize token into TOML string.
