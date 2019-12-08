@@ -14,7 +14,10 @@ name = "ocean"
 path = "src/main.rs"
 
 [dependencies]
-oceanpkg = { path = "../lib", version = "0.0.9" }
+oceanpkg = { path = "../lib", version = "0.0.9", features = ["reqwest"] }
 clap = "2.33"
 dirs = "2"
 failure = "0.1.6"
+rpassword = "4"
+toml = "0.5"
+url = "2.1"

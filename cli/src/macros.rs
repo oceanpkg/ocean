@@ -13,3 +13,24 @@ macro_rules! exit_error {
         exit_error!("{}", $error)
     };
 }
+
+/// Analogous to what [`println!`] is for [`print!`], but for [`format!`].
+///
+/// [`println!`]: https://doc.rust-lang.org/std/macro.println.html
+/// [`print!`]:   https://doc.rust-lang.org/std/macro.print.html
+/// [`format!`]:  https://doc.rust-lang.org/std/macro.format.html
+macro_rules! formatln {
+    ($fmt:literal $($args:tt)*) => {
+        format!(concat!($fmt, newline!()) $($args)*)
+    };
+}
+
+#[cfg(unix)]
+macro_rules! newline {
+    () => { "\n" };
+}
+
+#[cfg(windows)]
+macro_rules! newline {
+    () => { "\r\n" };
+}

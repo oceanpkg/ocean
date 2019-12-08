@@ -42,6 +42,8 @@ cmds! {
     #[path = "self/mod.rs"]
     self_, // `self` is a keyword
 
+    login,
+
     home,
     docs,
 }
