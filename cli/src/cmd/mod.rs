@@ -46,4 +46,5 @@ cmds! {
 
     home,
     docs,
+    source,
 }
