@@ -41,7 +41,10 @@ fn app() -> clap::App<'static, 'static> {
 fn main() {
     let matches = app().get_matches();
     if let (cmd, Some(matches)) = matches.subcommand() {
-        cmd::run(cmd, matches).unwrap_or_else(|error| exit_error!(error));
+        cmd::run(cmd, matches)
+            .unwrap_or_else(|error| {
+                exit_error!("error: {}", error)
+            });
     } else {
         // SubcommandRequiredElseHelp
     }
