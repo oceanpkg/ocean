@@ -1,3 +1,8 @@
+use std::{
+    cmp,
+    convert::TryFrom,
+    mem,
+};
 pub use clap::{AppSettings, ArgMatches, SubCommand};
 pub use oceanpkg::install::InstallTarget;
 pub use crate::State;
@@ -10,6 +15,9 @@ pub trait ArgMatchesExt {
     /// Returns how drops get installed by checking whether a `"global"`
     /// argument was used.
     fn install_target(&self) -> InstallTarget;
+
+    /// Returns the level of logging that should be used.
+    fn log_level(&self) -> Option<log::LevelFilter>;
 }
 
 impl ArgMatchesExt for ArgMatches<'_> {
@@ -20,6 +28,24 @@ impl ArgMatchesExt for ArgMatches<'_> {
             InstallTarget::SpecificUser(user.to_owned())
         } else {
             InstallTarget::CurrentUser
+        }
+    }
+
+    fn log_level(&self) -> Option<log::LevelFilter> {
+        if self.is_present("silent") {
+            Some(log::LevelFilter::Off)
+        } else if self.is_present("verbose") {
+            match self.value_of("verbose").map(str::parse::<usize>) {
+                Some(Ok(level)) => {
+                    let max_level = log::LevelFilter::max() as usize;
+                    let min_level = cmp::min(level, max_level);
+                    unsafe { Some(mem::transmute(min_level)) }
+                },
+                None => Some(log::LevelFilter::Error),
+                Some(Err(_)) => None,
+            }
+        } else {
+            None
         }
     }
 }

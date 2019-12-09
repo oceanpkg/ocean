@@ -36,7 +36,15 @@ fn app() -> clap::App<'static, 'static> {
             .short("v")
             .long("verbose")
             .help("Outputs more debugging information")
-            .global(true))
+            .global(true)
+            .takes_value(true)
+            .min_values(0)
+            .max_values(1)
+            .conflicts_with("silent"))
+        .arg(clap::Arg::with_name("silent")
+            .short("s")
+            .long("silent")
+            .help("Silence standard output and error"))
 }
 
 fn main() {

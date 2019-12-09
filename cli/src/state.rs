@@ -14,6 +14,8 @@ pub struct State {
     pub current_dir: PathBuf,
     /// The user's home directory.
     pub home_dir: PathBuf,
+    ///
+    pub log_level: log::LevelFilter,
 }
 
 impl State {
@@ -24,10 +26,12 @@ impl State {
             .context("Could not get current working directory")?;
         let home_dir = dirs::home_dir()
             .ok_or(failure::err_msg("Could not get user home directory"))?;
+        let log_level = log::LevelFilter::Off;
         Ok(Self {
             start_time,
             current_dir,
             home_dir,
+            log_level,
         })
     }
 
