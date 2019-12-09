@@ -40,6 +40,7 @@ pub fn request_login_token_at(
 }
 
 /// Requests an API login token from a specific URL.
+#[cfg(feature = "reqwest")]
 pub fn request_login_token_at_specific<U: reqwest::IntoUrl>(
     url: U,
     username: &str,
