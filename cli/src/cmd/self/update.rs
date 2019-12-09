@@ -7,6 +7,6 @@ pub fn cmd() -> App {
         .about("Download and install updates to Ocean")
 }
 
-pub fn run(_state: &mut crate::State, _matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut State, _matches: &ArgMatches) -> crate::Result {
     unimplemented!()
 }

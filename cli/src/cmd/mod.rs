@@ -1,5 +1,5 @@
 pub mod prelude;
-use self::prelude::{App, ArgMatches};
+use self::prelude::{App, ArgMatches, State};
 
 /// Handles the creation of modules for each subcommand as well as running the
 /// appropriate subcommand for a pair of name string and matches.
@@ -24,7 +24,7 @@ macro_rules! cmds {
                 $($cmd::NAME => $cmd::run,)+
                 _ => unreachable!("could not match command {:?}", name),
             };
-            run(&mut crate::State::new()?, matches)
+            run(&mut State::new()?, matches)
         }
     };
 }

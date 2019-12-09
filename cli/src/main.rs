@@ -7,7 +7,8 @@ mod macros;
 mod cmd;
 mod state;
 
-use self::state::State;
+#[doc(inline)]
+pub use self::state::State;
 
 type Result<T = ()> = failure::Fallible<T>;
 

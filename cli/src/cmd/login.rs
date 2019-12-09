@@ -16,7 +16,7 @@ pub fn cmd() -> App {
             .help("The username with which to login"))
 }
 
-pub fn run(state: &mut crate::State, matches: &ArgMatches) -> crate::Result {
+pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
     let username = matches.value_of("username")
         .unwrap_or_else(|| unreachable!("Required argument"));
 

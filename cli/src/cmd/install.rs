@@ -29,7 +29,7 @@ pub fn cmd() -> App {
             .multiple(true))
 }
 
-pub fn run(_state: &mut crate::State, matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut State, matches: &ArgMatches) -> crate::Result {
     let with_deps: Vec<&Name> = matches
         .values_of("with")
         .map(name_values)

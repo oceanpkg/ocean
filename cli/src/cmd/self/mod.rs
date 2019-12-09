@@ -18,7 +18,7 @@ pub fn cmd() -> App {
         ])
 }
 
-pub fn run(state: &mut crate::State, matches: &ArgMatches) -> crate::Result {
+pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
     if let (command, Some(matches)) = matches.subcommand() {
         let run = match command {
             update::NAME    => update::run,
