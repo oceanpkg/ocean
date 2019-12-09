@@ -37,7 +37,7 @@ following to your project's [`Cargo.toml`]:
 
 ```toml
 [dependencies]
-oceanpkg = "0.0.9"
+oceanpkg = "0.0.10"
 ```
 
 and this to your crate root (`main.rs` or `lib.rs`):
