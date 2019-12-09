@@ -19,12 +19,12 @@ macro_rules! cmds {
         }
 
         /// Runs the command for `name` with its associated `ArgMatches`.
-        pub fn run(name: &str, matches: &ArgMatches) -> crate::Result {
+        pub fn run(state: &mut State, name: &str, matches: &ArgMatches) -> crate::Result {
             let run = match name {
                 $($cmd::NAME => $cmd::run,)+
                 _ => unreachable!("could not match command {:?}", name),
             };
-            run(&mut State::new()?, matches)
+            run(state, matches)
         }
     };
 }

@@ -40,9 +40,14 @@ fn app() -> clap::App<'static, 'static> {
 }
 
 fn main() {
+    let mut state = State::new()
+        .unwrap_or_else(|error| {
+            exit_error!("error: {}", error)
+        });
+
     let matches = app().get_matches();
     if let (cmd, Some(matches)) = matches.subcommand() {
-        cmd::run(cmd, matches)
+        cmd::run(&mut state, cmd, matches)
             .unwrap_or_else(|error| {
                 exit_error!("error: {}", error)
             });
