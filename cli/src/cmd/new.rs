@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use oceanpkg::drop::Name;
 use super::prelude::*;
 
@@ -17,17 +17,10 @@ pub fn cmd() -> App {
             .help("The path where to write the manifest"))
 }
 
-pub fn run(_state: &mut State, matches: &ArgMatches) -> crate::Result {
-    let path_buf: PathBuf;
+pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
     let path: &Path = match matches.value_of_os("path") {
         Some(path) => path.as_ref(),
-        None => match std::env::current_dir() {
-            Ok(dir) => {
-                path_buf = dir;
-                &path_buf
-            },
-            Err(error) => unimplemented!("TODO: Handle '{}'", error),
-        },
+        None => &state.current_dir,
     };
 
     let name = path.file_name().unwrap_or("".as_ref());
