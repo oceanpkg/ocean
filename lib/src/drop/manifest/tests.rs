@@ -9,7 +9,7 @@ use crate::drop::{
 };
 
 #[cfg(feature = "toml")]
-fn manifests<'a>() -> Vec<(String, Manifest)> {
+fn manifests() -> Vec<(String, Manifest)> {
     let version = "0.1.0";
     let semver = SemVer::parse(version).unwrap();
     let repo = OCEAN_REPO;

@@ -273,7 +273,7 @@ impl<N, V> Query<N, V> {
 
     /// Returns the scoped name for `self` if `scope` exists.
     #[inline]
-    pub fn scoped_name<'a>(&'a self) -> Option<ScopedName<&'a N>> {
+    pub fn scoped_name(&self) -> Option<ScopedName<&N>> {
         self.scope.as_ref().map(|scope| ScopedName { scope, name: &self.name })
     }
 

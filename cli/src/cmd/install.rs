@@ -58,7 +58,7 @@ pub fn run(_state: &mut crate::State, matches: &ArgMatches) -> crate::Result {
 
 /// Converts `values` to a vector of `Name`s if they're all valid, or exits with
 /// an error code if any are not.
-fn name_values<'a>(values: clap::Values<'a>) -> Vec<&'a Name> {
+fn name_values(values: clap::Values) -> Vec<&Name> {
     values.map(Name::new)
         .collect::<Result<Vec<_>, _>>()
         .unwrap_or_else(|err| exit_error!(err))
