@@ -1,5 +1,5 @@
 [package]
-name = "ocean-cli"
+name = "oceanpkg-cli"
 description = "Command-line interface for the Ocean package manager."
 version = "0.0.0"
 authors = ["The Ocean Project Developers"]
