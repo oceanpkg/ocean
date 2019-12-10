@@ -21,11 +21,10 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
         .unwrap_or_else(|| unreachable!("Required argument"));
 
     let password = rpassword::prompt_password_stdout(
-        &formatln!("Password for \"{}\":", username)
+        &formatln!("Enter password for \"{}\":", username)
     )?;
 
     let token = api::v1::request_login_token(username, &password)?;
-    println!("Received API token: \"{}\"", token);
 
     // Serialize token into TOML string.
     let credentials = Credentials {
@@ -42,5 +41,6 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
     }
     fs::write(&credentials_path, &toml)?;
 
+    println!("You are now logged in!");
     Ok(())
 }
