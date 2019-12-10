@@ -10,7 +10,7 @@ use std::{
     io,
     path::{Path, PathBuf},
 };
-use crate::ext::BytesExt;
+use shared::ext::BytesExt;
 
 const STEM:     &str  = "ocean";
 const STEM_LEN: usize = 5;

@@ -9,7 +9,7 @@ use serde::{
     ser::{Serialize, Serializer},
     de::{self, Deserialize, Deserializer, Visitor},
 };
-use crate::ext::OsStrExt;
+use shared::ext::OsStrExt;
 use super::{
     Name,
     query::{self, Query},

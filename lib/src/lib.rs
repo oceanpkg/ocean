@@ -11,6 +11,8 @@
 #![doc(html_root_url = "https://docs.rs/oceanpkg/0.0.10")]
 #![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
 
+extern crate oceanpkg_shared as shared;
+
 #[macro_use] extern crate cfg_if;
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate serde;
@@ -27,7 +29,6 @@ pub mod auth;
 pub mod cfg;
 pub mod drop;
 pub mod env;
-pub mod ext;
 pub mod install;
 pub mod system;
 

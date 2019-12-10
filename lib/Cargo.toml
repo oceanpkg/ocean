@@ -12,6 +12,7 @@ documentation = "https://docs.rs/oceanpkg"
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "CHANGELOG.md", "LICENSE*"]
 
 [dependencies]
+oceanpkg-shared = { version = "0.0.1", path = "../shared" }
 cfg-if = "0.1"
 dirs = "1"
 lazy_static = "1.4"

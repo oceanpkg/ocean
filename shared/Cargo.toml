@@ -1,0 +1,12 @@
+[package]
+name = "oceanpkg-shared"
+description = "Shared reusable library for the Ocean package manager."
+version = "0.0.1"
+authors = ["The Ocean Project Developers"]
+license = "Apache-2.0"
+readme = "README.md"
+edition = "2018"
+homepage = "https://www.oceanpkg.org"
+repository = "https://github.com/oceanpkg/ocean"
+documentation = "https://docs.rs/oceanpkg-shared"
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "CHANGELOG.md", "LICENSE*"]

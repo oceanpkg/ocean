@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use crate::ext::PathBufExt;
+use shared::ext::PathBufExt;
 use super::DirError;
 
 /// Indicates where to (un)install a drop.
