@@ -9,7 +9,7 @@
 
 #![deny(missing_docs)]
 
-#![doc(html_root_url = "https://docs.rs/oceanpkg-shared/0.0.1")]
+#![doc(html_root_url = "https://docs.rs/oceanpkg-shared/0.1.0")]
 #![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
 
 pub mod ext;
