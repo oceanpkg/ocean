@@ -22,7 +22,7 @@ pub fn cmd() -> App {
 }
 
 pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
-    let packaged = oceanpkg::drop::package(
+    let package = oceanpkg::drop::Package::create(
         &state.current_dir,
         matches.value_of_os("manifest"),
         None::<&Path>,
@@ -58,7 +58,7 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
         },
     };
 
-    oceanpkg::api::v1::ship(&packaged, token)?;
+    oceanpkg::api::v1::ship(&package, token)?;
 
     Ok(())
 }

@@ -10,7 +10,7 @@ use reqwest::{
 };
 use crate::{
     api,
-    drop::Packaged,
+    drop::Package,
 };
 
 /// Requests an API login token from [`url`].
@@ -19,11 +19,11 @@ use crate::{
 ///
 /// [`url`]: fn.url.html
 pub fn ship(
-    packaged: &Packaged,
+    package: &Package,
     token: &str,
 ) -> Result<reqwest::Response, ShipError> {
     let url = api::url()?;
-    ship_at(&url, packaged, token)
+    ship_at(&url, package, token)
 }
 
 /// Requests an API login token from a base API URL.
@@ -32,40 +32,40 @@ pub fn ship(
 /// environments.
 pub fn ship_at(
     api_url: &url::Url,
-    packaged: &Packaged,
+    package: &Package,
     token: &str,
 ) -> Result<reqwest::Response, ShipError> {
     let url = api_url.join("/v1/packages/create")?;
-    ship_at_specific(url.as_str(), packaged, token)
+    ship_at_specific(url.as_str(), package, token)
 }
 
 /// Requests an API login token from a specific URL.
 pub fn ship_at_specific<U: reqwest::IntoUrl>(
     url: U,
-    packaged: &Packaged,
+    package: &Package,
     token: &str,
 ) -> Result<reqwest::Response, ShipError> {
     // Monomorphized body to slightly reduce the instruction count of the
     // binary.
     fn ship(
         builder: RequestBuilder,
-        packaged: &Packaged,
+        package: &Package,
         token: &str,
     ) -> Result<reqwest::Response, ShipError> {
         let form = Form::new();
 
-        let manifest = packaged.manifest.to_json(false)?;
+        let manifest = package.manifest.to_json(false)?;
         let manifest = Part::text(manifest)
             .mime_str("application/json")?
             .file_name("manifest");
         let form = form.part("manifest", manifest);
 
         // SAFETY: `Part::reader` requires a `'static` lifetime. This lifetime
-        // extension for `packaged.file` is fine to satisfy this requirement
+        // extension for `package.file` is fine to satisfy this requirement
         // because the reference does not escape this scope. This is enforced
         // by shadowing the reference's name, making it impossible to use later.
         let package = unsafe {
-            mem::transmute::<&File, &'static File>(&packaged.file)
+            mem::transmute::<&File, &'static File>(&package.file)
         };
         let package = Part::reader(package)
             .mime_str("application/gzip")?
@@ -87,7 +87,7 @@ pub fn ship_at_specific<U: reqwest::IntoUrl>(
         Ok(response)
     }
 
-    ship(Client::new().post(url), packaged, token)
+    ship(Client::new().post(url), package, token)
 }
 
 /// An error returned when attempting to ship a package with Ocean's API.

@@ -8,32 +8,46 @@ use std::{
 use flate2::{Compression, GzBuilder};
 use crate::drop::Manifest;
 
-/// Packages a drop in the context of `current_dir`.
-///
-/// The manifest is expected to be found at `manifest_path` or
-/// `current_dir/Ocean.toml` if `manifest_path` is not provided.
-pub fn package<A, B, C>(
-    current_dir: A,
-    manifest_path: Option<B>,
-    output_dir: Option<C>,
-) -> io::Result<Packaged>
-where
-    A: AsRef<Path>,
-    B: AsRef<Path>,
-    C: AsRef<Path>,
-{
-    package_impl(
-        current_dir.as_ref(),
-        manifest_path.as_ref().map(|p| p.as_ref()),
-        output_dir.as_ref().map(|p| p.as_ref()),
-    )
+/// A package drop that can be `ship`ped.
+#[derive(Debug)]
+pub struct Package {
+    /// Where the package resides.
+    pub path: PathBuf,
+    /// The parsed manifest.
+    pub manifest: Manifest,
+    /// An open handle to the file for reading/writing.
+    pub file: File,
+}
+
+impl Package {
+    /// Packages a drop in the context of `current_dir`.
+    ///
+    /// The manifest is expected to be found at
+    /// - `manifest_path` or
+    /// - `current_dir/Ocean.toml`, if `manifest_path` is not provided
+    pub fn create<A, B, C>(
+        current_dir: A,
+        manifest_path: Option<B>,
+        output_dir: Option<C>,
+    ) -> io::Result<Package>
+    where
+        A: AsRef<Path>,
+        B: AsRef<Path>,
+        C: AsRef<Path>,
+    {
+        package_impl(
+            current_dir.as_ref(),
+            manifest_path.as_ref().map(|p| p.as_ref()),
+            output_dir.as_ref().map(|p| p.as_ref()),
+        )
+    }
 }
 
 fn package_impl(
     current_dir: &Path,
     manifest_path: Option<&Path>,
     output_dir: Option<&Path>,
-) -> io::Result<Packaged> {
+) -> io::Result<Package> {
     let manifest_path_buf: PathBuf;
     let manifest_path = match manifest_path {
         Some(path) => path,
@@ -96,20 +110,9 @@ fn package_impl(
     gz.finish()?;
 
     fs::rename(&tmp_path, &tar_path)?;
-    Ok(Packaged {
+    Ok(Package {
         path: tar_path,
         manifest,
         file: tmp_archive,
     })
-}
-
-/// A packaged drop.
-#[derive(Debug)]
-pub struct Packaged {
-    /// Where the package resides.
-    pub path: PathBuf,
-    /// The parsed manifest.
-    pub manifest: Manifest,
-    /// An open handle to the file for reading/writing.
-    pub file: File,
 }
