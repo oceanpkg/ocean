@@ -1,0 +1,5 @@
+[meta]
+name = "meaning-of-life"
+display-name = "Meaning of Life"
+description = "Gives the answer to the question of the meaning of life, the universe, and everything."
+version = "0.1.0"
