@@ -27,39 +27,6 @@ impl Default for InstallTarget {
 }
 
 impl InstallTarget {
-    /// Returns the base directory for the installation target.
-    pub fn base_dir(&self) -> Result<PathBuf, DirError> {
-        #[cfg(unix)]
-        match self {
-            Self::CurrentUser => {
-                // Usually means:
-                // - $HOME/ocean
-                // - ~/ocean
-                // or anything of that nature; see `dirs` docs for more info.
-                dirs::home_dir()
-                    .ok_or(DirError::CurrentUserHome)
-                    .map(|home| home.pushing("ocean"))
-            },
-            Self::SpecificUser(username) => {
-                unimplemented!("TODO: Get base directory for {:?}", username);
-            },
-            Self::Global => {
-                // TODO+SUDO: Needs admin access to write to either. Should be
-                // in a separate process that runs based on user password input.
-                // Essentially the same UX as when shells try to run something
-                // prefixed with `sudo`
-                if cfg!(target_os = "macos") {
-                    Ok("/Library/Ocean".into())
-                } else {
-                    Ok("/usr/local/Ocean".into())
-                }
-            },
-        }
-
-        #[cfg(windows)]
-        unimplemented!("TODO: Write & test on Windows :)");
-    }
-
     /// Returns the configuration files directory for the installation target.
     ///
     /// # Examples

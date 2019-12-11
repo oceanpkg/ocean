@@ -1,3 +1,12 @@
+/// Prints a formatted message to [`stderr`] indicating that an error has
+/// occurred.
+// TODO: Switch to `log::error!`.
+macro_rules! error {
+    ($fmt:literal $($args:tt)*) => { {
+        eprintln!(concat!("error: ", $fmt) $($args)*);
+    } };
+}
+
 /// Prints a message to [`stderr`] and exits the process with an exit code of 1.
 ///
 /// If an identifier is passed, it will be printed using [`fmt::Display`].

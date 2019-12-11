@@ -24,6 +24,7 @@ extern crate serde_json as json;
 pub(crate) mod flexible;
 
 pub mod api;
+pub mod archive;
 pub mod auth;
 pub mod cfg;
 pub mod drop;

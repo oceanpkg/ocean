@@ -1,10 +1,14 @@
 use std::{
+    borrow::Cow,
     env,
-    path::PathBuf,
+    path::{Path, PathBuf},
     time::Instant,
 };
 use failure::ResultExt;
-use oceanpkg::drop::name::Query;
+use oceanpkg::{
+    drop::name::Query,
+    install::InstallTarget,
+};
 
 /// Resources that get reused during the lifetime of the program.
 pub struct State {
@@ -75,5 +79,37 @@ impl State {
         let mut path = self.cache_dir();
         path.push(query.tarball_name());
         path
+    }
+
+    /// Returns the directory where drops are installed.
+    pub fn drops_dir(
+        &self,
+        target: &InstallTarget,
+    ) -> Cow<'static, Path> {
+        #[cfg(unix)]
+        match target {
+            InstallTarget::CurrentUser => {
+                let mut home = self.home_ocean_dir();
+                home.push("drops");
+                Cow::Owned(home)
+            },
+            InstallTarget::SpecificUser(username) => {
+                unimplemented!("TODO: Get base directory for {:?}", username);
+            },
+            InstallTarget::Global => {
+                // TODO+SUDO: Needs admin access to write to either. Should be
+                // in a separate process that runs based on user password input.
+                // Essentially the same UX as when shells try to run something
+                // prefixed with `sudo`
+                if cfg!(target_os = "macos") {
+                    Cow::Borrowed("/Library/Ocean/drops".as_ref())
+                } else {
+                    Cow::Borrowed("/usr/local/Ocean/drops".as_ref())
+                }
+            },
+        }
+
+        #[cfg(windows)]
+        unimplemented!("TODO: Write & test on Windows :)");
     }
 }

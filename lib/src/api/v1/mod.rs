@@ -4,6 +4,9 @@
 pub const DEFAULT_URL: &str = "https://api.oceanpkg.org/v1/";
 
 #[cfg(feature = "reqwest")]
+mod download;
+
+#[cfg(feature = "reqwest")]
 mod login;
 
 #[cfg(feature = "reqwest")]
@@ -12,6 +15,7 @@ mod ship;
 #[cfg(feature = "reqwest")]
 #[doc(inline)]
 pub use self::{
+    download::*,
     login::*,
     ship::*,
 };
