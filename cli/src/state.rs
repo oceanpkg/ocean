@@ -36,7 +36,7 @@ impl State {
         self.home_dir.join(".ocean")
     }
 
-    /// Returns the path for `$HOME/.ocean`.
+    /// Returns the path for `$HOME/.ocean/credentials.toml`.
     pub fn credentials_path(&self) -> PathBuf {
         let mut path = self.home_ocean_dir();
         path.push("credentials.toml");
