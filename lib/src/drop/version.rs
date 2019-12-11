@@ -53,12 +53,14 @@ impl Serialize for Version {
     {
         use serde::ser::SerializeMap;
 
-        let mut map = ser.serialize_map(Some(1))?;
         match self {
-            Version::SemVer(semver) => map.serialize_entry("semver", semver)?,
-            Version::Custom(custom) => map.serialize_entry("custom", custom)?,
+            Version::SemVer(semver) => ser.collect_str(semver),
+            Version::Custom(custom) => {
+                let mut map = ser.serialize_map(Some(1))?;
+                map.serialize_entry("custom", custom)?;
+                map.end()
+            },
         }
-        map.end()
     }
 }
 
