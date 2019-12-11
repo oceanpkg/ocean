@@ -1,8 +1,9 @@
 //! Packaging and unpackaging drops.
 
 use std::{
-    io::{self, Seek, SeekFrom},
+    ffi::OsString,
     fs::{self, File},
+    io::{self, Read, Seek, SeekFrom},
     path::{self, Path, PathBuf},
 };
 use flate2::{Compression, GzBuilder};
@@ -43,6 +44,20 @@ impl Package {
     }
 }
 
+type TarBuilder<'a> = tar::Builder<flate2::write::GzEncoder<&'a mut File>>;
+
+fn append_header(
+    tar: &mut TarBuilder,
+    tar_path: &Path, // The relative path within the tar file
+    file: &mut File,
+) -> io::Result<()> {
+    let mut header = tar::Header::new_gnu();
+    header.set_path(tar_path)?;
+    header.set_metadata(&file.metadata()?);
+    header.set_cksum();
+    tar.append(&header, file)
+}
+
 fn package_impl(
     current_dir: &Path,
     manifest_path: Option<&Path>,
@@ -57,8 +72,21 @@ fn package_impl(
         },
     };
 
-    let manifest = Manifest::read_toml_file(manifest_path)?;
-    let tar_name = format!("{}.tar.gz", manifest.meta.name);
+    let mut manifest_file = File::open(manifest_path)?;
+    let manifest = {
+        let mut buf = String::with_capacity(128);
+        manifest_file.read_to_string(&mut buf)?;
+        manifest_file.seek(SeekFrom::Start(0))?;
+
+        Manifest::parse_toml(&buf).map_err(|error| {
+            io::Error::new(io::ErrorKind::InvalidData, error)
+        })?
+    };
+
+    let drop_name    = &manifest.meta.name;
+    let drop_version = &manifest.meta.version;
+
+    let tar_name = format!("{}.tar.gz", drop_name);
     let tmp_name = format!(".{}", tar_name);
 
     let output_dir = output_dir.unwrap_or(current_dir);
@@ -83,27 +111,32 @@ fn package_impl(
         .write(&mut tmp_archive, Compression::best());
 
     let mut tar = tar::Builder::new(gz);
+    let tar_dir = OsString::from(
+        format!("{}@{}{}", drop_name, drop_version, path::MAIN_SEPARATOR)
+    );
 
-    for file_path in manifest.files() {
-        let mut header = tar::Header::new_gnu();
+    for relative_path in manifest.files() {
+        let full_path = current_dir.join(&relative_path);
 
-        let path = format!(
-            "{name}@{version}{separator}{file}",
-            name = manifest.meta.name,
-            version = manifest.meta.version,
-            separator = path::MAIN_SEPARATOR,
-            file = file_path,
-        );
-        header.set_path(&path)?;
+        let mut tar_path = tar_dir.clone();
+        tar_path.push(&relative_path);
 
-        let full_path = current_dir.join(&file_path);
-        let mut file = File::open(&full_path)?;
+        append_header(
+            &mut tar,
+            tar_path.as_ref(),
+            &mut File::open(&full_path)?,
+        )?;
+    }
 
-        let metadata = file.metadata()?;
-        header.set_metadata(&metadata);
-
-        header.set_cksum();
-        tar.append(&header, &mut file)?;
+    // Append manifest after iterating over its files to reuse `tar_dir`.
+    {
+        let mut manifest_tar_path = tar_dir;
+        manifest_tar_path.push(Manifest::FILE_NAME);
+        append_header(
+            &mut tar,
+            manifest_tar_path.as_ref(),
+            &mut manifest_file,
+        )?;
     }
 
     let gz = tar.into_inner()?;
