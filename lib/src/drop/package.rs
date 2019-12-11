@@ -1,7 +1,7 @@
 //! Packaging and unpackaging drops.
 
 use std::{
-    io,
+    io::{self, Seek, SeekFrom},
     fs::{self, File},
     path::{self, Path, PathBuf},
 };
@@ -110,6 +110,10 @@ fn package_impl(
     gz.finish()?;
 
     fs::rename(&tmp_path, &tar_path)?;
+
+    // Set the internal cursor to 0 to allow for subsequent reading.
+    tmp_archive.seek(SeekFrom::Start(0))?;
+
     Ok(Package {
         path: tar_path,
         manifest,
