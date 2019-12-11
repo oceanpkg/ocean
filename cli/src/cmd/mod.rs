@@ -30,17 +30,17 @@ macro_rules! cmds {
 }
 
 cmds! {
-    list,
-    new,
-    search,
+    // list,
+    // new,
+    // search,
     install,
-    uninstall,
-    update,
+    // uninstall,
+    // update,
     run,
-    cfg,
+    // cfg,
 
-    #[path = "self/mod.rs"]
-    self_, // `self` is a keyword
+    // #[path = "self/mod.rs"]
+    // self_, // `self` is a keyword
 
     login,
     ship,
