@@ -60,5 +60,11 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
 
     oceanpkg::api::v1::ship(&package, token)?;
 
+    // Get duration immediately after shipping finishes.
+    let elapsed = state.start_time.elapsed();
+
+    println!("Successfully shipped \"{}\"!", package.manifest.meta.name);
+    println!("Finished in {:?}", elapsed);
+
     Ok(())
 }
