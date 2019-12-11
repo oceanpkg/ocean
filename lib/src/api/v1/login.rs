@@ -5,7 +5,6 @@ use crate::api;
 /// This appends the `/v1/login` endpoint to the URL.
 ///
 /// [`url`]: fn.url.html
-#[cfg(feature = "reqwest")]
 pub fn request_login_token(
     username: &str,
     password: &str,
@@ -18,7 +17,6 @@ pub fn request_login_token(
 ///
 /// This mainly exists so that we can also issue requests to testing and staging
 /// environments.
-#[cfg(feature = "reqwest")]
 pub fn request_login_token_at(
     api_url: &url::Url,
     username: &str,
@@ -29,7 +27,6 @@ pub fn request_login_token_at(
 }
 
 /// Requests an API login token from a specific URL.
-#[cfg(feature = "reqwest")]
 pub fn request_login_token_at_specific<U: reqwest::IntoUrl>(
     url: U,
     username: &str,
@@ -72,7 +69,6 @@ pub fn request_login_token_at_specific<U: reqwest::IntoUrl>(
 }
 
 /// An error returned when attempting to log into Ocean's API.
-#[cfg(feature = "reqwest")]
 #[derive(Debug)]
 pub enum LoginError {
     /// Failed to parse a `Url`.
@@ -87,21 +83,18 @@ pub enum LoginError {
     MissingToken,
 }
 
-#[cfg(feature = "reqwest")]
 impl From<url::ParseError> for LoginError {
     fn from(error: url::ParseError) -> Self {
         Self::ParseUrl(error)
     }
 }
 
-#[cfg(feature = "reqwest")]
 impl From<reqwest::Error> for LoginError {
     fn from(error: reqwest::Error) -> Self {
         Self::Request(error)
     }
 }
 
-#[cfg(feature = "reqwest")]
 impl From<http::StatusCode> for LoginError {
     fn from(error: http::StatusCode) -> Self {
         if error == http::StatusCode::UNAUTHORIZED {
@@ -112,7 +105,6 @@ impl From<http::StatusCode> for LoginError {
     }
 }
 
-#[cfg(feature = "reqwest")]
 impl std::fmt::Display for LoginError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use self::LoginError::*;
@@ -126,5 +118,4 @@ impl std::fmt::Display for LoginError {
     }
 }
 
-#[cfg(feature = "reqwest")]
 impl std::error::Error for LoginError {}
