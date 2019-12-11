@@ -15,6 +15,7 @@ flexible! {
         pub repo: String,
         /// The specific branch to use.
         #[serde(flatten)]
+        #[serde(skip_serializing_if = "Option::is_none")]
         pub reference: Option<Ref>,
     }
 }

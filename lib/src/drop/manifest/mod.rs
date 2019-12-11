@@ -26,6 +26,7 @@ pub struct Manifest {
 
     /// The drops that this drop relies on.
     #[serde(rename = "dependencies")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub deps: Option<Deps>,
 }
 

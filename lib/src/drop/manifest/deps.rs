@@ -32,6 +32,7 @@ flexible! {
         /// What git repository can it be fetched from if requested via git as
         /// an alternative source. Note that this may differ from the
         /// dependency's own `git` field in its drop manifest.
+        #[serde(skip_serializing_if = "Option::is_none")]
         pub git: Option<Git>,
     }
 }
