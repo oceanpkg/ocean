@@ -1,5 +1,8 @@
 //! Ocean packages, also known as drops 💧.
 
+#[cfg(feature = "toml")]
+mod package;
+
 pub mod kind;
 pub mod license;
 pub mod manifest;
@@ -17,6 +20,12 @@ pub use self::{
     name::Name,
     source::Source,
     version::Version,
+};
+
+#[cfg(feature = "toml")]
+#[doc(inline)]
+pub use self::{
+    package::*,
 };
 
 /// Defines an Ocean package, also known as a drop 💧.

@@ -20,7 +20,7 @@ fn manifests() -> Vec<(String, Manifest)> {
         name: "ocean".to_owned(),
         display_name: Some("Ocean".to_owned()),
         description: "Cross-platform package manager".to_owned(),
-        exe_name: None,
+        exe_path: None,
         version: semver.into(),
         conflicts: None,
         license: Some(SpdxLicense::Apache2.id().to_owned()),
@@ -124,7 +124,7 @@ fn example_manifest() -> Manifest {
             name: "wumbo".to_owned(),
             display_name: Some("Wumbo".to_owned()),
             description: "Something silly".to_owned(),
-            exe_name: Some("wumbo".to_owned()),
+            exe_path: Some("wumbo".to_owned()),
             version: SemVer::new(0, 1, 0).into(),
             conflicts: None,
             license: Some("MIT OR Apache-2.0".to_owned()),
@@ -167,7 +167,6 @@ mod toml {
     }
 }
 
-#[cfg(feature = "serde_json")]
 mod json {
     use super::*;
 

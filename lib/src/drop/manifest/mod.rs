@@ -1,4 +1,4 @@
-//! Meta manifest data.
+//! Drop manifest data.
 
 use serde::Deserialize;
 
@@ -93,14 +93,12 @@ impl Manifest {
     /// }"#;
     /// let manifest = Manifest::parse_json(json).unwrap();
     /// ```
-    #[cfg(feature = "serde_json")]
     pub fn parse_json(json: &str) -> Result<Self, json::Error> {
         json::from_str(json)
     }
 
     /// Parses a manifest from [JSON](https://en.wikipedia.org/wiki/JSON)
     /// provided by the reader.
-    #[cfg(feature = "serde_json")]
     pub fn read_json<J>(json: J) -> Result<Self, json::Error>
         where J: std::io::Read
     {
@@ -109,7 +107,6 @@ impl Manifest {
 
     /// Parses a manifest from a [JSON](https://en.wikipedia.org/wiki/JSON) file
     /// at the given path.
-    #[cfg(feature = "serde_json")]
     pub fn read_json_file<J>(json: J) -> Result<Self, std::io::Error>
         where J: AsRef<std::path::Path>
     {
@@ -128,12 +125,21 @@ impl Manifest {
     }
 
     /// Returns `self` as a JSON string.
-    #[cfg(feature = "serde_json")]
     pub fn to_json(&self, pretty: bool) -> Result<String, json::Error> {
         if pretty {
             json::to_string_pretty(self)
         } else {
             json::to_string(self)
         }
+    }
+
+    /// Returns the list of files to package.
+    pub fn files(&self) -> Vec<String> {
+        let mut files = Vec::new();
+
+        let exe_path = self.meta.exe_path.as_ref().unwrap_or(&self.meta.name);
+        files.push(exe_path.clone());
+
+        files
     }
 }

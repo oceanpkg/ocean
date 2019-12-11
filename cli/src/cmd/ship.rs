@@ -1,0 +1,64 @@
+use std::{
+    fs::File,
+    io::{self, Read},
+    path::Path,
+};
+use oceanpkg::auth::Credentials;
+use super::prelude::*;
+
+pub const NAME: &str = "ship";
+
+pub fn cmd() -> App {
+    SubCommand::with_name(NAME)
+        .about("Package and upload this drop to the registry")
+        .arg(Arg::with_name("token")
+            .help("Token to use when uploading")
+            .long("token")
+            .takes_value(true))
+        .arg(Arg::with_name("manifest")
+            .help("Path to Ocean.toml")
+            .long("manifest")
+            .takes_value(true))
+}
+
+pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
+    let packaged = oceanpkg::drop::package(
+        &state.current_dir,
+        matches.value_of_os("manifest"),
+        None::<&Path>,
+    )?;
+
+    let credentials: String;
+    let token = match matches.value_of("token") {
+        Some(token) => token,
+        None => {
+            let credentials_path = state.credentials_path();
+
+            let mut credentials_file = match File::open(credentials_path) {
+                Ok(file) => file,
+                Err(error) => {
+                    use io::ErrorKind;
+                    match error.kind() {
+                        ErrorKind::NotFound => {
+                            failure::bail!("please run `ocean login` first")
+                        },
+                        _ => return Err(error.into()),
+                    }
+                },
+            };
+
+            let mut credentials_buf = String::with_capacity(256);
+            credentials_file.read_to_string(&mut credentials_buf)?;
+            credentials = credentials_buf;
+
+            let credentials: Credentials<&str> = toml::from_str(&credentials)?;
+            credentials.registry
+                .ok_or(failure::err_msg("please run `ocean login` first"))?
+                .token
+        },
+    };
+
+    oceanpkg::api::v1::ship(&packaged, token)?;
+
+    Ok(())
+}

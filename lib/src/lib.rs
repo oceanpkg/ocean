@@ -18,7 +18,6 @@ extern crate oceanpkg_shared as shared;
 #[macro_use] extern crate serde;
 #[macro_use] extern crate static_assertions;
 
-#[cfg(feature = "serde_json")]
 extern crate serde_json as json;
 
 #[macro_use]

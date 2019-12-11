@@ -43,6 +43,8 @@ cmds! {
     self_, // `self` is a keyword
 
     login,
+    ship,
+    package,
 
     home,
     docs,

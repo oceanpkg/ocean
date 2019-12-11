@@ -17,8 +17,8 @@ pub struct Meta {
     /// What is this drop?
     pub description: String,
 
-    /// The name of the executable.
-    pub exe_name: Option<String>,
+    /// The path of the executable. `name` is used if `None`.
+    pub exe_path: Option<String>,
 
     /// The licenses used.
     ///

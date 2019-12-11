@@ -1,5 +1,6 @@
 //! Versioning schemes.
 
+use std::fmt;
 use serde::{Serialize, Serializer};
 
 #[doc(inline)]
@@ -32,6 +33,16 @@ impl PartialEq<str> for Version {
             // without doing full parsing
             Self::SemVer(v) => Ok(v) == SemVer::parse(s).as_ref(),
             Self::Custom(v) => v == s,
+        }
+    }
+}
+
+impl fmt::Display for Version {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::SemVer(v) => v.fmt(f),
+            Self::Custom(v) => v.fmt(f),
         }
     }
 }
