@@ -68,3 +68,13 @@ pub struct Meta {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conflicts: Option<BTreeMap<String, String>>,
 }
+
+impl Meta {
+    /// Returns the path where the executable is expected to be.
+    pub fn exe_path(&self) -> &str {
+        match &self.exe_path {
+            Some(path) => path,
+            None => &self.name,
+        }
+    }
+}
