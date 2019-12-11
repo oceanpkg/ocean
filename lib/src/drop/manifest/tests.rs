@@ -117,7 +117,6 @@ fn manifests() -> Vec<(String, Manifest)> {
     ]
 }
 
-#[cfg(any(feature = "toml", feature = "serde_json"))]
 fn example_manifest() -> Manifest {
     Manifest {
         meta: Meta {
