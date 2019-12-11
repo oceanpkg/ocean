@@ -42,4 +42,23 @@ impl State {
         path.push("credentials.toml");
         path
     }
+
+    /// Returns the directory where binaries exposed via `$PATH` are stored.
+    ///
+    /// | Platform | Path               |
+    /// | :------- | :----------------- |
+    /// | macOS    | "$HOME/.ocean/bin" |
+    /// | Linux    | "$HOME/.ocean/bin" |
+    /// | Windows  | _Unimplemented_    |
+    pub fn bin_dir(&self) -> PathBuf {
+        #[cfg(unix)]
+        {
+            let mut path = self.home_ocean_dir();
+            path.push("bin");
+            path
+        }
+
+        #[cfg(windows)]
+        unimplemented!("TODO: Write & test on Windows :)");
+    }
 }
