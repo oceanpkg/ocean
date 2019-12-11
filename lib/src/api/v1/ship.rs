@@ -55,6 +55,9 @@ pub fn ship_at_specific<U: reqwest::IntoUrl>(
         let form = Form::new();
 
         let manifest = package.manifest.to_json(false)?;
+        // TODO: Change to `debug!`
+        eprintln!("Sending manifest: {}", manifest);
+
         let manifest = Part::text(manifest)
             .mime_str("application/json")?
             .file_name("manifest");
