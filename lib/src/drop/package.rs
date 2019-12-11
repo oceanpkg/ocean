@@ -11,9 +11,9 @@ use crate::drop::Manifest;
 
 /// A package drop that can be `ship`ped.
 #[derive(Debug)]
-pub struct Package {
+pub struct Package<Path = PathBuf> {
     /// Where the package resides.
-    pub path: PathBuf,
+    pub path: Path,
     /// The parsed manifest.
     pub manifest: Manifest,
     /// An open handle to the file for reading/writing.
