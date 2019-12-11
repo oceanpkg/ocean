@@ -1,5 +1,5 @@
 use std::{
-    fs::File,
+    io,
     mem,
 };
 use reqwest::{
@@ -66,16 +66,9 @@ pub fn ship_at_specific<U: reqwest::IntoUrl>(
             .text("name", name)
             .text("version", version);
 
-        // SAFETY: `Part::reader` requires a `'static` lifetime. This lifetime
-        // extension for `package.file` is fine to satisfy this requirement
-        // because the reference does not escape this scope. This is enforced
-        // by shadowing the reference's name, making it impossible to use later.
-        let package = unsafe {
-            mem::transmute::<&File, &'static File>(&package.file)
-        };
-        let package = Part::reader(package)
-            .mime_str("application/gzip")?
-            .file_name("packageFile");
+        // TODO: Replace with `Part::reader` when we figure out how to make that
+        // work correctly.
+        let package = Part::file(&package.path)?;
         let form = form.part("packageFile", package);
 
         let response = builder.multipart(form)
@@ -101,6 +94,8 @@ pub fn ship_at_specific<U: reqwest::IntoUrl>(
 pub enum ShipError {
     /// Failed to parse a `Url`.
     ParseUrl(url::ParseError),
+    /// Failed to read the manifest file.
+    Io(io::Error),
     /// Failed to serialize the manifest as JSON.
     SerializeManifest(serde_json::Error),
     /// Failed to send the request via `reqwest`.
@@ -114,6 +109,12 @@ pub enum ShipError {
 impl From<url::ParseError> for ShipError {
     fn from(error: url::ParseError) -> Self {
         Self::ParseUrl(error)
+    }
+}
+
+impl From<io::Error> for ShipError {
+    fn from(error: io::Error) -> Self {
+        Self::Io(error)
     }
 }
 
@@ -144,6 +145,7 @@ impl std::fmt::Display for ShipError {
         use self::ShipError::*;
         match self {
             ParseUrl(error) => error.fmt(f),
+            Io(error) => error.fmt(f),
             SerializeManifest(error) => error.fmt(f),
             Request(error) => error.fmt(f),
             Status(code) => write!(f, "received response \"{}\"", code),
