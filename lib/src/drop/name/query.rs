@@ -293,6 +293,19 @@ impl<N, V> Query<N, V> {
         }
     }
 
+    /// Returns the name of `self` packaged as a tarball.
+    pub fn tarball_name(&self) -> String
+    where
+        N: fmt::Display,
+        V: fmt::Display,
+    {
+        if let Some(version) = &self.version {
+            format!("{}@{}.tar.gz", self.name, version)
+        } else {
+            format!("{}.tar.gz", self.name)
+        }
+    }
+
     /// Returns a new `Url` with the fields of `self` appended.
     ///
     /// # Examples

@@ -4,6 +4,7 @@ use std::{
     time::Instant,
 };
 use failure::ResultExt;
+use oceanpkg::drop::name::Query;
 
 /// Resources that get reused during the lifetime of the program.
 pub struct State {
@@ -60,5 +61,19 @@ impl State {
 
         #[cfg(windows)]
         unimplemented!("TODO: Write & test on Windows :)");
+    }
+
+    /// Returns Ocean's cache directory.
+    pub fn cache_dir(&self) -> PathBuf {
+        let mut path = self.home_ocean_dir();
+        path.push("cache");
+        path
+    }
+
+    /// Returns the path where a tarball for `query` should be cached.
+    pub fn tarball_cache_path(&self, query: Query<&str>) -> PathBuf {
+        let mut path = self.cache_dir();
+        path.push(query.tarball_name());
+        path
     }
 }
