@@ -1,5 +1,14 @@
-use std::process::exit;
-use oceanpkg::drop::kind::Exe;
+use std::process::{
+    Command,
+    exit,
+};
+use oceanpkg::{
+    drop::{
+        Manifest,
+        name::Query,
+    },
+    install::InstallTarget,
+};
 use super::prelude::*;
 
 pub const NAME: &str = "run";
@@ -33,36 +42,45 @@ pub fn cmd() -> App {
         .after_help(AFTER_HELP)
 }
 
-pub fn run(_state: &mut State, matches: &ArgMatches) -> crate::Result {
-    let install_target = matches.install_target();
+pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
+    if let Some(drop) = matches.value_of("drop") {
+        let query = Query::<&str>::parse_liberal(drop);
 
-    #[allow(unreachable_code)]
-    match matches.value_of_os("drop") {
-        Some(drop) => {
-            #[allow(unused_variables)]
-            let exe: Exe = unimplemented!("TODO: Get {:?} executable for {:?} if available", drop, install_target);
-            match exe.command(&install_target) {
-                Ok(mut cmd) => {
-                    if let Some(args) = matches.values_of("args") {
-                        cmd.args(args);
-                    }
-                    match cmd.status() {
-                        Ok(status) => {
-                            let code = if status.success() {
-                                status.code().unwrap_or(0)
-                            } else {
-                                status.code().unwrap_or(1)
-                            };
-                            exit(code);
-                        },
-                        Err(err) => {
-                            unimplemented!("TODO: Handle {:?} gracefully", err);
-                        },
-                    }
-                },
-                Err(err) => unimplemented!("TODO: Handle {:?} gracefully", err),
-            }
-        },
-        None => unreachable!(),
+        let scope = query.scope.unwrap_or("core");
+        let name = query.name;
+        let version = query.version.ok_or_else(|| {
+            failure::err_msg("Provided query must include a version")
+        })?;
+
+        let query_string = format!("{}/{}@{}", scope, name, version);
+
+        let drops_dir = state.drops_dir(&InstallTarget::CurrentUser);
+        let drop_path = drops_dir.join(&query_string);
+
+        let manifest_path = drop_path.join(Manifest::FILE_NAME);
+        if !manifest_path.exists() {
+            failure::bail!("Could not run \"{}\"; please install it", query_string);
+        }
+
+        let manifest = Manifest::read_toml_file(&manifest_path)?;
+
+        let exe_path = drop_path.join(manifest.meta.exe_path());
+
+        let mut cmd = Command::new(&exe_path);
+        if let Some(args) = matches.values_of("args") {
+            cmd.args(args);
+        }
+
+        let status = cmd.status()?;
+        let code = if status.success() {
+            status.code().unwrap_or(0)
+        } else {
+            status.code().unwrap_or(1)
+        };
+        exit(code);
+    } else {
+        // ArgRequiredElseHelp
     }
+
+    Ok(())
 }
