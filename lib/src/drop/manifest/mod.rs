@@ -138,11 +138,11 @@ impl Manifest {
     }
 
     /// Returns the list of files to package.
-    pub fn files(&self) -> Vec<String> {
+    pub fn files(&self) -> Vec<&str> {
         let mut files = Vec::new();
 
-        let exe_path = self.meta.exe_path.as_ref().unwrap_or(&self.meta.name);
-        files.push(exe_path.clone());
+        let exe_path = self.meta.exe_path();
+        files.push(exe_path);
 
         files
     }
