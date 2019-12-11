@@ -31,6 +31,9 @@ pub struct Manifest {
 }
 
 impl Manifest {
+    /// The name used for manifest files.
+    pub const FILE_NAME: &'static str = "Ocean.toml";
+
     /// Parses a manifest from [TOML](https://en.wikipedia.org/wiki/TOML).
     ///
     /// ```

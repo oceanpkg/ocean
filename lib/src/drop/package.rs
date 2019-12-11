@@ -52,7 +52,7 @@ fn package_impl(
     let manifest_path = match manifest_path {
         Some(path) => path,
         None => {
-            manifest_path_buf = current_dir.join("Ocean.toml");
+            manifest_path_buf = current_dir.join(Manifest::FILE_NAME);
             &manifest_path_buf
         },
     };
