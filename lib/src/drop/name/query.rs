@@ -293,17 +293,28 @@ impl<N, V> Query<N, V> {
         }
     }
 
+    /// Returns the name of `self` formatted for the filesystem.
+    pub fn file_name(&self) -> String
+    where
+        N: fmt::Display,
+        V: fmt::Display,
+    {
+        if let Some(version) = &self.version {
+            format!("{}@{}", self.name, version)
+        } else {
+            self.name.to_string()
+        }
+    }
+
     /// Returns the name of `self` packaged as a tarball.
     pub fn tarball_name(&self) -> String
     where
         N: fmt::Display,
         V: fmt::Display,
     {
-        if let Some(version) = &self.version {
-            format!("{}@{}.tar.gz", self.name, version)
-        } else {
-            format!("{}.tar.gz", self.name)
-        }
+        let mut name = self.file_name();
+        name.push_str(".tar.gz");
+        name
     }
 
     /// Returns a new `Url` with the fields of `self` appended.
