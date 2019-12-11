@@ -5,4 +5,9 @@
 
 echo "The answer to the question of the meaning of life, the universe, and everything is..."
 sleep 1
-echo "42"
+
+if [[ -z $1 ]]; then
+    echo "42"
+else
+    echo "$1"
+fi
