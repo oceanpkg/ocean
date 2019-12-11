@@ -1,7 +1,4 @@
-//! Version 1 of Ocean's web API.
-
-/// The default URL to which API calls are made: `https://api.oceanpkg.org/v1/`.
-pub const DEFAULT_URL: &str = "https://api.oceanpkg.org/v1/";
+use crate::api;
 
 /// Requests an API login token from [`url`].
 ///
@@ -13,7 +10,7 @@ pub fn request_login_token(
     username: &str,
     password: &str,
 ) -> Result<String, LoginError> {
-    let url = super::url()?;
+    let url = api::url()?;
     request_login_token_at(&url, username, password)
 }
 
