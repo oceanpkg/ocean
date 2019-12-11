@@ -52,16 +52,19 @@ pub fn ship_at_specific<U: reqwest::IntoUrl>(
         package: &Package,
         token: &str,
     ) -> Result<reqwest::Response, ShipError> {
-        let form = Form::new();
+        let version = package.manifest.meta.version.to_string();
 
-        let manifest = package.manifest.to_json(false)?;
-        // TODO: Change to `debug!`
-        eprintln!("Sending manifest: {}", manifest);
+        // SAFETY: `Form::text` requires a `'static` lifetime for string slices.
+        // This lifetime extension is fine to satisfy this requirement because
+        // the reference does not escape this scope.
+        let name = unsafe {
+            let name = package.manifest.meta.name.as_str();
+            mem::transmute::<&str, &'static str>(name)
+        };
 
-        let manifest = Part::text(manifest)
-            .mime_str("application/json")?
-            .file_name("manifest");
-        let form = form.part("manifest", manifest);
+        let form = Form::new()
+            .text("name", name)
+            .text("version", version);
 
         // SAFETY: `Part::reader` requires a `'static` lifetime. This lifetime
         // extension for `package.file` is fine to satisfy this requirement
@@ -72,8 +75,8 @@ pub fn ship_at_specific<U: reqwest::IntoUrl>(
         };
         let package = Part::reader(package)
             .mime_str("application/gzip")?
-            .file_name("package");
-        let form = form.part("package", package);
+            .file_name("packageFile");
+        let form = form.part("packageFile", package);
 
         let response = builder.multipart(form)
             .header(header::COOKIE, format!("token={}", token))
