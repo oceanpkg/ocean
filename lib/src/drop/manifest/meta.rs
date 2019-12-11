@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use crate::drop::{
     source::Git,
-    version::Version,
+    version::SemVer,
 };
 
 /// The value for the `meta` key in the drop manifest.
@@ -48,6 +48,13 @@ pub struct Meta {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub documentation: Option<String>,
 
+    /// The drop version.
+    // TODO: Switch to a flexible versioning scheme that can parse `SemVer` with
+    // any number of dots. If not `SemVer`, call it `Custom` and look into other
+    // versioning schemes.
+    // TODO: Consider accepting dates?
+    pub version: SemVer,
+
     // Tables: all types that serialize into maps (or "tables" in TOML)
     // them must be placed last to succeed.
 
@@ -56,9 +63,6 @@ pub struct Meta {
     /// Repository info is taKen from here.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub git: Option<Git>,
-
-    /// The drop version.
-    pub version: Version,
 
     /// The versions that this version conflicts with.
     #[serde(skip_serializing_if = "Option::is_none")]
