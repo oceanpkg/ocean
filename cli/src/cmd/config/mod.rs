@@ -1,5 +1,5 @@
 use std::{env, fs, io, process};
-use oceanpkg::cfg::file::*;
+use oceanpkg::config::file::*;
 use super::prelude::*;
 
 pub const NAME: &str = "config";
@@ -37,7 +37,7 @@ pub fn run(_state: &mut State, matches: &ArgMatches) -> crate::Result {
         panic!("Found non-directory file at {:?}", config_dir);
     }
 
-    let config_file = match CfgFile::find(&config_dir) {
+    let config_file = match ConfigFile::find(&config_dir) {
         Ok(file) => file,
         Err(err) => match err.reason {
             NotFoundReason::Io(err) => unimplemented!("{}", err),
@@ -52,7 +52,7 @@ pub fn run(_state: &mut State, matches: &ArgMatches) -> crate::Result {
                         _ => panic!("{}", err),
                     }
                 };
-                CfgFile { path, fmt: CfgFileFmt::Toml, handle: Some(file) }
+                ConfigFile { path, fmt: ConfigFileFmt::Toml, handle: Some(file) }
             },
         },
     };

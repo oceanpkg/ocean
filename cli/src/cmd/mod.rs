@@ -37,7 +37,7 @@ cmds! {
     // uninstall,
     // update,
     run,
-    // cfg,
+    // config,
 
     // #[path = "self/mod.rs"]
     // self_, // `self` is a keyword

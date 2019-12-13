@@ -40,7 +40,7 @@ impl InstallTarget {
         match self {
             Self::CurrentUser => {
                 dirs::config_dir()
-                    .ok_or(DirError::CurrentUserCfgDir)
+                    .ok_or(DirError::CurrentUserConfigDir)
                     .map(|cfg| cfg.pushing("Ocean"))
             },
             Self::SpecificUser(username) => {

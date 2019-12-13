@@ -21,7 +21,7 @@ pub enum DirError {
     /// Could not get the current user's home directory.
     CurrentUserHome,
     /// Could not get the current user's configuration directory.
-    CurrentUserCfgDir,
+    CurrentUserConfigDir,
 }
 
 impl Error for DirError {}
@@ -32,7 +32,7 @@ impl fmt::Display for DirError {
             Self::CurrentUserHome => {
                 write!(f, "Could not get current user's home directory")
             },
-            Self::CurrentUserCfgDir => {
+            Self::CurrentUserConfigDir => {
                 write!(f, "Could not get current user's config directory")
             },
         }

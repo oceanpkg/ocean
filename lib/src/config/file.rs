@@ -29,16 +29,16 @@ mod ext {
 ///
 /// The configuration file always has a stem of "ocean" (case-insensitive).
 #[derive(Debug)]
-pub struct CfgFile {
+pub struct ConfigFile {
     /// The location of the configuration file.
     pub path: PathBuf,
     /// The format with which to parse the file.
-    pub fmt: CfgFileFmt,
+    pub fmt: ConfigFileFmt,
     /// An open handle to the file at `path`.
     pub handle: Option<File>,
 }
 
-impl CfgFile {
+impl ConfigFile {
     /// Locates the configuration file at `path`.
     pub fn find(path: &Path) -> Result<Self, NotFound<'_>> {
         const MIN_LEN: usize = STEM_LEN + 1 + ext::MIN_LEN;
@@ -91,8 +91,8 @@ impl CfgFile {
             // SAFETY: See above^
             let ext = unsafe { bytes.get_unchecked((STEM_LEN + 1)..) };
 
-            if let Some(fmt) = CfgFileFmt::from_bytes(ext) {
-                return Ok(CfgFile { path: path.join(name), fmt, handle: None });
+            if let Some(fmt) = ConfigFileFmt::from_bytes(ext) {
+                return Ok(ConfigFile { path: path.join(name), fmt, handle: None });
             } else {
                 continue;
             };
@@ -104,7 +104,7 @@ impl CfgFile {
 
 /// The format of the configuration file.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum CfgFileFmt {
+pub enum ConfigFileFmt {
     /// [Tom's Obvious, Minimal Language](https://github.com/toml-lang/toml).
     ///
     /// Extension: `toml`
@@ -119,7 +119,7 @@ pub enum CfgFileFmt {
     Yaml,
 }
 
-impl CfgFileFmt {
+impl ConfigFileFmt {
     /// Returns the corresponding variant for the file extension, going from
     /// TOML to JSON to YAML in order.
     ///
@@ -127,12 +127,12 @@ impl CfgFileFmt {
     /// encodings.
     pub fn from_bytes(bytes: &[u8]) -> Option<Self> {
         // Perform a case-insensitive match on each extension and assign the
-        // corresponding `CfgFileFmt` variant, moving onto the next entry if
+        // corresponding `ConfigFileFmt` variant, moving onto the next entry if
         // none match
         macro_rules! handle_ext {
             ($($fmt:ident => $($ext:expr),+;)+) => {
                 $(if $(bytes.matches_special_lowercase($ext))||+ {
-                    Some(CfgFileFmt::$fmt)
+                    Some(ConfigFileFmt::$fmt)
                 } else)+ {
                     None
                 }
@@ -160,14 +160,14 @@ impl CfgFileFmt {
                 #[cfg(not(unix))]
                 let ext = ext.to_str()?.as_bytes();
 
-                CfgFileFmt::from_bytes(ext)
+                ConfigFileFmt::from_bytes(ext)
             },
             _ => None,
         }
     }
 }
 
-/// The underlying cause for `CfgFile::find` to return
+/// The underlying cause for `ConfigFile::find` to return
 /// [`NotFound`](struct.NotFound.html).
 #[derive(Debug)]
 pub enum NotFoundReason {
@@ -184,7 +184,7 @@ impl From<io::Error> for NotFoundReason {
     }
 }
 
-/// The error returned by `CfgFile::find`.
+/// The error returned by `ConfigFile::find`.
 #[derive(Debug)]
 pub struct NotFound<'a> {
     /// The underlying cause.
@@ -216,9 +216,9 @@ impl fmt::Display for NotFound<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use self::CfgFileFmt::*;
+    use self::ConfigFileFmt::*;
 
-    static PAIRS: &[(CfgFileFmt, &[&str])] = &[
+    static PAIRS: &[(ConfigFileFmt, &[&str])] = &[
         (Toml, &[ext::TOML]),
         (Json, &[ext::JSON]),
         (Yaml, &[ext::YAML, ext::YML]),
@@ -228,7 +228,7 @@ mod tests {
     fn find_cfg_file() {
         let dir = tempfile::tempdir().unwrap();
 
-        match CfgFile::find(dir.path()) {
+        match ConfigFile::find(dir.path()) {
             Ok(file) => panic!("Found unexpected config {:?}", file),
             Err(err) => match err.reason {
                 NotFoundReason::NoMatch => {},
@@ -246,7 +246,7 @@ mod tests {
                     let cfg_path = dir.path().join(&cfg_name);
                     std::fs::File::create(&cfg_path).unwrap();
 
-                    let cfg_file = CfgFile::find(dir.path()).unwrap();
+                    let cfg_file = ConfigFile::find(dir.path()).unwrap();
                     assert_eq!(cfg_file.path, cfg_path);
                     assert_eq!(cfg_file.fmt, fmt);
 
@@ -266,7 +266,7 @@ mod tests {
                 .unwrap();
 
             let exp_err = std::io::ErrorKind::PermissionDenied;
-            match CfgFile::find(&no_read) {
+            match ConfigFile::find(&no_read) {
                 Ok(file) => panic!("Found unexpected config {:?}", file),
                 Err(err) => match err.reason {
                     NotFoundReason::NoMatch => panic!("Should emit IO error"),
@@ -294,7 +294,7 @@ mod tests {
                         STEM,
                         ext,
                     ));
-                    assert_eq!(CfgFileFmt::from_path(&path).unwrap(), fmt);
+                    assert_eq!(ConfigFileFmt::from_path(&path).unwrap(), fmt);
                 }
             }
         }

@@ -26,7 +26,7 @@ pub(crate) mod flexible;
 pub mod api;
 pub mod archive;
 pub mod auth;
-pub mod cfg;
+pub mod config;
 pub mod drop;
 pub mod env;
 pub mod install;
