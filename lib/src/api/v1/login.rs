@@ -1,52 +1,84 @@
+use std::fmt;
 use crate::api;
+
+/// Credentials used for API login.
+#[derive(Clone, Copy, Serialize)]
+pub enum Credentials<S> {
+    /// Basic username/password authentication.
+    BasicAuth {
+        /// The user's account name.
+        username: S,
+        /// The user's password. This should _never_ be logged or displayed.
+        password: S,
+    },
+    // Replace with `#[non_exhaustive]` when stabilized.
+    #[doc(hidden)]
+    #[serde(skip)]
+    _NonExhaustive,
+}
+
+impl<S> Credentials<S> {
+    /// Creates a basic username/password authentication.
+    pub const fn basic_auth(username: S, password: S) -> Self {
+        Credentials::BasicAuth { username, password }
+    }
+}
+
+// Required in order to not accidentally log private or personally-identifiable
+// information when logging.
+impl<S: fmt::Debug> fmt::Debug for Credentials<S> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Credentials::BasicAuth { .. } => {
+                f.debug_struct("BasicAuth")
+                    .field("username", &"[pid]") // personally-identifiable information
+                    .field("password", &"[private]")
+                    .finish()
+            },
+            Credentials::_NonExhaustive => unreachable!(),
+        }
+    }
+}
 
 /// Requests an API login token from [`url`].
 ///
 /// This appends the `/v1/login` endpoint to the URL.
 ///
 /// [`url`]: fn.url.html
-pub fn request_login_token(
-    username: &str,
-    password: &str,
+pub fn request_login_token<S: fmt::Display>(
+    credentials: &Credentials<S>,
 ) -> Result<String, LoginError> {
     let url = api::url()?;
-    request_login_token_at(&url, username, password)
+    request_login_token_at(&url, credentials)
 }
 
 /// Requests an API login token from a base API URL.
 ///
 /// This mainly exists so that we can also issue requests to testing and staging
 /// environments.
-pub fn request_login_token_at(
+pub fn request_login_token_at<S: fmt::Display>(
     api_url: &url::Url,
-    username: &str,
-    password: &str,
+    credentials: &Credentials<S>,
 ) -> Result<String, LoginError> {
     let url = api_url.join("/v1/login")?;
-    request_login_token_at_specific(url.as_str(), username, password)
+    request_login_token_at_specific(url.as_str(), credentials)
 }
 
 /// Requests an API login token from a specific URL.
-pub fn request_login_token_at_specific<U: reqwest::IntoUrl>(
+pub fn request_login_token_at_specific<U, S>(
     url: U,
-    username: &str,
-    password: &str,
-) -> Result<String, LoginError> {
-    #[derive(Serialize)]
-    struct LoginCredentials<'a> {
-        username: &'a str,
-        password: &'a str,
-    }
-
+    credentials: &Credentials<S>,
+) -> Result<String, LoginError>
+where
+    U: reqwest::IntoUrl + fmt::Debug,
+    S: fmt::Display,
+{
     // Monomorphized body to slightly reduce the instruction count of the
     // binary.
     fn request_token(
             builder: reqwest::RequestBuilder,
-            credentials: &LoginCredentials,
     ) -> Result<String, LoginError> {
-        let response = builder
-            .json(credentials)
-            .send()?;
+        let response = builder.send()?;
 
         let status = response.status();
         if !status.is_success() {
@@ -62,10 +94,16 @@ pub fn request_login_token_at_specific<U: reqwest::IntoUrl>(
         Err(LoginError::MissingToken)
     }
 
-    request_token(
-        reqwest::Client::new().post(url),
-        &LoginCredentials { username, password },
-    )
+    let mut builder = reqwest::Client::new().post(url);
+
+    match credentials {
+        Credentials::BasicAuth { username, password } => {
+            builder = builder.basic_auth(username, Some(password));
+        },
+        Credentials::_NonExhaustive => unreachable!(),
+    }
+
+    request_token(builder)
 }
 
 /// An error returned when attempting to log into Ocean's API.
