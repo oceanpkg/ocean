@@ -45,7 +45,7 @@ fn manifests() -> Vec<(String, Manifest)> {
             display-name = "Ocean"
             description = "Cross-platform package manager"
             version = "{version}"
-            license = "AGPL-3.0"
+            license = "AGPL-3.0-only"
             authors = ["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]
             readme = "README.md"
             changelog = "CHANGELOG.md"
@@ -126,7 +126,7 @@ fn example_manifest() -> Manifest {
             exe_path: Some("wumbo".to_owned()),
             version: SemVer::new(0, 1, 0).into(),
             conflicts: None,
-            license: Some("MIT OR AGPL-3.0".to_owned()),
+            license: Some("MIT OR AGPL-3.0-only".to_owned()),
             authors: Some(vec![
                 "Nikolai Vazquez".to_owned(),
                 "Patrick Star".to_owned(),
