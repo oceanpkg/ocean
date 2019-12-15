@@ -42,7 +42,7 @@ pub fn cmd() -> App {
             .multiple(true))
 }
 
-pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
+pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
     let with_deps: Vec<&Name> = matches
         .values_of("with")
         .map(name_values)
@@ -85,12 +85,12 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
             }
 
             let query = Query::<&str>::parse_liberal(drop);
-            let download = match download(state, query) {
+            let download = match download(config, query) {
                 Ok(dl) => dl,
                 Err(error) => fail!(error),
             };
 
-            let drops_dir = state.drops_dir(&install_target);
+            let drops_dir = config.rt.drops_dir(&install_target);
             let unpack_dir = {
                 let mut dir = drops_dir.into_owned();
                 dir.push(query.scope.unwrap_or("core"));
@@ -156,7 +156,7 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
     }
 
     // Get duration immediately after shipping finishes.
-    let elapsed = state.start_time.elapsed();
+    let elapsed = config.rt.time_elapsed();
 
     if !successes.is_empty() {
         println!();
@@ -207,8 +207,8 @@ struct Download {
     path: PathBuf,
 }
 
-fn download(state: &State, drop: Query<&str>) -> crate::Result<Download> {
-    let tarball_path = state.tarball_cache_path(drop);
+fn download(config: &Config, drop: Query<&str>) -> crate::Result<Download> {
+    let tarball_path = config.rt.tarball_cache_path(drop);
 
     if let Some(parent) = tarball_path.parent() {
         fs::DirBuilder::new()

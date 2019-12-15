@@ -17,7 +17,7 @@ pub fn cmd() -> App {
             .help("Simply print the homepage URL"))
 }
 
-pub fn run(_state: &mut State, matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
     let print_home = matches.is_present("print");
 
     if let Some(drops) = matches.values_of("drops") {

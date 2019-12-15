@@ -12,6 +12,6 @@ pub fn cmd() -> App {
             .required(true))
 }
 
-pub fn run(_state: &mut State, _matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut Config, _matches: &ArgMatches) -> crate::Result {
     unimplemented!()
 }

@@ -18,6 +18,7 @@ dirs = "1"
 flate2 = "1"
 http = "0.1"
 lazy_static = "1.4"
+lazycell = "1.2"
 linfo = { version = "0.1.3", features = ["phf", "serde"] }
 reqwest = { version = "0.9.22", optional = true }
 semver = { version = "0.9", features = ["serde"] }

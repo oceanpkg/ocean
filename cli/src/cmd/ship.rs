@@ -21,9 +21,9 @@ pub fn cmd() -> App {
             .takes_value(true))
 }
 
-pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
+pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
     let package = oceanpkg::drop::Package::create(
-        &state.current_dir,
+        config.rt.current_dir(),
         matches.value_of_os("manifest"),
         None::<&Path>,
     )?;
@@ -32,7 +32,7 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
     let token = match matches.value_of("token") {
         Some(token) => token,
         None => {
-            let credentials_path = state.credentials_path();
+            let credentials_path = config.rt.credentials_path();
 
             let mut credentials_file = match File::open(credentials_path) {
                 Ok(file) => file,
@@ -61,7 +61,7 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
     oceanpkg::api::v1::ship(&package, token)?;
 
     // Get duration immediately after shipping finishes.
-    let elapsed = state.start_time.elapsed();
+    let elapsed = config.rt.time_elapsed();
 
     println!("Successfully shipped \"{}\"!", package.manifest.meta.name);
     println!("Finished in {:?}", elapsed);

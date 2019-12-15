@@ -42,7 +42,7 @@ pub fn cmd() -> App {
         .after_help(AFTER_HELP)
 }
 
-pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
+pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
     if let Some(drop) = matches.value_of("drop") {
         let query = Query::<&str>::parse_liberal(drop);
 
@@ -54,7 +54,7 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
 
         let query_string = format!("{}/{}@{}", scope, name, version);
 
-        let drops_dir = state.drops_dir(&InstallTarget::CurrentUser);
+        let drops_dir = config.rt.drops_dir(&InstallTarget::CurrentUser);
         let drop_path = drops_dir.join(&query_string);
 
         let manifest_path = drop_path.join(Manifest::FILE_NAME);

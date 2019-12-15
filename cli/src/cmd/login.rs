@@ -16,7 +16,7 @@ pub fn cmd() -> App {
             .help("The username with which to login"))
 }
 
-pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
+pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
     let username = matches.value_of("username")
         .unwrap_or_else(|| unreachable!("Required argument"));
 
@@ -34,7 +34,7 @@ pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
     let toml = toml::to_string_pretty(&credentials)?;
 
     // Write credentials.
-    let credentials_path = state.credentials_path();
+    let credentials_path = config.rt.credentials_path();
     if let Some(parent) = credentials_path.parent() {
         fs::DirBuilder::new()
             .recursive(true)

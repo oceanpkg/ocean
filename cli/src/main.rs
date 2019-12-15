@@ -1,14 +1,12 @@
 extern crate clap;
 extern crate oceanpkg;
 
+use oceanpkg::Config;
+
 #[macro_use]
 mod macros;
 
 mod cmd;
-mod state;
-
-#[doc(inline)]
-pub use self::state::State;
 
 type Result<T = ()> = failure::Fallible<T>;
 
@@ -40,14 +38,14 @@ fn app() -> clap::App<'static, 'static> {
 }
 
 fn main() {
-    let mut state = State::new()
+    let mut config = Config::create()
         .unwrap_or_else(|error| {
             exit_error!("error: {}", error)
         });
 
     let matches = app().get_matches();
     if let (cmd, Some(matches)) = matches.subcommand() {
-        cmd::run(&mut state, cmd, matches)
+        cmd::run(&mut config, cmd, matches)
             .unwrap_or_else(|error| {
                 exit_error!("error: {}", error)
             });

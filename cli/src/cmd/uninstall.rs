@@ -15,7 +15,7 @@ pub fn cmd() -> App {
             .required(true))
 }
 
-pub fn run(_state: &mut State, matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
     let install_target = matches.install_target();
     println!("Uninstalling for {:?}", install_target);
 

@@ -1,6 +1,8 @@
 pub use clap::{AppSettings, ArgMatches, SubCommand};
-pub use oceanpkg::install::InstallTarget;
-pub use crate::State;
+pub use oceanpkg::{
+    Config,
+    install::InstallTarget,
+};
 
 pub type App = clap::App<'static, 'static>;
 pub type Arg = clap::Arg<'static, 'static>;

@@ -7,6 +7,6 @@ pub fn cmd() -> App {
         .about("Uninstall Ocean")
 }
 
-pub fn run(_state: &mut State, _matches: &ArgMatches) -> crate::Result {
+pub fn run(_state: &mut Config, _matches: &ArgMatches) -> crate::Result {
     unimplemented!()
 }

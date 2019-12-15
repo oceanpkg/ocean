@@ -16,17 +16,17 @@ pub fn cmd() -> App {
             .takes_value(true))
 }
 
-pub fn run(state: &mut State, matches: &ArgMatches) -> crate::Result {
+pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
     let package = oceanpkg::drop::Package::create(
-        &state.current_dir,
+        config.rt.current_dir(),
         matches.value_of_os("manifest"),
         matches.value_of_os("output"),
     )?;
     // Get duration immediately after packaging finishes.
-    let elapsed = state.start_time.elapsed();
+    let elapsed = config.rt.time_elapsed();
 
     let tarball = &package.path;
-    let tarball = match tarball.strip_prefix(&state.current_dir) {
+    let tarball = match tarball.strip_prefix(config.rt.current_dir()) {
         Ok(suffix) => suffix,
         Err(_) => &tarball,
     };

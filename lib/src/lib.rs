@@ -33,4 +33,7 @@ pub mod install;
 pub mod system;
 
 #[doc(inline)]
-pub use self::drop::Drop;
+pub use self::{
+    config::Config,
+    drop::Drop,
+};
