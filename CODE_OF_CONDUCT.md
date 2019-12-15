@@ -63,7 +63,7 @@ That is not welcome behavior.
 
 <p class="license" xmlns:dct="http://purl.org/dc/terms/" xmlns:vcard="http://www.w3.org/2001/vcard-rdf/3.0#">
   <span property="dct:publisher">The Ocean Team</span> has made the
-  <span property="dct:title">Ocean Code ofConduct</span> available under the
+  <span property="dct:title">Ocean Code of Conduct</span> available under the
   <a href="https://creativecommons.org/licenses/by-sa/4.0/">Attribution-ShareAlike 4.0 International</a>
   license. This work is published from the
   <span property="vcard:Country" datatype="dct:ISO3166" content="US" about="https://www.oceanpkg.org">United States</span>.
