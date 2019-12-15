@@ -31,7 +31,8 @@ impl<S: fmt::Debug> fmt::Debug for Credentials<S> {
         match self {
             Credentials::BasicAuth { .. } => {
                 f.debug_struct("BasicAuth")
-                    .field("username", &"[pid]") // personally-identifiable information
+                    // Personally identifying information
+                    .field("username", &"[pii]")
                     .field("password", &"[private]")
                     .finish()
             },
