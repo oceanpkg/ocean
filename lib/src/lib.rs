@@ -8,7 +8,7 @@
 
 #![deny(missing_docs)]
 
-#![doc(html_root_url = "https://docs.rs/oceanpkg/0.0.10")]
+#![doc(html_root_url = "https://docs.rs/oceanpkg/0.0.11")]
 #![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
 
 extern crate oceanpkg_shared as shared;
