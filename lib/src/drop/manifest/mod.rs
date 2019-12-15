@@ -44,7 +44,7 @@ impl Manifest {
     ///     name = "ocean"
     ///     description = "Cross-platform package manager"
     ///     version = "0.1.0"
-    ///     license = "Apache-2.0"
+    ///     license = "AGPL-3.0"
     ///     authors = ["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"]
     ///     readme = "README.md"
     ///     changelog = "CHANGELOG.md"
@@ -85,7 +85,7 @@ impl Manifest {
     ///         "name": "ocean",
     ///         "description": "Cross-platform package manager",
     ///         "version": "0.1.0",
-    ///         "license": "Apache-2.0",
+    ///         "license": "AGPL-3.0",
     ///         "authors": ["Nikolai Vazquez", "Alex Farra", "Nicole Zhao"],
     ///         "readme": "README.md",
     ///         "changelog": "CHANGELOG.md",

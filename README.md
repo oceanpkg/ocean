@@ -46,7 +46,8 @@ See [`lib/README.md`] or [docs.rs/oceanpkg] for info.
 
 ## License
 
-Ocean is licensed under Apache 2.0. See [`LICENSE.txt`] for full text.
+Ocean is licensed under the GNU Affero General Public License v3.
+See [`LICENSE.txt`] for full text.
 
 [CLI]: https://en.wikipedia.org/wiki/Command-line_interface
 [`LICENSE.txt`]: https://github.com/oceanpkg/ocean/blob/master/LICENSE.txt
