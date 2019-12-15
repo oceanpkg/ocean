@@ -23,7 +23,7 @@ fn manifests() -> Vec<(String, Manifest)> {
         exe_path: None,
         version: semver.into(),
         conflicts: None,
-        license: Some(SpdxLicense::Apache2.id().to_owned()),
+        license: Some(SpdxLicense::Agpl3Only.id().to_owned()),
         authors: Some(vec![
             "Nikolai Vazquez".to_owned(),
             "Alex Farra".to_owned(),
