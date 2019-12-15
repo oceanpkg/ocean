@@ -10,6 +10,9 @@ mod cmd;
 
 type Result<T = ()> = failure::Fallible<T>;
 
+/// The git revision for the version built.
+pub const GIT_REV: Option<&str> = option_env!("OCEAN_GIT_REV");
+
 const ABOUT: &str = "
 Flexibly manages packages
 

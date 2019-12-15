@@ -39,8 +39,8 @@ cmds! {
     run,
     // config,
 
-    // #[path = "self/mod.rs"]
-    // self_, // `self` is a keyword
+    #[path = "self/mod.rs"]
+    self_, // `self` is a keyword
 
     login,
     ship,

@@ -1,5 +1,6 @@
 use super::prelude::*;
 
+mod rev;
 mod uninstall;
 mod update;
 
@@ -13,6 +14,7 @@ pub fn cmd() -> App {
             AppSettings::DeriveDisplayOrder,
         ])
         .subcommands(vec![
+            rev::cmd(),
             update::cmd(),
             uninstall::cmd(),
         ])
@@ -21,6 +23,7 @@ pub fn cmd() -> App {
 pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
     if let (command, Some(matches)) = matches.subcommand() {
         let run = match command {
+            rev::NAME       => rev::run,
             update::NAME    => update::run,
             uninstall::NAME => uninstall::run,
             _ => unreachable!("could not match command {:?}", command),

@@ -8,6 +8,7 @@ readme = "README.md"
 edition = "2018"
 homepage = "https://www.oceanpkg.org"
 publish = false
+build = "build.rs"
 
 [[bin]]
 name = "ocean"
