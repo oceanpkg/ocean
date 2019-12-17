@@ -14,7 +14,7 @@ Please fill in as much of the template below as you're able. This helps us
 address and hopefully recreate the problems you're dealing with.
 -->
 
-# Bug Report
+# 🐛 Bug Report
 
 <!--
 Clearly and concisely describe what happened.
