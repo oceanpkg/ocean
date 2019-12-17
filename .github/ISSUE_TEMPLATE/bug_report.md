@@ -1,7 +1,7 @@
 ---
 name: 🐛 Bug Report
 about: Something is rotten in the state of Denmark... 🤔
-title: "Bug: [PROBLEM]"
+title: "[Describe the problem you encountered]"
 labels: kind/bug
 assignees: nvzqz
 
