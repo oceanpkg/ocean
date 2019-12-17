@@ -73,10 +73,11 @@ Other works such as images, videos, and documents are licensed under the
 By choosing to contribute to this project, copyright over your contributed works
 are assigned to Nikolai Vazquez.
 
-[`LICENSE.txt`]: https://github.com/oceanpkg/ocean/blob/master/LICENSE.txt
-[Ocean Code of Conduct]: https://github.com/oceanpkg/ocean/blob/master/CODE_OF_CONDUCT.md
+[`LICENSE.txt`]:          https://github.com/oceanpkg/ocean/blob/master/LICENSE.txt
+[Ocean Code of Conduct]:  https://github.com/oceanpkg/ocean/blob/master/CODE_OF_CONDUCT.md
+[GitHub issues]:          https://github.com/oceanpkg/ocean/issues
+[filing an issue]:        https://github.com/oceanpkg/ocean/issues/new
 [search existing issues]: https://github.com/oceanpkg/ocean/search?q=&type=Issues&utf8=✓
-[filing an issue]: https://github.com/oceanpkg/ocean/issues/new
 
 [agpl-3.0]:  https://www.gnu.org/licenses/agpl-3.0.en.html
 [by-sa-4.0]: http://creativecommons.org/licenses/by-sa/4.0/
