@@ -3,6 +3,7 @@ use crate::api;
 
 /// Credentials used for API login.
 #[derive(Clone, Copy, Serialize)]
+#[non_exhaustive]
 pub enum Credentials<S> {
     /// Basic username/password authentication.
     BasicAuth {
@@ -11,10 +12,6 @@ pub enum Credentials<S> {
         /// The user's password. This should _never_ be logged or displayed.
         password: S,
     },
-    // Replace with `#[non_exhaustive]` when stabilized.
-    #[doc(hidden)]
-    #[serde(skip)]
-    _NonExhaustive,
 }
 
 impl<S> Credentials<S> {
@@ -36,7 +33,6 @@ impl<S: fmt::Debug> fmt::Debug for Credentials<S> {
                     .field("password", &"[private]")
                     .finish()
             },
-            Credentials::_NonExhaustive => unreachable!(),
         }
     }
 }
@@ -101,7 +97,6 @@ where
         Credentials::BasicAuth { username, password } => {
             builder = builder.basic_auth(username, Some(password));
         },
-        Credentials::_NonExhaustive => unreachable!(),
     }
 
     request_token(builder)
