@@ -4,12 +4,6 @@ fn main() {
     emit_git_rev();
 }
 
-macro_rules! cargo_warn {
-    ($fmt:literal $($args:tt)*) => {
-        println!(concat!("cargo:warning=", $fmt) $($args)*)
-    };
-}
-
 /// Make the current git revision hash available to the build.
 fn emit_git_rev() {
     let git_output = process::Command::new("git")
@@ -23,8 +17,12 @@ fn emit_git_rev() {
                     cargo_emit::rustc_env!("OCEAN_GIT_REV", "{}", rev);
                 }
             },
-            Err(error) => cargo_warn!("Could not parse git hash: {}", error),
+            Err(error) => {
+                cargo_emit::warning!("Could not parse git hash: {}", error);
+            },
         },
-        Err(error) => cargo_warn!("Could not run `git`: {}", error),
+        Err(error) => {
+            cargo_emit::warning!("Could not run `git`: {}", error)
+        },
     }
 }
