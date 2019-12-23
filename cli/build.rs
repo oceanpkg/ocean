@@ -1,7 +1,27 @@
-use std::process;
+use std::{
+    env,
+    process,
+};
 
 fn main() {
+    emit_target_info();
     emit_git_rev();
+}
+
+/// Make the target's system info available to the build.
+fn emit_target_info() {
+    let mut target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    let target_os = match target_os.as_str() {
+        "macos" => "macOS",
+        _ => {
+            target_os[..1].make_ascii_lowercase();
+            &target_os
+        },
+    };
+    cargo_emit::rustc_env!("OCEAN_TARGET_OS", "{}", target_os);
+
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+    cargo_emit::rustc_env!("OCEAN_TARGET_ARCH", "{}", target_arch);
 }
 
 /// Make the current git revision hash available to the build.
