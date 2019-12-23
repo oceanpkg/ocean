@@ -22,6 +22,7 @@ oceanpkg = { path = "../lib", version = "0.0.11", features = ["reqwest", "toml"]
 clap = "2.33"
 dirs = "2"
 failure = "0.1.6"
+percent-encoding = "2"
 reqwest = "0.9.22"
 rpassword = "4"
 toml = "0.5"

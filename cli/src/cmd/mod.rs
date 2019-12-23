@@ -49,4 +49,5 @@ cmds! {
     home,
     docs,
     source,
+    report,
 }
