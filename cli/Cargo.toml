@@ -14,6 +14,9 @@ build = "build.rs"
 name = "ocean"
 path = "src/main.rs"
 
+[build-dependencies]
+cargo-emit = "0.1"
+
 [dependencies]
 oceanpkg = { path = "../lib", version = "0.0.11", features = ["reqwest", "toml"] }
 clap = "2.33"

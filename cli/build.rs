@@ -20,7 +20,7 @@ fn emit_git_rev() {
             Ok(rev) => {
                 let rev = rev.trim();
                 if !rev.is_empty() {
-                    println!("cargo:rustc-env=OCEAN_GIT_REV={}", rev);
+                    cargo_emit::rustc_env!("OCEAN_GIT_REV", "{}", rev);
                 }
             },
             Err(error) => cargo_warn!("Could not parse git hash: {}", error),
