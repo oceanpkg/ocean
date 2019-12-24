@@ -66,9 +66,9 @@ pub fn url(_config: &Config) -> String {
     let body = format!(
         template!(),
         version = version,
-        commit = revision,
-        os = target_os,
-        arch = target_arch,
+        commit  = revision,
+        os      = target_os,
+        arch    = target_arch,
     );
     let base = "\
         https://github.com/oceanpkg/ocean/issues/new\
