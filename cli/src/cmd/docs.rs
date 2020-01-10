@@ -24,12 +24,10 @@ pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
         for drop in drops {
             unimplemented!("TODO: Open the documentation page for {:?}", drop);
         }
+    } else if print_docs {
+        println!("{}", OCEAN_DOCS);
     } else {
-        if print_docs {
-            println!("{}", OCEAN_DOCS);
-        } else {
-            open(&[OCEAN_DOCS])?;
-        }
+        open(&[OCEAN_DOCS])?;
     }
     Ok(())
 }

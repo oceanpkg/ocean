@@ -20,12 +20,13 @@ pub struct Name(str);
 impl From<&Name> for Box<Name> {
     #[inline]
     fn from(name: &Name) -> Self {
-        name.into_boxed()
+        name.to_boxed()
     }
 }
 
 impl Clone for Box<Name> {
     #[inline]
+    #[allow(clippy::borrowed_box)]
     fn clone(&self) -> Self {
         let str_box: &Box<str> =
             unsafe { &*(self as *const Self as *const Box<str>) };
@@ -119,6 +120,7 @@ impl Name {
     }
 
     /// Creates a new instance without parsing `name`.
+    #[allow(clippy::missing_safety_doc)] // TODO: Add `# Safety` section
     pub unsafe fn new_unchecked<N>(name: &N) -> &Self
     where
         N: ?Sized + AsRef<[u8]>,
@@ -173,7 +175,7 @@ impl Name {
 
     /// Moves copied contents of `self` to the heap.
     #[inline]
-    pub fn into_boxed(&self) -> Box<Self> {
+    pub fn to_boxed(&self) -> Box<Self> {
         let raw = Box::<str>::into_raw(self.0.into()) as *mut Name;
         unsafe { Box::from_raw(raw) }
     }

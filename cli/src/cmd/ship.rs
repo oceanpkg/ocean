@@ -53,7 +53,9 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
 
             let credentials: Credentials<&str> = toml::from_str(&credentials)?;
             credentials.registry
-                .ok_or(failure::err_msg("please run `ocean login` first"))?
+                .ok_or_else(|| {
+                    failure::err_msg("please run `ocean login` first")
+                })?
                 .token
         },
     };

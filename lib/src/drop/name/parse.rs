@@ -30,7 +30,7 @@ impl TryFrom<&str> for Box<Name> {
 
     #[inline]
     fn try_from(s: &str) -> Result<Self, Self::Error> {
-        <&Name>::try_from(s).map(|name| name.into_boxed())
+        <&Name>::try_from(s).map(|name| name.to_boxed())
     }
 }
 

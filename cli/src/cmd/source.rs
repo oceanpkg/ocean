@@ -24,12 +24,10 @@ pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
         for drop in drops {
             unimplemented!("TODO: Open the repository page for {:?}", drop);
         }
+    } else if print_repo {
+        println!("{}", OCEAN_REPO);
     } else {
-        if print_repo {
-            println!("{}", OCEAN_REPO);
-        } else {
-            open(&[OCEAN_REPO])?;
-        }
+        open(&[OCEAN_REPO])?;
     }
     Ok(())
 }

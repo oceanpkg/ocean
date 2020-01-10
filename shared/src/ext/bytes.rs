@@ -40,12 +40,12 @@ pub trait BytesExt {
 
 // Monomorphized form
 fn matches_special_lowercase_imp(a: &[u8], b: &[u8]) -> bool {
-    a.len() == b.len() && a.iter().zip(b).all(|(&a, &b)| a | 0b100000 == b)
+    a.len() == b.len() && a.iter().zip(b).all(|(&a, &b)| a | 0b10_0000 == b)
 }
 
 impl BytesExt for &[u8] {
     fn matches_special_lowercase<B: AsRef<[u8]>>(self, other: B) -> bool {
-        matches_special_lowercase_imp(self.as_ref(), other.as_ref())
+        matches_special_lowercase_imp(self, other.as_ref())
     }
 }
 

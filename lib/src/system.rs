@@ -13,6 +13,7 @@ use std::{
 /// | Linux    | `xdg-open` |
 /// | macOS    | `/usr/bin/open |
 /// | Windows  | `start` |
+#[allow(clippy::let_and_return)]
 pub const OPEN_TOOL: &str = {
     cfg_if! {
         if #[cfg(target_os = "macos")] {

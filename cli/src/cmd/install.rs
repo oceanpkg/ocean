@@ -257,7 +257,9 @@ fn unpack(tarball: &Path, dir: &Path) -> crate::Result<String> {
         .stdout(Stdio::piped())
         .spawn()?;
     let gunzip_stdout = gunzip.stdout.take()
-        .ok_or(failure::err_msg("Could not get stdout handle for `gunzip`"))?;
+        .ok_or_else(|| {
+            failure::err_msg("Could not get stdout handle for `gunzip`")
+        })?;
     let tar_status = Command::new("tar")
         .args(&["xopf", "-"])
         .current_dir(dir)
@@ -274,7 +276,9 @@ fn unpack(tarball: &Path, dir: &Path) -> crate::Result<String> {
         .stdout(Stdio::piped())
         .spawn()?;
     let gunzip_stdout = gunzip.stdout.take()
-        .ok_or(failure::err_msg("Could not get stdout handle for `gunzip`"))?;
+        .ok_or_else(|| {
+            failure::err_msg("Could not get stdout handle for `gunzip`")
+        })?;
     let tar_output = Command::new("tar")
         .args(&["-t", "*/Ocean.toml", "-"])
         .current_dir(dir)

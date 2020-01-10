@@ -297,6 +297,7 @@ impl<'n> ScopedName<&'n Name> {
 
     /// Creates a new instance without attempting to verify `scope` or `name`.
     #[inline]
+    #[allow(clippy::missing_safety_doc)] // TODO: Add `# Safety` section
     pub unsafe fn from_pair_unchecked<S, N>(scope: &'n S, name: &'n N) -> Self
     where
         S: ?Sized + AsRef<[u8]>,

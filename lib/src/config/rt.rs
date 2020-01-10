@@ -45,7 +45,7 @@ impl RtConfig {
         Ok(Self {
             start_time,
             current_dir: env::current_dir()
-                .map_err(|e| CreateError::MissingCurrentDir(e))?,
+                .map_err(CreateError::MissingCurrentDir)?,
             user_home: dirs::home_dir()
                 .ok_or_else(|| CreateError::MissingUserHome)?,
             ocean_home: LazyCell::new(),

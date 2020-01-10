@@ -24,12 +24,10 @@ pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
         for drop in drops {
             unimplemented!("TODO: Open the homepage for {:?}", drop);
         }
+    } else if print_home {
+        println!("{}", OCEAN_HOME);
     } else {
-        if print_home {
-            println!("{}", OCEAN_HOME);
-        } else {
-            open(&[OCEAN_HOME])?;
-        }
+        open(&[OCEAN_HOME])?;
     }
     Ok(())
 }
