@@ -11,7 +11,7 @@ use std::{
     io::{BufWriter, Write},
     mem,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Stdio},
 };
 
 pub const NAME: &str = "install";
@@ -253,8 +253,6 @@ fn download(config: &Config, drop: Query<&str>) -> crate::Result<Download> {
 // }
 
 fn unpack(tarball: &Path, dir: &Path) -> crate::Result<String> {
-    use std::process::{Command, Stdio};
-
     assert!(tarball.exists(), "{:?} does not exist", tarball);
 
     fs::DirBuilder::new().recursive(true).create(dir)?;
