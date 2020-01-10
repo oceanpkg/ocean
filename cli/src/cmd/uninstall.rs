@@ -7,12 +7,13 @@ pub fn cmd() -> App {
         // TODO: Should we have shorthand aliases for uninstall?
         // .visible_aliases(&["un", "remove", "rm"])
         .about("Removes a drop")
-        .arg(Arg::global_flag()
-            .help("Remove the drop for all users"))
-        .arg(Arg::with_name("drop")
-            .help("The package(s) to remove")
-            .multiple(true)
-            .required(true))
+        .arg(Arg::global_flag().help("Remove the drop for all users"))
+        .arg(
+            Arg::with_name("drop")
+                .help("The package(s) to remove")
+                .multiple(true)
+                .required(true),
+        )
 }
 
 pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {

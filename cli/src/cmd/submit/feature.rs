@@ -1,5 +1,5 @@
-use std::iter;
 use crate::Config;
+use std::iter;
 
 /// See `.github/ISSUE_TEMPLATE/feature_request.md` for the base issue template.
 ///
@@ -77,13 +77,13 @@ We could also take the approach explained at ...
 pub fn url(_config: &Config) -> String {
     let body = TEMPLATE;
     let base = "\
-        https://github.com/oceanpkg/ocean/issues/new\
-        ?assignees=nvzqz\
-        &template=feature_request.md\
-        &labels=kind%2Ffeature\
-        &title=%5BDescribe+the+feature+you%27re+proposing%5D\
-        &body=\
-    ";
+                https://github.com/oceanpkg/ocean/issues/new\
+                ?assignees=nvzqz\
+                &template=feature_request.md\
+                &labels=kind%2Ffeature\
+                &title=%5BDescribe+the+feature+you%27re+proposing%5D\
+                &body=\
+                ";
     iter::once(base)
         .chain(percent_encoding::utf8_percent_encode(
             &body,

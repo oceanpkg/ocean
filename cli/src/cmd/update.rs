@@ -5,17 +5,19 @@ pub const NAME: &str = "update";
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
         .about("Updates installed packages")
-        .arg(Arg::all_flag()
-            .help("Update all drops")
-            .conflicts_with("drop"))
-        .arg(Arg::global_flag()
-            .help("Update the drop for all users"))
-        .arg(Arg::user_flag()
-            .help("Update the drop for a specific user"))
-        .arg(Arg::with_name("drop")
-            .help("The package(s) to update")
-            .multiple(true)
-            .required_unless("all"))
+        .arg(
+            Arg::all_flag()
+                .help("Update all drops")
+                .conflicts_with("drop"),
+        )
+        .arg(Arg::global_flag().help("Update the drop for all users"))
+        .arg(Arg::user_flag().help("Update the drop for a specific user"))
+        .arg(
+            Arg::with_name("drop")
+                .help("The package(s) to update")
+                .multiple(true)
+                .required_unless("all"),
+        )
 }
 
 pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {

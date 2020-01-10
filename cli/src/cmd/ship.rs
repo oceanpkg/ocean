@@ -1,24 +1,28 @@
+use super::prelude::*;
+use oceanpkg::auth::Credentials;
 use std::{
     fs::File,
     io::{self, Read},
     path::Path,
 };
-use oceanpkg::auth::Credentials;
-use super::prelude::*;
 
 pub const NAME: &str = "ship";
 
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
         .about("Package and upload this drop to the registry")
-        .arg(Arg::with_name("token")
-            .help("Token to use when uploading")
-            .long("token")
-            .takes_value(true))
-        .arg(Arg::with_name("manifest")
-            .help("Path to Ocean.toml")
-            .long("manifest")
-            .takes_value(true))
+        .arg(
+            Arg::with_name("token")
+                .help("Token to use when uploading")
+                .long("token")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("manifest")
+                .help("Path to Ocean.toml")
+                .long("manifest")
+                .takes_value(true),
+        )
 }
 
 pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
@@ -41,10 +45,10 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
                     match error.kind() {
                         ErrorKind::NotFound => {
                             failure::bail!("please run `ocean login` first")
-                        },
+                        }
                         _ => return Err(error.into()),
                     }
-                },
+                }
             };
 
             let mut credentials_buf = String::with_capacity(256);
@@ -52,12 +56,13 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
             credentials = credentials_buf;
 
             let credentials: Credentials<&str> = toml::from_str(&credentials)?;
-            credentials.registry
+            credentials
+                .registry
                 .ok_or_else(|| {
                     failure::err_msg("please run `ocean login` first")
                 })?
                 .token
-        },
+        }
     };
 
     oceanpkg::api::v1::ship(&package, token)?;

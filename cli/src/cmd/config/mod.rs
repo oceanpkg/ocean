@@ -1,6 +1,6 @@
-use std::{env, fs, io, process};
-use oceanpkg::config::file::*;
 use super::prelude::*;
+use oceanpkg::config::file::*;
+use std::{env, fs, io, process};
 
 pub const NAME: &str = "config";
 
@@ -8,8 +8,10 @@ pub fn cmd() -> App {
     SubCommand::with_name(NAME)
         .visible_alias("cfg")
         .about("Configure the settings used by Ocean")
-        .arg(Arg::global_flag()
-            .help("The global configuration file for all users"))
+        .arg(
+            Arg::global_flag()
+                .help("The global configuration file for all users"),
+        )
 }
 
 pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
@@ -19,7 +21,7 @@ pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
         Ok(dir) => dir,
         Err(err) => {
             unimplemented!("{}", err);
-        },
+        }
     };
 
     if !config_dir.exists() {
@@ -27,7 +29,7 @@ pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
             match err.kind() {
                 io::ErrorKind::PermissionDenied => {
                     panic!("Permission to create {:?} denied", config_dir);
-                },
+                }
                 _ => panic!("{}", err),
             }
         }
@@ -48,12 +50,16 @@ pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {
                     Err(err) => match err.kind() {
                         io::ErrorKind::PermissionDenied => {
                             panic!("Permission to create {:?} denied", path);
-                        },
+                        }
                         _ => panic!("{}", err),
-                    }
+                    },
                 };
-                ConfigFile { path, fmt: ConfigFileFmt::Toml, handle: Some(file) }
-            },
+                ConfigFile {
+                    path,
+                    fmt: ConfigFileFmt::Toml,
+                    handle: Some(file),
+                }
+            }
         },
     };
 

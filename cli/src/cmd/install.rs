@@ -1,18 +1,18 @@
-use std::{
-    fs::{self, File},
-    io::{BufWriter, Write},
-    path::{Path, PathBuf},
-    process::Command,
-    mem,
-};
+use super::prelude::*;
 use oceanpkg::{
     api,
     drop::{
-        Manifest,
         name::{Name, Query},
+        Manifest,
     },
 };
-use super::prelude::*;
+use std::{
+    fs::{self, File},
+    io::{BufWriter, Write},
+    mem,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 pub const NAME: &str = "install";
 
@@ -20,26 +20,36 @@ pub fn cmd() -> App {
     SubCommand::with_name(NAME)
         .visible_alias("i")
         .about("Downloads and installs a drop")
-        .arg(Arg::user_flag()
-            .help("Drop(s) will be available to a specific user"))
-        .arg(Arg::global_flag()
-            .help("Drop(s) will be globally available to all users"))
-        .arg(Arg::with_name("drop")
-            .help("The package(s) to install")
-            .multiple(true)
-            .required(true))
-        .arg(Arg::with_name("with")
-            .help("Include optional dependencies")
-            .long("with")
-            .takes_value(true)
-            .value_name("dep")
-            .multiple(true))
-        .arg(Arg::with_name("without")
-            .help("Exclude recommended dependencies")
-            .long("without")
-            .takes_value(true)
-            .value_name("dep")
-            .multiple(true))
+        .arg(
+            Arg::user_flag()
+                .help("Drop(s) will be available to a specific user"),
+        )
+        .arg(
+            Arg::global_flag()
+                .help("Drop(s) will be globally available to all users"),
+        )
+        .arg(
+            Arg::with_name("drop")
+                .help("The package(s) to install")
+                .multiple(true)
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("with")
+                .help("Include optional dependencies")
+                .long("with")
+                .takes_value(true)
+                .value_name("dep")
+                .multiple(true),
+        )
+        .arg(
+            Arg::with_name("without")
+                .help("Exclude recommended dependencies")
+                .long("without")
+                .takes_value(true)
+                .value_name("dep")
+                .multiple(true),
+        )
 }
 
 pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
@@ -78,10 +88,15 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
             println!("Installing \"{}\"...", drop);
 
             macro_rules! fail {
-                ($error:expr) => { {
-                    error!("failed to install \"{}\": {} (line {})", drop, $error, line!());
+                ($error:expr) => {{
+                    error!(
+                        "failed to install \"{}\": {} (line {})",
+                        drop,
+                        $error,
+                        line!()
+                    );
                     continue;
-                } };
+                }};
             }
 
             let query = Query::<&str>::parse_liberal(drop);
@@ -119,7 +134,7 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
                             unsafe { &*slice }
                         }
                         leak(manifest.meta.version.to_string())
-                    },
+                    }
                 },
             };
 
@@ -137,17 +152,17 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
                 ));
             }
 
-            let chmod_status = Command::new("chmod")
-                .arg("+x")
-                .arg(&exe_path)
-                .status();
+            let chmod_status =
+                Command::new("chmod").arg("+x").arg(&exe_path).status();
             match chmod_status {
-                Ok(status) => if !status.success() {
-                    fail!(failure::format_err!(
-                        "failed to make \"{}\" executable",
-                        exe_path.display(),
-                    ));
-                },
+                Ok(status) => {
+                    if !status.success() {
+                        fail!(failure::format_err!(
+                            "failed to make \"{}\" executable",
+                            exe_path.display(),
+                        ));
+                    }
+                }
                 Err(error) => fail!(error),
             }
 
@@ -179,7 +194,8 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
 /// Converts `values` to a vector of `Name`s if they're all valid, or exits with
 /// an error code if any are not.
 fn name_values(values: clap::Values) -> Vec<&Name> {
-    values.map(Name::new)
+    values
+        .map(Name::new)
         .collect::<Result<Vec<_>, _>>()
         .unwrap_or_else(|err| exit_error!(err))
 }
@@ -187,9 +203,7 @@ fn name_values(values: clap::Values) -> Vec<&Name> {
 /// Checks if `with` and `without` have any shared names, exiting with an error
 /// code if they do.
 fn handle_conflicts(with: &[&Name], without: &[&Name]) {
-    let mut conflicts = without
-        .iter()
-        .filter(|name| with.contains(name));
+    let mut conflicts = without.iter().filter(|name| with.contains(name));
 
     if let Some(first) = conflicts.next() {
         eprint!("Cannot be `--with` and `--without`: {}", first);
@@ -211,9 +225,7 @@ fn download(config: &Config, drop: Query<&str>) -> crate::Result<Download> {
     let tarball_path = config.rt.tarball_cache_path(drop);
 
     if let Some(parent) = tarball_path.parent() {
-        fs::DirBuilder::new()
-            .recursive(true)
-            .create(parent)?;
+        fs::DirBuilder::new().recursive(true).create(parent)?;
     }
 
     let mut tarball_file = fs::OpenOptions::new()
@@ -245,9 +257,7 @@ fn unpack(tarball: &Path, dir: &Path) -> crate::Result<String> {
 
     assert!(tarball.exists(), "{:?} does not exist", tarball);
 
-    fs::DirBuilder::new()
-        .recursive(true)
-        .create(dir)?;
+    fs::DirBuilder::new().recursive(true).create(dir)?;
 
     // Runs `gunzip -c $download_path | tar xopf -`
     let mut gunzip = Command::new("gunzip")
@@ -256,10 +266,9 @@ fn unpack(tarball: &Path, dir: &Path) -> crate::Result<String> {
         .current_dir(dir)
         .stdout(Stdio::piped())
         .spawn()?;
-    let gunzip_stdout = gunzip.stdout.take()
-        .ok_or_else(|| {
-            failure::err_msg("Could not get stdout handle for `gunzip`")
-        })?;
+    let gunzip_stdout = gunzip.stdout.take().ok_or_else(|| {
+        failure::err_msg("Could not get stdout handle for `gunzip`")
+    })?;
     let tar_status = Command::new("tar")
         .args(&["xopf", "-"])
         .current_dir(dir)
@@ -275,10 +284,9 @@ fn unpack(tarball: &Path, dir: &Path) -> crate::Result<String> {
         .current_dir(dir)
         .stdout(Stdio::piped())
         .spawn()?;
-    let gunzip_stdout = gunzip.stdout.take()
-        .ok_or_else(|| {
-            failure::err_msg("Could not get stdout handle for `gunzip`")
-        })?;
+    let gunzip_stdout = gunzip.stdout.take().ok_or_else(|| {
+        failure::err_msg("Could not get stdout handle for `gunzip`")
+    })?;
     let tar_output = Command::new("tar")
         .args(&["-t", "*/Ocean.toml", "-"])
         .current_dir(dir)

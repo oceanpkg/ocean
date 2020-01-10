@@ -5,15 +5,19 @@ pub const NAME: &str = "package";
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
         .about("Assemble the local package into a distributable tarball")
-        .arg(Arg::with_name("manifest")
-            .help("Path to Ocean.toml")
-            .long("manifest")
-            .takes_value(true))
-        .arg(Arg::with_name("output")
-            .help("The directory where to output")
-            .short("o")
-            .long("output")
-            .takes_value(true))
+        .arg(
+            Arg::with_name("manifest")
+                .help("Path to Ocean.toml")
+                .long("manifest")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("output")
+                .help("The directory where to output")
+                .short("o")
+                .long("output")
+                .takes_value(true),
+        )
 }
 
 pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {

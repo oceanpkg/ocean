@@ -1,5 +1,5 @@
-use oceanpkg::system::open;
 use super::prelude::*;
+use oceanpkg::system::open;
 
 pub const NAME: &str = "source";
 
@@ -8,13 +8,17 @@ const OCEAN_REPO: &str = "https://github.com/oceanpkg/ocean/";
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
         .about("Opens the source code repository in a browser")
-        .arg(Arg::with_name("drops")
-            .help("The drops to the repository for")
-            .multiple(true))
-        .arg(Arg::with_name("print")
-            .short("p")
-            .long("print")
-            .help("Simply print the repository URL"))
+        .arg(
+            Arg::with_name("drops")
+                .help("The drops to the repository for")
+                .multiple(true),
+        )
+        .arg(
+            Arg::with_name("print")
+                .short("p")
+                .long("print")
+                .help("Simply print the repository URL"),
+        )
 }
 
 pub fn run(_state: &mut Config, matches: &ArgMatches) -> crate::Result {

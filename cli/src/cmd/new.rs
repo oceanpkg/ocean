@@ -1,20 +1,24 @@
-use std::path::Path;
-use oceanpkg::drop::Name;
 use super::prelude::*;
+use oceanpkg::drop::Name;
+use std::path::Path;
 
 pub const NAME: &str = "new";
 
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
         .about("Create a new, pre-filled drop manifest")
-        .arg(Arg::with_name("name")
-            .takes_value(true)
-            .help("The name of the drop; default is current directory name"))
-        .arg(Arg::with_name("path")
-            .takes_value(true)
-            .long("path")
-            .short("p")
-            .help("The path where to write the manifest"))
+        .arg(
+            Arg::with_name("name").takes_value(true).help(
+                "The name of the drop; default is current directory name",
+            ),
+        )
+        .arg(
+            Arg::with_name("path")
+                .takes_value(true)
+                .long("path")
+                .short("p")
+                .help("The path where to write the manifest"),
+        )
 }
 
 pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
@@ -27,7 +31,7 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
     match Name::new(name) {
         Ok(name) => {
             unimplemented!("TODO: Spit out manifest for '{}'", name);
-        },
+        }
         Err(error) => unimplemented!("TODO: Handle '{}'", error),
     }
 }

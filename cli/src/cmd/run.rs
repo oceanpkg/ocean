@@ -1,15 +1,9 @@
-use std::process::{
-    Command,
-    exit,
-};
+use super::prelude::*;
 use oceanpkg::{
-    drop::{
-        Manifest,
-        name::Query,
-    },
+    drop::{name::Query, Manifest},
     install::InstallTarget,
 };
-use super::prelude::*;
+use std::process::{exit, Command};
 
 pub const NAME: &str = "run";
 
@@ -30,15 +24,21 @@ pub fn cmd() -> App {
             AppSettings::ArgRequiredElseHelp,
             AppSettings::TrailingVarArg,
         ])
-        .arg(Arg::global_flag()
-            .help("Execute the drop that's available to all users"))
-        .arg(Arg::with_name("drop")
-            .help("Name of the target drop to run")
-            .required(true))
-        .arg(Arg::with_name("args")
-            .help("Arguments passed directly to the drop")
-            .last(true)
-            .multiple(true))
+        .arg(
+            Arg::global_flag()
+                .help("Execute the drop that's available to all users"),
+        )
+        .arg(
+            Arg::with_name("drop")
+                .help("Name of the target drop to run")
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("args")
+                .help("Arguments passed directly to the drop")
+                .last(true)
+                .multiple(true),
+        )
         .after_help(AFTER_HELP)
 }
 
@@ -59,7 +59,10 @@ pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
 
         let manifest_path = drop_path.join(Manifest::FILE_NAME);
         if !manifest_path.exists() {
-            failure::bail!("Could not run \"{}\"; please install it", query_string);
+            failure::bail!(
+                "Could not run \"{}\"; please install it",
+                query_string
+            );
         }
 
         let manifest = Manifest::read_toml_file(&manifest_path)?;

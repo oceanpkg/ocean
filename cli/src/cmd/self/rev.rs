@@ -12,6 +12,8 @@ pub fn run(_state: &mut Config, _matches: &ArgMatches) -> crate::Result {
         println!("{}", rev);
         Ok(())
     } else {
-        Err(failure::err_msg("`ocean` was not built with `git` available"))
+        Err(failure::err_msg(
+            "`ocean` was not built with `git` available",
+        ))
     }
 }
