@@ -20,7 +20,7 @@ pub fn cmd() -> App {
 pub fn run(config: &mut Config, matches: &ArgMatches) -> crate::Result {
     let path: &Path = match matches.value_of_os("path") {
         Some(path) => path.as_ref(),
-        None => &config.current_dir,
+        None => &config.rt.current_dir,
     };
 
     let name = path.file_name().unwrap_or("".as_ref());

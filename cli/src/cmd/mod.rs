@@ -30,14 +30,14 @@ macro_rules! cmds {
 }
 
 cmds! {
-    // list,
-    // new,
-    // search,
+    list,
+    new,
+    search,
     install,
-    // uninstall,
-    // update,
+    uninstall,
+    update,
     run,
-    // config,
+    config,
 
     #[path = "self/mod.rs"]
     self_, // `self` is a keyword
