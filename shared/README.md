@@ -6,9 +6,9 @@
   </a>
   <br>
   <h1>Ocean Shared Library</h1>
-  <a href="https://travis-ci.com/oceanpkg/ocean">
-    <img src="https://travis-ci.com/oceanpkg/ocean.svg?branch=master"
-         alt="Travis CI badge">
+  <a href="https://github.com/oceanpkg/ocean/actions?query=workflow%3ACI">
+    <img src="https://github.com/oceanpkg/ocean/workflows/CI/badge.svg"
+         alt="Build Status">
   </a>
   <a href="https://crates.io/crates/oceanpkg-shared">
     <img src="https://img.shields.io/crates/v/oceanpkg-shared.svg"

@@ -11,7 +11,8 @@ Make sure to keep relevant header changes in sync with `lib/README.md` and
   <br>
   <h1>Ocean</h1>
   <a href="https://github.com/oceanpkg/ocean/actions?query=workflow%3ACI">
-      <img src="https://github.com/oceanpkg/ocean/workflows/CI/badge.svg" alt="Build Status">
+    <img src="https://github.com/oceanpkg/ocean/workflows/CI/badge.svg"
+         alt="Build Status">
   </a>
   <img src="https://tokei.rs/b1/github/oceanpkg/ocean" alt="Lines of code">
 </div>
