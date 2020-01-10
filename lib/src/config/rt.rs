@@ -148,13 +148,13 @@ impl fmt::Display for CreateError {
         match self {
             Self::MissingCurrentDir(error) => match error.kind() {
                 io::ErrorKind::NotFound => {
-                    write!(f, "Current directory does not exist",)
+                    write!(f, "Current directory does not exist")
                 }
                 io::ErrorKind::PermissionDenied => write!(
                     f,
                     "Not enough permissions to access current directory",
                 ),
-                _ => write!(f, "Could not get current directory: {}", error,),
+                _ => write!(f, "Could not get current directory: {}", error),
             },
             Self::MissingUserHome => {
                 write!(f, "Could not get current user's home")

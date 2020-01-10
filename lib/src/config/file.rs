@@ -205,9 +205,7 @@ impl Error for NotFound<'_> {}
 impl fmt::Display for NotFound<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.reason {
-            NotFoundReason::Io(err) => {
-                write!(f, "{} for {:?}", err, self.path,)
-            }
+            NotFoundReason::Io(err) => write!(f, "{} for {:?}", err, self.path),
             NotFoundReason::NoMatch => write!(
                 f,
                 "No TOML, JSON, or YAML file named \"ocean\" found in \"{}\"",
@@ -288,7 +286,7 @@ mod tests {
             for ext in exts {
                 for prefix in prefixes {
                     let path =
-                        PathBuf::from(format!("{}{}.{}", prefix, STEM, ext,));
+                        PathBuf::from(format!("{}{}.{}", prefix, STEM, ext));
                     assert_eq!(ConfigFileFmt::from_path(&path).unwrap(), fmt);
                 }
             }
