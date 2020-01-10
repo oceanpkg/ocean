@@ -3,7 +3,7 @@
 use std::{
     ffi::OsStr,
     io,
-    process::{Command, Child, ExitStatus},
+    process::{Child, Command, ExitStatus},
 };
 
 /// The tool for opening resources in the user's preferred application.
@@ -32,7 +32,8 @@ pub const OPEN_TOOL: &str = {
 
 /// Opens `resources` in the user's preferred application.
 pub fn open<R>(resources: &[R]) -> io::Result<()>
-    where R: AsRef<OsStr>
+where
+    R: AsRef<OsStr>,
 {
     fn status_to_result(status: ExitStatus) -> io::Result<()> {
         if status.success() {
@@ -62,7 +63,7 @@ pub fn open<R>(resources: &[R]) -> io::Result<()>
         // Spawn all processes before attempting to get their exit statuses.
         // This ensures we don't fail early if a single resource couldn't be
         // opened for any reason.
-        let children: Vec::<io::Result<Child>> = resources
+        let children: Vec<io::Result<Child>> = resources
             .iter()
             .map(|res| {
                 let mut cmd = Command::new(OPEN_TOOL);

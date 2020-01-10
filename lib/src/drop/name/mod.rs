@@ -1,9 +1,6 @@
 //! Drop names.
 
-use std::{
-    convert::TryInto,
-    fmt,
-};
+use std::{convert::TryInto, fmt};
 
 mod parse;
 pub mod query;
@@ -11,10 +8,7 @@ pub mod query;
 pub mod scoped;
 
 #[doc(inline)]
-pub use self::{
-    query::Query,
-    scoped::ScopedName,
-};
+pub use self::{query::Query, scoped::ScopedName};
 
 /// A valid drop name.
 ///
@@ -33,9 +27,8 @@ impl From<&Name> for Box<Name> {
 impl Clone for Box<Name> {
     #[inline]
     fn clone(&self) -> Self {
-        let str_box: &Box<str> = unsafe {
-            &*(self as *const Self as *const Box<str>)
-        };
+        let str_box: &Box<str> =
+            unsafe { &*(self as *const Self as *const Box<str>) };
         let str_box = str_box.clone();
         let raw = Box::into_raw(str_box) as *mut Name;
         unsafe { Box::from_raw(raw) }
@@ -44,15 +37,13 @@ impl Clone for Box<Name> {
 
 // Allows for creating a `&Name` in a `const` from a `&str`.
 macro_rules! valid_name {
-    ($name:expr) => {
-        {
-            union Convert<'a> {
-                s: &'a str,
-                n: &'a Name,
-            }
-            Convert { s: $name }.n
+    ($name:expr) => {{
+        union Convert<'a> {
+            s: &'a str,
+            n: &'a Name,
         }
-    };
+        Convert { s: $name }.n
+    }};
 }
 
 impl AsRef<str> for Name {
@@ -115,23 +106,22 @@ impl Name {
     pub const SELF: &'static Self = unsafe { valid_name!("self") };
 
     /// Namespaces reserved to only be used only by Ocean.
-    pub const RESERVED_SCOPES: &'static [&'static Self] = &[
-        Self::CORE,
-        Self::OCEAN,
-        Self::SELF,
-    ];
+    pub const RESERVED_SCOPES: &'static [&'static Self] =
+        &[Self::CORE, Self::OCEAN, Self::SELF];
 
     /// Attempts to create a new instance by parsing `name`.
     #[inline]
     pub fn new<'a, N>(name: N) -> Result<&'a Self, ValidateError>
-        where N: TryInto<&'a Self, Error = ValidateError>
+    where
+        N: TryInto<&'a Self, Error = ValidateError>,
     {
         name.try_into()
     }
 
     /// Creates a new instance without parsing `name`.
     pub unsafe fn new_unchecked<N>(name: &N) -> &Self
-        where N: ?Sized + AsRef<[u8]>
+    where
+        N: ?Sized + AsRef<[u8]>,
     {
         &*(name.as_ref() as *const [u8] as *const Self)
     }
@@ -162,9 +152,7 @@ impl Name {
     #[inline]
     pub fn is_valid_ascii(byte: u8) -> bool {
         match byte {
-            b'0'..=b'9' |
-            b'a'..=b'z' |
-            b'-' => true,
+            b'0'..=b'9' | b'a'..=b'z' | b'-' => true,
             _ => false,
         }
     }
@@ -228,11 +216,7 @@ mod tests {
         for &c1 in &outer {
             let mut name_buf = [0; 4];
             let name = c1.encode_utf8(&mut name_buf);
-            assert!(
-                Name::is_valid(&name),
-                "{:?} found to be invalid",
-                name
-            );
+            assert!(Name::is_valid(&name), "{:?} found to be invalid", name);
 
             for &c2 in &inner {
                 for &c3 in &outer {
@@ -255,11 +239,7 @@ mod tests {
         assert!(!Name::is_valid("---"));
 
         for &ch in &outer() {
-            let names: &[&[char]] = &[
-                &[ch, '-'],
-                &['-', ch],
-                &['-', ch, '-'],
-            ];
+            let names: &[&[char]] = &[&[ch, '-'], &['-', ch], &['-', ch, '-']];
             for name in names {
                 let name: String = name.iter().cloned().collect();
                 assert!(

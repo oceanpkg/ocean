@@ -1,18 +1,14 @@
 //! Runtime configuration data.
 
+use crate::{drop::name::Query, install::InstallTarget};
+use lazycell::LazyCell;
 use std::{
     borrow::Cow,
     env,
     error::Error,
-    fmt,
-    io,
+    fmt, io,
     path::{Path, PathBuf},
     time::{Duration, Instant},
-};
-use lazycell::LazyCell;
-use crate::{
-    drop::name::Query,
-    install::InstallTarget,
 };
 
 /// Represents the configuration specific to this current instance.
@@ -70,10 +66,8 @@ impl RtConfig {
 
     /// The directory where data for the current user is stored.
     pub fn ocean_home(&self) -> &Path {
-        self.ocean_home.borrow_with(|| {
-            self.user_home()
-                .join(".ocean")
-        })
+        self.ocean_home
+            .borrow_with(|| self.user_home().join(".ocean"))
     }
 
     /// The current user's home directory.
@@ -84,8 +78,7 @@ impl RtConfig {
 
     /// Returns the path for `$HOME/.ocean/credentials.toml`.
     pub fn credentials_path(&self) -> PathBuf {
-        self.ocean_home()
-            .join("credentials.toml")
+        self.ocean_home().join("credentials.toml")
     }
 
     /// Returns the directory where binaries exposed via `$PATH` are stored.
@@ -112,18 +105,15 @@ impl RtConfig {
     }
 
     /// Returns the directory where drops are installed.
-    pub fn drops_dir(
-        &self,
-        target: &InstallTarget,
-    ) -> Cow<'static, Path> {
+    pub fn drops_dir(&self, target: &InstallTarget) -> Cow<'static, Path> {
         #[cfg(unix)]
         match target {
             InstallTarget::CurrentUser => {
                 Cow::Owned(self.ocean_home().join("drops"))
-            },
+            }
             InstallTarget::SpecificUser(username) => {
                 unimplemented!("TODO: Get base directory for {:?}", username);
-            },
+            }
             InstallTarget::Global => {
                 // TODO+SUDO: Needs admin access to write to either. Should be
                 // in a separate process that runs based on user password input.
@@ -134,7 +124,7 @@ impl RtConfig {
                 } else {
                     Cow::Borrowed("/usr/local/Ocean/drops".as_ref())
                 }
-            },
+            }
         }
 
         #[cfg(windows)]
@@ -156,26 +146,19 @@ pub enum CreateError {
 impl fmt::Display for CreateError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::MissingCurrentDir(error) => {
-                match error.kind() {
-                    io::ErrorKind::NotFound => write!(
-                        f,
-                        "Current directory does not exist",
-                    ),
-                    io::ErrorKind::PermissionDenied => write!(
-                        f,
-                        "Not enough permissions to access current directory",
-                    ),
-                    _ => write!(
-                        f,
-                        "Could not get current directory: {}",
-                        error,
-                    ),
+            Self::MissingCurrentDir(error) => match error.kind() {
+                io::ErrorKind::NotFound => {
+                    write!(f, "Current directory does not exist",)
                 }
+                io::ErrorKind::PermissionDenied => write!(
+                    f,
+                    "Not enough permissions to access current directory",
+                ),
+                _ => write!(f, "Could not get current directory: {}", error,),
             },
             Self::MissingUserHome => {
                 write!(f, "Could not get current user's home")
-            },
+            }
         }
     }
 }

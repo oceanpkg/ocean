@@ -1,14 +1,7 @@
 //! A drop name in the format `<scope>/<name>`.
 
-use std::{
-    convert::TryInto,
-    fmt,
-};
-use super::{
-    Name,
-    Query,
-    ValidateError,
-};
+use super::{Name, Query, ValidateError};
+use std::{convert::TryInto, fmt};
 
 /// Name in the format `<owner>/<drop>`.
 #[derive(Clone, Copy, Debug, Eq, PartialOrd, Ord, Hash)]
@@ -20,7 +13,7 @@ pub struct ScopedName<Name = String> {
     pub name: Name,
 }
 
-assert_eq_size!(ScopedName<Box<Name>>,  ScopedName<&Name>);
+assert_eq_size!(ScopedName<Box<Name>>, ScopedName<&Name>);
 assert_eq_align!(ScopedName<Box<Name>>, ScopedName<&Name>);
 
 impl<A, B: Into<A>> From<[B; 2]> for ScopedName<A> {
@@ -42,7 +35,8 @@ where
 }
 
 impl<A, B> PartialEq<ScopedName<B>> for ScopedName<A>
-    where A: PartialEq<B>
+where
+    A: PartialEq<B>,
 {
     #[inline]
     fn eq(&self, other: &ScopedName<B>) -> bool {
@@ -56,7 +50,7 @@ impl<A: AsRef<str>> PartialEq<str> for ScopedName<A> {
         match (parts.next(), parts.next()) {
             (Some(scope), Some(name)) => {
                 self.scope.as_ref() == scope && self.name.as_ref() == name
-            },
+            }
             _ => false,
         }
     }
@@ -100,13 +94,17 @@ impl<N> ScopedName<N> {
         A: Into<N>,
         B: Into<N>,
     {
-        Self { scope: scope.into(), name: name.into() }
+        Self {
+            scope: scope.into(),
+            name: name.into(),
+        }
     }
 
     /// Attempts to create a new instance by parsing `name`.
     #[inline]
     pub fn parse<A, NE>(name: A) -> Result<Self, ParseError<NE>>
-        where A: TryInto<Self, Error = ParseError<NE>>
+    where
+        A: TryInto<Self, Error = ParseError<NE>>,
     {
         name.try_into()
     }
@@ -117,7 +115,8 @@ impl<N> ScopedName<N> {
     /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
     #[inline]
     pub fn cast<A>(self) -> ScopedName<A>
-        where N: Into<A>,
+    where
+        N: Into<A>,
     {
         self.map(Into::into)
     }
@@ -127,7 +126,8 @@ impl<N> ScopedName<N> {
     ///
     /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
     pub fn try_cast<A>(self) -> Result<ScopedName<A>, ParseError<N::Error>>
-        where N: TryInto<A>
+    where
+        N: TryInto<A>,
     {
         let scope = match self.scope.try_into() {
             Err(error) => return Err(ParseError::Scope(error)),
@@ -145,7 +145,7 @@ impl<N> ScopedName<N> {
     pub fn as_ref(&self) -> ScopedName<&N> {
         ScopedName {
             scope: &self.scope,
-            name:  &self.name,
+            name: &self.name,
         }
     }
 
@@ -164,7 +164,7 @@ impl<N> ScopedName<N> {
     pub fn as_mut(&mut self) -> ScopedName<&mut N> {
         ScopedName {
             scope: &mut self.scope,
-            name:  &mut self.name,
+            name: &mut self.name,
         }
     }
 
@@ -182,11 +182,12 @@ impl<N> ScopedName<N> {
     /// `self`.
     #[inline]
     pub fn map<A, F>(self, mut f: F) -> ScopedName<A>
-        where F: FnMut(N) -> A
+    where
+        F: FnMut(N) -> A,
     {
         ScopedName {
             scope: f(self.scope),
-            name:  f(self.name),
+            name: f(self.name),
         }
     }
 
@@ -226,7 +227,8 @@ impl<'n, N: ?Sized> ScopedName<&'n N> {
     /// [`Clone::clone`]: https://doc.rust-lang.org/std/clone/trait.Clone.html#tymethod.clone
     #[inline]
     pub fn cloned(&self) -> ScopedName<N>
-        where N: Clone
+    where
+        N: Clone,
     {
         self.map(Clone::clone)
     }
@@ -248,7 +250,8 @@ impl<'n, N: ?Sized> ScopedName<&'n N> {
     /// [`ToOwned::to_owned`]: https://doc.rust-lang.org/std/borrow/trait.ToOwned.html#tymethod.to_owned
     #[inline]
     pub fn to_owned(&self) -> ScopedName<N::Owned>
-        where N: ToOwned
+    where
+        N: ToOwned,
     {
         self.map(ToOwned::to_owned)
     }
@@ -258,20 +261,26 @@ impl<'n> ScopedName<&'n Name> {
     /// Creates a new instance in the `core` namespace.
     #[inline]
     pub const fn core(name: &'n Name) -> Self {
-        Self { scope: Name::CORE, name }
+        Self {
+            scope: Name::CORE,
+            name,
+        }
     }
 
     /// Creates a new instance in the `ocean` namespace.
     #[inline]
     pub const fn ocean(name: &'n Name) -> Self {
-        Self { scope: Name::OCEAN, name }
+        Self {
+            scope: Name::OCEAN,
+            name,
+        }
     }
 
     /// Creates a new instance by verifying `scope` and `name`.
     #[inline]
     pub fn from_pair<S, N>(
         scope: &'n S,
-        name:  &'n N,
+        name: &'n N,
     ) -> Result<Self, ParseError<ValidateError>>
     where
         S: ?Sized + AsRef<[u8]>,
@@ -295,7 +304,7 @@ impl<'n> ScopedName<&'n Name> {
     {
         Self {
             scope: Name::new_unchecked(scope),
-            name:  Name::new_unchecked(name),
+            name: Name::new_unchecked(name),
         }
     }
 }
@@ -314,15 +323,11 @@ pub enum ParseError<NameError> {
 impl<N: fmt::Display> fmt::Display for ParseError<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Scope(error) => {
-                write!(f, "failed to parse scope: {}", error)
-            },
-            Self::Name(error) => {
-                write!(f, "failed to parse name: {}", error)
-            },
+            Self::Scope(error) => write!(f, "failed to parse scope: {}", error),
+            Self::Name(error) => write!(f, "failed to parse name: {}", error),
             Self::MissingSeparator => {
                 write!(f, "missing '/' separator in scoped name")
-            },
+            }
         }
     }
 }

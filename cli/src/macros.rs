@@ -36,10 +36,14 @@ macro_rules! formatln {
 
 #[cfg(unix)]
 macro_rules! newline {
-    () => { "\n" };
+    () => {
+        "\n"
+    };
 }
 
 #[cfg(windows)]
 macro_rules! newline {
-    () => { "\r\n" };
+    () => {
+        "\r\n"
+    };
 }

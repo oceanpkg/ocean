@@ -14,19 +14,13 @@ use self::kind::{App, Exe, Font, Lib};
 
 #[doc(inline)]
 pub use self::{
-    kind::Kind,
-    license::License,
-    manifest::Manifest,
-    name::Name,
-    source::Source,
-    version::Version,
+    kind::Kind, license::License, manifest::Manifest, name::Name,
+    source::Source, version::Version,
 };
 
 #[cfg(feature = "toml")]
 #[doc(inline)]
-pub use self::{
-    package::*,
-};
+pub use self::package::*;
 
 /// Defines an Ocean package, also known as a drop 💧.
 #[derive(Clone, Debug)]
@@ -72,7 +66,8 @@ impl From<Lib> for Drop {
 impl Drop {
     ///
     pub fn query<S>(query: &name::Query<S>) -> Result<Self, ()>
-        where S: AsRef<str>
+    where
+        S: AsRef<str>,
     {
         let query = query.to_ref::<str>();
         unimplemented!("TODO: Find '{}' drop", query);
@@ -81,20 +76,20 @@ impl Drop {
     /// Returns the kind of drop.
     pub fn kind(&self) -> Kind {
         match self {
-            Self::App(_)  => Kind::App,
-            Self::Exe(_)  => Kind::Exe,
+            Self::App(_) => Kind::App,
+            Self::Exe(_) => Kind::Exe,
             Self::Font(_) => Kind::Font,
-            Self::Lib(_)  => Kind::Lib,
+            Self::Lib(_) => Kind::Lib,
         }
     }
 
     /// Returns basic metadata for the drop.
     pub fn metadata(&self) -> &Metadata {
         match self {
-            Self::App(app)   => app.metadata(),
-            Self::Exe(exe)   => exe.metadata(),
+            Self::App(app) => app.metadata(),
+            Self::Exe(exe) => exe.metadata(),
             Self::Font(font) => font.metadata(),
-            Self::Lib(lib)   => lib.metadata(),
+            Self::Lib(lib) => lib.metadata(),
         }
     }
 }
@@ -103,7 +98,6 @@ impl Drop {
 #[derive(Clone, Debug)]
 pub struct Metadata {
     // TODO: Replace `scope` and `name` with a `ScopedNameRef`
-
     /// The drop's namespace.
     pub scope: String,
     /// The drop's unique name within its namespace.

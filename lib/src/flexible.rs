@@ -173,9 +173,12 @@ impl<D: Detailed> Flexible<D> {
     /// Converts `self` into the detailed form `D` so that all information can
     /// be used in a simple way without extra `match`ing.
     #[inline]
-    pub fn into_detailed(self) -> D where D::Simple: Into<D> {
+    pub fn into_detailed(self) -> D
+    where
+        D::Simple: Into<D>,
+    {
         match self {
-            Self::Simple(s)   => s.into(),
+            Self::Simple(s) => s.into(),
             Self::Detailed(d) => d,
         }
     }

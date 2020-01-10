@@ -1,7 +1,7 @@
 //! Git repository information.
 
-use std::fmt;
 use serde::{Serialize, Serializer};
+use std::fmt;
 
 /// Ocean's git repository.
 pub const OCEAN_REPO: &str = env!("CARGO_PKG_REPOSITORY");
@@ -23,7 +23,10 @@ flexible! {
 impl From<String> for Git {
     #[inline]
     fn from(repo: String) -> Self {
-        Self { repo, reference: None }
+        Self {
+            repo,
+            reference: None,
+        }
     }
 }
 
@@ -72,7 +75,6 @@ impl Git {
 #[serde(rename_all = "lowercase")]
 pub enum Ref {
     // When adding a case, make sure to add it to `Ref::all`.
-
     /// The specific git branch.
     Branch(String),
     /// A specific git tag.
@@ -104,7 +106,8 @@ impl AsRef<str> for Ref {
 
 impl Serialize for Ref {
     fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error>
-        where S: Serializer
+    where
+        S: Serializer,
     {
         use serde::ser::SerializeMap;
 
@@ -149,7 +152,7 @@ impl Ref {
     #[inline]
     pub fn as_str(&self) -> &str {
         match self {
-            Self::Branch(r) | Self::Tag(r) | Self::Rev(r) => r
+            Self::Branch(r) | Self::Tag(r) | Self::Rev(r) => r,
         }
     }
 

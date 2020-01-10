@@ -2,17 +2,14 @@
 //!
 //! **Note:** this module re-exports all of [`linfo`](https://docs.rs/linfo).
 
-use std::{
-    fmt,
-    borrow::Cow,
-};
+use std::{borrow::Cow, fmt};
 
 mod serde;
 
 // BUG(docs): `Expr` and `SpdxLicense` don't get rendered despite the glob. They
 // would, however, still be available within this module with just the glob.
 #[doc(inline)]
-pub use linfo::{*, Expr, SpdxLicense};
+pub use linfo::{Expr, SpdxLicense, *};
 
 /// Any license, known or otherwise.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -83,7 +80,8 @@ impl<'a> AnyLicense<'a> {
     /// kept.
     #[inline]
     pub fn owned<S>(s: S) -> Self
-        where S: Into<String> + AsRef<str>
+    where
+        S: Into<String> + AsRef<str>,
     {
         if let Ok(l) = License::parse(s.as_ref()) {
             Self::Known(l)

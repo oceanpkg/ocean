@@ -1,8 +1,5 @@
+use crate::{api, drop::name::Query};
 use std::io;
-use crate::{
-    api,
-    drop::name::Query,
-};
 
 /// Requests the archive for a drop that matches `query` from [`url`].
 ///

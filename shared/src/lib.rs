@@ -8,7 +8,6 @@
 //! [GUI]: https://en.wikipedia.org/wiki/Graphical_user_interface
 
 #![deny(missing_docs)]
-
 #![doc(html_root_url = "https://docs.rs/oceanpkg-shared/0.1.0")]
 #![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
 

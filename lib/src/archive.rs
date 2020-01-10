@@ -1,10 +1,7 @@
 //! Archiving utilities.
 
-use std::{
-    io,
-    path::Path,
-};
 use flate2::read::GzDecoder;
+use std::{io, path::Path};
 
 /// Reads `tarball` as a `.tar.gz` file and unpacks it to `path`.
 ///

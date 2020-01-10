@@ -1,14 +1,8 @@
-use std::{
-    path::PathBuf,
-    process::Command,
-};
 use crate::{
-    drop::{
-        Metadata,
-        name::Query,
-    },
+    drop::{name::Query, Metadata},
     install::InstallTarget,
 };
+use std::{path::PathBuf, process::Command};
 
 /// A package that can be executed; e.g. CLI tool or script.
 #[derive(Clone, Debug)]
@@ -24,7 +18,11 @@ impl Exe {
         target: &InstallTarget,
     ) -> Result<Self, ()> {
         let query = query.to_ref::<str>();
-        unimplemented!("TODO: Find installation of {:?} for {:?}", query, target)
+        unimplemented!(
+            "TODO: Find installation of {:?} for {:?}",
+            query,
+            target
+        )
     }
 
     /// Returns basic metadata for the drop.
@@ -55,7 +53,7 @@ impl Exe {
     /// binary, if one exists.
     pub fn command<'t>(
         &self,
-        target: &'t InstallTarget
+        target: &'t InstallTarget,
     ) -> Result<Command, FindError<'t>> {
         self.bin_path(target).map(Command::new)
     }

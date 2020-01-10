@@ -3,6 +3,7 @@
 #[cfg(unix)]
 use std::os::unix::ffi::OsStrExt;
 
+use shared::ext::BytesExt;
 use std::{
     error::Error,
     fmt,
@@ -10,16 +11,15 @@ use std::{
     io,
     path::{Path, PathBuf},
 };
-use shared::ext::BytesExt;
 
-const STEM:     &str  = "ocean";
+const STEM: &str = "ocean";
 const STEM_LEN: usize = 5;
 
 mod ext {
     pub const TOML: &str = "toml";
     pub const JSON: &str = "json";
     pub const YAML: &str = "yaml";
-    pub const YML:  &str = "yml";
+    pub const YML: &str = "yml";
 
     pub const MIN_LEN: usize = 3;
     pub const MAX_LEN: usize = 4;
@@ -61,7 +61,7 @@ impl ConfigFile {
 
             // Only do cheap checks
             match name.len() {
-                MIN_LEN..=MAX_LEN => {},
+                MIN_LEN..=MAX_LEN => {}
                 _ => continue,
             }
 
@@ -92,13 +92,20 @@ impl ConfigFile {
             let ext = unsafe { bytes.get_unchecked((STEM_LEN + 1)..) };
 
             if let Some(fmt) = ConfigFileFmt::from_bytes(ext) {
-                return Ok(ConfigFile { path: path.join(name), fmt, handle: None });
+                return Ok(ConfigFile {
+                    path: path.join(name),
+                    fmt,
+                    handle: None,
+                });
             } else {
                 continue;
             };
         }
 
-        Err(NotFound { reason: NotFoundReason::NoMatch, path })
+        Err(NotFound {
+            reason: NotFoundReason::NoMatch,
+            path,
+        })
     }
 }
 
@@ -161,7 +168,7 @@ impl ConfigFileFmt {
                 let ext = ext.to_str()?.as_bytes();
 
                 ConfigFileFmt::from_bytes(ext)
-            },
+            }
             _ => None,
         }
     }
@@ -198,12 +205,9 @@ impl Error for NotFound<'_> {}
 impl fmt::Display for NotFound<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.reason {
-            NotFoundReason::Io(err) => write!(
-                f,
-                "{} for {:?}",
-                err,
-                self.path,
-            ),
+            NotFoundReason::Io(err) => {
+                write!(f, "{} for {:?}", err, self.path,)
+            }
             NotFoundReason::NoMatch => write!(
                 f,
                 "No TOML, JSON, or YAML file named \"ocean\" found in \"{}\"",
@@ -215,8 +219,8 @@ impl fmt::Display for NotFound<'_> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use self::ConfigFileFmt::*;
+    use super::*;
 
     static PAIRS: &[(ConfigFileFmt, &[&str])] = &[
         (Toml, &[ext::TOML]),
@@ -231,9 +235,9 @@ mod tests {
         match ConfigFile::find(dir.path()) {
             Ok(file) => panic!("Found unexpected config {:?}", file),
             Err(err) => match err.reason {
-                NotFoundReason::NoMatch => {},
+                NotFoundReason::NoMatch => {}
                 NotFoundReason::Io(err) => panic!("{}", err),
-            }
+            },
         }
 
         for &(fmt, exts) in PAIRS {
@@ -271,29 +275,20 @@ mod tests {
                 Err(err) => match err.reason {
                     NotFoundReason::NoMatch => panic!("Should emit IO error"),
                     NotFoundReason::Io(err) => assert_eq!(err.kind(), exp_err),
-                }
+                },
             }
         }
     }
 
     #[test]
     fn fmt_from_path() {
-        let prefixes: &[_] = &[
-            "",
-            "/",
-            "./",
-            "/xyz/",
-        ];
+        let prefixes: &[_] = &["", "/", "./", "/xyz/"];
 
         for &(fmt, exts) in PAIRS {
             for ext in exts {
                 for prefix in prefixes {
-                    let path = PathBuf::from(format!(
-                        "{}{}.{}",
-                        prefix,
-                        STEM,
-                        ext,
-                    ));
+                    let path =
+                        PathBuf::from(format!("{}{}.{}", prefix, STEM, ext,));
                     assert_eq!(ConfigFileFmt::from_path(&path).unwrap(), fmt);
                 }
             }

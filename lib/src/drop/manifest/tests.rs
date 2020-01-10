@@ -58,19 +58,19 @@ fn manifests() -> Vec<(String, Manifest)> {
         homepage = home,
         documentation = docs,
     );
-    let detailed_deps: Deps = vec![
-        (
-            wget.to_owned(),
-            DepInfo {
-                version: "*".to_owned(),
-                optional: false,
-                git: Some(Git::new(
-                    "https://git.savannah.gnu.org/git/wget.git",
-                    git::Ref::branch("1.0"),
-                )),
-            },
-        )
-    ].into_iter().collect();
+    let detailed_deps: Deps = vec![(
+        wget.to_owned(),
+        DepInfo {
+            version: "*".to_owned(),
+            optional: false,
+            git: Some(Git::new(
+                "https://git.savannah.gnu.org/git/wget.git",
+                git::Ref::branch("1.0"),
+            )),
+        },
+    )]
+    .into_iter()
+    .collect();
     vec![
         (
             format!(
@@ -83,10 +83,12 @@ fn manifests() -> Vec<(String, Manifest)> {
             ),
             Manifest {
                 meta: meta.clone(),
-                deps: Some(vec![
-                    (wget.to_owned(), "*".to_owned().into())
-                ].into_iter().collect()),
-            }
+                deps: Some(
+                    vec![(wget.to_owned(), "*".to_owned().into())]
+                        .into_iter()
+                        .collect(),
+                ),
+            },
         ),
         (
             format!(
@@ -100,7 +102,7 @@ fn manifests() -> Vec<(String, Manifest)> {
             Manifest {
                 meta: meta.clone(),
                 deps: Some(detailed_deps.clone()),
-            }
+            },
         ),
         (
             format!(
@@ -112,7 +114,10 @@ fn manifests() -> Vec<(String, Manifest)> {
                 "#,
                 header,
             ),
-            Manifest { meta, deps: Some(detailed_deps) }
+            Manifest {
+                meta,
+                deps: Some(detailed_deps),
+            },
         ),
     ]
 }
@@ -133,16 +138,11 @@ fn example_manifest() -> Manifest {
             ]),
             readme: Some("../README.md".to_owned()),
             changelog: Some("../CHANGELOG.md".to_owned()),
-            git: Some(Git::new(
-                OCEAN_REPO,
-                git::Ref::tag("v0.1.0"),
-            )),
+            git: Some(Git::new(OCEAN_REPO, git::Ref::tag("v0.1.0"))),
             homepage: Some("https://example.com".to_owned()),
             documentation: Some("https://example.com/docs".to_owned()),
         },
-        deps: Some(vec![
-
-        ].into_iter().collect()),
+        deps: Some(vec![].into_iter().collect()),
     }
 }
 

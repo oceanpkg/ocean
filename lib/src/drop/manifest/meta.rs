@@ -1,8 +1,5 @@
+use crate::drop::{source::Git, version::SemVer};
 use std::collections::BTreeMap;
-use crate::drop::{
-    source::Git,
-    version::SemVer,
-};
 
 /// The value for the `meta` key in the drop manifest.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -57,7 +54,6 @@ pub struct Meta {
 
     // Tables: all types that serialize into maps (or "tables" in TOML)
     // them must be placed last to succeed.
-
     /// The git repository where this drop can be fetched from.
     ///
     /// Repository info is taKen from here.

@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::api;
+use std::fmt;
 
 /// Credentials used for API login.
 #[derive(Clone, Copy, Serialize)]
@@ -32,7 +32,7 @@ impl<S: fmt::Debug> fmt::Debug for Credentials<S> {
                     .field("username", &"[pii]")
                     .field("password", &"[private]")
                     .finish()
-            },
+            }
         }
     }
 }
@@ -73,7 +73,7 @@ where
     // Monomorphized body to slightly reduce the instruction count of the
     // binary.
     fn request_token(
-            builder: reqwest::RequestBuilder,
+        builder: reqwest::RequestBuilder,
     ) -> Result<String, LoginError> {
         let response = builder.send()?;
 
@@ -96,7 +96,7 @@ where
     match credentials {
         Credentials::BasicAuth { username, password } => {
             builder = builder.basic_auth(username, Some(password));
-        },
+        }
     }
 
     request_token(builder)

@@ -1,7 +1,4 @@
-use std::{
-    env,
-    process,
-};
+use std::{env, process};
 
 fn main() {
     emit_target_info();
@@ -16,7 +13,7 @@ fn emit_target_info() {
         _ => {
             target_os[..1].make_ascii_lowercase();
             &target_os
-        },
+        }
     };
     cargo_emit::rustc_env!("OCEAN_TARGET_OS", "{}", target_os);
 
@@ -36,13 +33,11 @@ fn emit_git_rev() {
                 if !rev.is_empty() {
                     cargo_emit::rustc_env!("OCEAN_GIT_REV", "{}", rev);
                 }
-            },
+            }
             Err(error) => {
                 cargo_emit::warning!("Could not parse git hash: {}", error);
-            },
+            }
         },
-        Err(error) => {
-            cargo_emit::warning!("Could not run `git`: {}", error)
-        },
+        Err(error) => cargo_emit::warning!("Could not run `git`: {}", error),
     }
 }

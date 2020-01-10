@@ -1,20 +1,19 @@
+use super::{
+    query::{self, Query},
+    scoped::{self, ScopedName},
+    Name, ValidateError,
+};
+use serde::{
+    de::{self, Deserialize, Deserializer, Visitor},
+    ser::{Serialize, Serializer},
+};
+use shared::ext::OsStrExt;
 use std::{
     convert::{TryFrom, TryInto},
     ffi::{CStr, OsStr},
     fmt,
     marker::PhantomData,
     str,
-};
-use serde::{
-    ser::{Serialize, Serializer},
-    de::{self, Deserialize, Deserializer, Visitor},
-};
-use shared::ext::OsStrExt;
-use super::{
-    Name,
-    query::{self, Query},
-    scoped::{self, ScopedName},
-    ValidateError,
 };
 
 impl<'a> TryFrom<&'a str> for &'a Name {
@@ -69,7 +68,8 @@ impl<'a> TryFrom<&'a OsStr> for &'a Name {
 impl<'de> Deserialize<'de> for Box<Name> {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         struct Vis;
 
@@ -83,20 +83,18 @@ impl<'de> Deserialize<'de> for Box<Name> {
 
             #[inline]
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-                where E: de::Error
+            where
+                E: de::Error,
             {
-                Name::new(v)
-                    .map(Into::into)
-                    .map_err(E::custom)
+                Name::new(v).map(Into::into).map_err(E::custom)
             }
 
             #[inline]
             fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
-                where E: de::Error
+            where
+                E: de::Error,
             {
-                Name::new(v)
-                    .map(Into::into)
-                    .map_err(E::custom)
+                Name::new(v).map(Into::into).map_err(E::custom)
             }
         }
 
@@ -107,7 +105,8 @@ impl<'de> Deserialize<'de> for Box<Name> {
 impl<'de: 'a, 'a> Deserialize<'de> for &'a Name {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         struct Vis;
 
@@ -120,15 +119,23 @@ impl<'de: 'a, 'a> Deserialize<'de> for &'a Name {
             }
 
             #[inline]
-            fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
-                where E: de::Error
+            fn visit_borrowed_str<E>(
+                self,
+                v: &'de str,
+            ) -> Result<Self::Value, E>
+            where
+                E: de::Error,
             {
                 Name::new(v).map_err(E::custom)
             }
 
             #[inline]
-            fn visit_borrowed_bytes<E>(self, v: &'de [u8]) -> Result<Self::Value, E>
-                where E: de::Error
+            fn visit_borrowed_bytes<E>(
+                self,
+                v: &'de [u8],
+            ) -> Result<Self::Value, E>
+            where
+                E: de::Error,
             {
                 Name::new(v).map_err(E::custom)
             }
@@ -158,12 +165,8 @@ where
         let mut scope_iter = name.splitn(2, '/');
         match (scope_iter.next(), scope_iter.next()) {
             (None, _) => unreachable!(),
-            (_, None) => {
-                Err(scoped::ParseError::MissingSeparator)
-            },
-            (Some(scope), Some(name)) => {
-                ScopedName { scope, name }.try_cast()
-            },
+            (_, None) => Err(scoped::ParseError::MissingSeparator),
+            (Some(scope), Some(name)) => ScopedName { scope, name }.try_cast(),
         }
     }
 }
@@ -171,7 +174,8 @@ where
 impl<'de> Deserialize<'de> for ScopedName {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         struct Vis;
 
@@ -185,7 +189,8 @@ impl<'de> Deserialize<'de> for ScopedName {
 
             #[inline]
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-                where E: de::Error
+            where
+                E: de::Error,
             {
                 ScopedName::parse(v).map_err(E::custom)
             }
@@ -196,7 +201,8 @@ impl<'de> Deserialize<'de> for ScopedName {
 }
 
 impl<N> Serialize for ScopedName<N>
-    where ScopedName<N>: fmt::Display
+where
+    ScopedName<N>: fmt::Display,
 {
     #[inline]
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
@@ -232,13 +238,15 @@ where
 {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         struct Vis<N, V>(PhantomData<(N, V)>);
 
         impl<'de, N, V, NE, VE> Visitor<'de> for Vis<N, V>
         where
-            for<'a> &'a str: TryInto<Query<N, V>, Error = query::ParseError<NE, VE>>,
+            for<'a> &'a str:
+                TryInto<Query<N, V>, Error = query::ParseError<NE, VE>>,
             query::ParseError<NE, VE>: fmt::Display,
         {
             type Value = Query<N, V>;
@@ -250,7 +258,8 @@ where
 
             #[inline]
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-                where E: de::Error
+            where
+                E: de::Error,
             {
                 TryInto::<Self::Value>::try_into(v).map_err(E::custom)
             }
@@ -261,7 +270,8 @@ where
 }
 
 impl<N, V> Serialize for Query<N, V>
-    where Query<N, V>: fmt::Display
+where
+    Query<N, V>: fmt::Display,
 {
     #[inline]
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {

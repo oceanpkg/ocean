@@ -7,16 +7,19 @@
 //! [GUI]: https://en.wikipedia.org/wiki/Graphical_user_interface
 
 #![deny(missing_docs)]
-
 #![doc(html_root_url = "https://docs.rs/oceanpkg/0.0.11")]
 #![doc(html_logo_url = "https://www.oceanpkg.org/static/images/ocean-logo.svg")]
 
 extern crate oceanpkg_shared as shared;
 
-#[macro_use] extern crate cfg_if;
-#[macro_use] extern crate lazy_static;
-#[macro_use] extern crate serde;
-#[macro_use] extern crate static_assertions;
+#[macro_use]
+extern crate cfg_if;
+#[macro_use]
+extern crate lazy_static;
+#[macro_use]
+extern crate serde;
+#[macro_use]
+extern crate static_assertions;
 
 extern crate serde_json as json;
 
@@ -33,7 +36,4 @@ pub mod install;
 pub mod system;
 
 #[doc(inline)]
-pub use self::{
-    config::Config,
-    drop::Drop,
-};
+pub use self::{config::Config, drop::Drop};

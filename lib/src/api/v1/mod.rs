@@ -14,8 +14,4 @@ mod ship;
 
 #[cfg(feature = "reqwest")]
 #[doc(inline)]
-pub use self::{
-    download::*,
-    login::*,
-    ship::*,
-};
+pub use self::{download::*, login::*, ship::*};

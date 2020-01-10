@@ -6,12 +6,7 @@ mod font;
 mod lib;
 
 #[doc(inline)]
-pub use self::{
-    app::App,
-    exe::Exe,
-    font::Font,
-    lib::Lib,
-};
+pub use self::{app::App, exe::Exe, font::Font, lib::Lib};
 
 /// The type of package a drop can be.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

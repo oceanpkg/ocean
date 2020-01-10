@@ -1,9 +1,9 @@
-use std::fmt;
-use serde::{
-    ser::{Serialize, Serializer},
-    de::{self, Deserialize, Deserializer, Visitor},
-};
 use super::AnyLicense;
+use serde::{
+    de::{self, Deserialize, Deserializer, Visitor},
+    ser::{Serialize, Serializer},
+};
+use std::fmt;
 
 struct LicenseVisitor;
 
@@ -17,21 +17,24 @@ impl<'de> Visitor<'de> for LicenseVisitor {
 
     #[inline]
     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-        where E: de::Error,
+    where
+        E: de::Error,
     {
         Ok(AnyLicense::owned(v))
     }
 
     #[inline]
     fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
-        where E: de::Error,
+    where
+        E: de::Error,
     {
         Ok(v.into())
     }
 
     #[inline]
     fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
-        where E: de::Error,
+    where
+        E: de::Error,
     {
         Ok(AnyLicense::owned(v))
     }
@@ -41,7 +44,7 @@ impl<'de: 'a, 'a> Deserialize<'de> for AnyLicense<'a> {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: Deserializer<'de>
+        D: Deserializer<'de>,
     {
         deserializer.deserialize_str(LicenseVisitor)
     }

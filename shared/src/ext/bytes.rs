@@ -40,7 +40,7 @@ pub trait BytesExt {
 
 // Monomorphized form
 fn matches_special_lowercase_imp(a: &[u8], b: &[u8]) -> bool {
-    a.len() == b.len() && a.iter().zip(b).all(|(&a, &b)| { a | 0b100000 == b })
+    a.len() == b.len() && a.iter().zip(b).all(|(&a, &b)| a | 0b100000 == b)
 }
 
 impl BytesExt for &[u8] {
@@ -59,7 +59,7 @@ mod tests {
             (["ocean.toml", "ocean.toml"], true),
             (["OCEAN.toMl", "ocean.toml"], true),
             (["ocean.toml", "OCEAN.toml"], false),
-            (["ocean.tom",  "ocean.toml"], false),
+            (["ocean.tom", "ocean.toml"], false),
         ];
         for &([a, b], cond) in cases.iter() {
             assert_eq!(a.as_bytes().matches_special_lowercase(b), cond);

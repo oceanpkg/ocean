@@ -11,9 +11,8 @@ use self::git::Ref;
 const OCEAN_REGISTRY: &str = "https://registry.oceanpkg.org";
 
 lazy_static! {
-    static ref OCEAN_REGISTRY_SOURCE: Source = Source::from_registry(
-        Url::parse(OCEAN_REGISTRY).unwrap()
-    );
+    static ref OCEAN_REGISTRY_SOURCE: Source =
+        Source::from_registry(Url::parse(OCEAN_REGISTRY).unwrap());
 }
 
 /// The source of a drop.
@@ -33,7 +32,10 @@ impl Source {
     /// A drop source at a `Url` for an Ocean registry.
     #[inline]
     pub const fn from_registry(url: Url) -> Self {
-        Source { url, kind: Kind::Registry }
+        Source {
+            url,
+            kind: Kind::Registry,
+        }
     }
 
     /// A drop source at a `Url` for to a git repository.
@@ -45,7 +47,10 @@ impl Source {
     /// A drop source at a `Url` for a git repository at a specific reference.
     #[inline]
     pub const fn from_git_at(url: Url, reference: Ref) -> Self {
-        Source { url, kind: Kind::Git(reference) }
+        Source {
+            url,
+            kind: Kind::Git(reference),
+        }
     }
 
     /// Where this source is located.

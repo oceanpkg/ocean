@@ -1,12 +1,8 @@
 //! A drop lookup in the form `(<scope>/)?<drop>(@<version>)?`.
 
-use std::{
-    cmp::Ordering,
-    convert::TryInto,
-    fmt,
-};
-use url::Url;
 use super::ScopedName;
+use std::{cmp::Ordering, convert::TryInto, fmt};
+use url::Url;
 
 /// A drop lookup in the form `(<scope>/)?<name>(@<version>)?`.
 ///
@@ -29,7 +25,11 @@ pub struct Query<Name = String, Version = Name> {
 impl<N, V> From<ScopedName<N>> for Query<N, V> {
     #[inline]
     fn from(n: ScopedName<N>) -> Self {
-        Self { scope: Some(n.scope), name: n.name, version: None }
+        Self {
+            scope: Some(n.scope),
+            name: n.name,
+            version: None,
+        }
     }
 }
 
@@ -41,7 +41,8 @@ where
     fn eq(&self, other: &Query<X, Y>) -> bool {
         // Needed because `Option<T>` only implements `PartialEq` over itself.
         fn eq_option<A, B>(a: &Option<A>, b: &Option<B>) -> bool
-            where A: PartialEq<B>
+        where
+            A: PartialEq<B>,
         {
             match (a, b) {
                 (Some(a), Some(b)) => a == b,
@@ -49,9 +50,9 @@ where
                 _ => false,
             }
         }
-        eq_option(&self.scope, &other.scope) &&
-            self.name == other.name &&
-            eq_option(&self.version, &other.version)
+        eq_option(&self.scope, &other.scope)
+            && self.name == other.name
+            && eq_option(&self.version, &other.version)
     }
 }
 
@@ -88,7 +89,11 @@ impl<'a> Query<&'a str> {
             (Some(name), version) => (name, version),
         };
 
-        Self { scope, name, version }
+        Self {
+            scope,
+            name,
+            version,
+        }
     }
 }
 
@@ -115,8 +120,8 @@ impl<N, V> Query<N, V> {
         C: Into<V>,
     {
         Self {
-            scope:   Some(scope.into()),
-            name:    name.into(),
+            scope: Some(scope.into()),
+            name: name.into(),
             version: Some(version.into()),
         }
     }
@@ -124,7 +129,8 @@ impl<N, V> Query<N, V> {
     /// Attempts to create a new instance by strictly parsing `name`.
     #[inline]
     pub fn parse<Q, NE, VE>(query: Q) -> Result<Self, ParseError<NE, VE>>
-        where Q: TryInto<Self, Error = ParseError<NE, VE>>
+    where
+        Q: TryInto<Self, Error = ParseError<NE, VE>>,
     {
         query.try_into()
     }
@@ -169,8 +175,8 @@ impl<N, V> Query<N, V> {
         V: Into<B>,
     {
         Query {
-            scope:   self.scope.map(Into::into),
-            name:    self.name.into(),
+            scope: self.scope.map(Into::into),
+            name: self.name.into(),
             version: self.version.map(Into::into),
         }
     }
@@ -179,7 +185,9 @@ impl<N, V> Query<N, V> {
     /// over all fields.
     ///
     /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
-    pub fn try_cast<A, B>(self) -> Result<Query<A, B>, ParseError<N::Error, V::Error>>
+    pub fn try_cast<A, B>(
+        self,
+    ) -> Result<Query<A, B>, ParseError<N::Error, V::Error>>
     where
         N: TryInto<A>,
         V: TryInto<B>,
@@ -198,7 +206,11 @@ impl<N, V> Query<N, V> {
             Some(Ok(error)) => Some(error),
             None => None,
         };
-        Ok(Query { scope, name, version })
+        Ok(Query {
+            scope,
+            name,
+            version,
+        })
     }
 
     /// Takes a shared reference to the fields of this query.
@@ -207,8 +219,8 @@ impl<N, V> Query<N, V> {
     #[inline]
     pub fn as_ref(&self) -> Query<&N, &V> {
         Query {
-            scope:   self.scope.as_ref(),
-            name:    &self.name,
+            scope: self.scope.as_ref(),
+            name: &self.name,
             version: self.version.as_ref(),
         }
     }
@@ -236,8 +248,8 @@ impl<N, V> Query<N, V> {
         A: ?Sized,
     {
         Query {
-            scope:   self.scope.as_ref().map(AsRef::as_ref),
-            name:    self.name.as_ref(),
+            scope: self.scope.as_ref().map(AsRef::as_ref),
+            name: self.name.as_ref(),
             version: self.version.as_ref().map(AsRef::as_ref),
         }
     }
@@ -248,8 +260,8 @@ impl<N, V> Query<N, V> {
     #[inline]
     pub fn as_mut(&mut self) -> Query<&mut N, &mut V> {
         Query {
-            scope:   self.scope.as_mut(),
-            name:    &mut self.name,
+            scope: self.scope.as_mut(),
+            name: &mut self.name,
             version: self.version.as_mut(),
         }
     }
@@ -265,8 +277,8 @@ impl<N, V> Query<N, V> {
         A: ?Sized,
     {
         Query {
-            scope:   self.scope.as_mut().map(AsMut::as_mut),
-            name:    self.name.as_mut(),
+            scope: self.scope.as_mut().map(AsMut::as_mut),
+            name: self.name.as_mut(),
             version: self.version.as_mut().map(AsMut::as_mut),
         }
     }
@@ -274,7 +286,10 @@ impl<N, V> Query<N, V> {
     /// Returns the scoped name for `self` if `scope` exists.
     #[inline]
     pub fn scoped_name(&self) -> Option<ScopedName<&N>> {
-        self.scope.as_ref().map(|scope| ScopedName { scope, name: &self.name })
+        self.scope.as_ref().map(|scope| ScopedName {
+            scope,
+            name: &self.name,
+        })
     }
 
     /// Performs a partial version comparison between `self` and `other`.
@@ -284,7 +299,8 @@ impl<N, V> Query<N, V> {
     /// - `<V as PartialOrd<B>>::partial_cmp` returns `None`.
     #[inline]
     pub fn cmp_version<A, B>(&self, other: &Query<A, B>) -> Option<Ordering>
-        where V: PartialOrd<B>
+    where
+        V: PartialOrd<B>,
     {
         match (&self.version, &other.version) {
             (Some(this), Some(other)) => this.partial_cmp(other),
@@ -347,7 +363,8 @@ impl<N, V> Query<N, V> {
         };
         let mut url = url.join(&suffix)?;
         if let Some(version) = &self.version {
-            url.query_pairs_mut().append_pair("version", version.as_ref());
+            url.query_pairs_mut()
+                .append_pair("version", version.as_ref());
         }
         Ok(url)
     }
@@ -375,8 +392,8 @@ impl<'n, 'v, N: ?Sized, V: ?Sized> Query<&'n N, &'v V> {
         V: ToOwned,
     {
         Query {
-            scope:   self.scope.map(ToOwned::to_owned),
-            name:    self.name.to_owned(),
+            scope: self.scope.map(ToOwned::to_owned),
+            name: self.name.to_owned(),
             version: self.version.map(ToOwned::to_owned),
         }
     }
@@ -396,8 +413,8 @@ impl<N: fmt::Display, V: fmt::Display> fmt::Display for ParseError<N, V> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "failed to parse query ")?;
         match self {
-            Self::Scope(error)   => write!(f, "scope: {}", error),
-            Self::Name(error)    => write!(f, "name: {}", error),
+            Self::Scope(error) => write!(f, "scope: {}", error),
+            Self::Name(error) => write!(f, "name: {}", error),
             Self::Version(error) => write!(f, "version: {}", error),
         }
     }
@@ -410,16 +427,23 @@ mod tests {
     #[test]
     fn parse_liberal() {
         let cases: &[(&str, (Option<&str>, &str, Option<&str>))] = &[
-            ("ocean",           (None,          "ocean",  None)),
-            ("ocean@1",         (None,          "ocean",  Some("1"))),
-            ("ocean/ocean@1",   (Some("ocean"), "ocean",  Some("1"))),
-            ("ocean//ocean@1",  (Some("ocean"), "/ocean", Some("1"))),
+            ("ocean", (None, "ocean", None)),
+            ("ocean@1", (None, "ocean", Some("1"))),
+            ("ocean/ocean@1", (Some("ocean"), "ocean", Some("1"))),
+            ("ocean//ocean@1", (Some("ocean"), "/ocean", Some("1"))),
             ("ocean//ocean@@1", (Some("ocean"), "/ocean", Some("@1"))),
         ];
         for &(query_string, (scope, name, version)) in cases {
             let query = Query::<&str>::parse_liberal(query_string);
 
-            assert_eq!(query, Query { scope, name, version });
+            assert_eq!(
+                query,
+                Query {
+                    scope,
+                    name,
+                    version
+                }
+            );
             assert_eq!(query_string, query.to_string());
         }
     }

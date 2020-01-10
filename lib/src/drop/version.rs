@@ -1,7 +1,7 @@
 //! Versioning schemes.
 
-use std::fmt;
 use serde::{Serialize, Serializer};
+use std::fmt;
 
 #[doc(inline)]
 pub use semver::Version as SemVer;
@@ -49,7 +49,8 @@ impl fmt::Display for Version {
 
 impl Serialize for Version {
     fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error>
-        where S: Serializer
+    where
+        S: Serializer,
     {
         use serde::ser::SerializeMap;
 
@@ -59,7 +60,7 @@ impl Serialize for Version {
                 let mut map = ser.serialize_map(Some(1))?;
                 map.serialize_entry("custom", custom)?;
                 map.end()
-            },
+            }
         }
     }
 }
@@ -68,7 +69,8 @@ impl Version {
     /// Creates a new instance from a custom `version`.
     #[inline]
     pub fn custom<V>(version: V) -> Self
-        where V: Into<String>
+    where
+        V: Into<String>,
     {
         Self::Custom(version.into())
     }

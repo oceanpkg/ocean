@@ -4,8 +4,4 @@ mod bytes;
 mod ffi;
 mod path;
 
-pub use self::{
-    bytes::*,
-    ffi::*,
-    path::*,
-};
+pub use self::{bytes::*, ffi::*, path::*};

@@ -1,13 +1,13 @@
 //! Packaging and unpackaging drops.
 
+use crate::drop::Manifest;
+use flate2::{Compression, GzBuilder};
 use std::{
     ffi::OsString,
     fs::{self, File},
     io::{self, Read, Seek, SeekFrom},
     path::{self, Path, PathBuf},
 };
-use flate2::{Compression, GzBuilder};
-use crate::drop::Manifest;
 
 /// A package drop that can be `ship`ped.
 #[derive(Debug)]
@@ -69,7 +69,7 @@ fn package_impl(
         None => {
             manifest_path_buf = current_dir.join(Manifest::FILE_NAME);
             &manifest_path_buf
-        },
+        }
     };
 
     let mut manifest_file = File::open(manifest_path)?;
@@ -83,7 +83,7 @@ fn package_impl(
         })?
     };
 
-    let drop_name    = &manifest.meta.name;
+    let drop_name = &manifest.meta.name;
     let drop_version = &manifest.meta.version;
 
     let tar_name = format!("{}.tar.gz", drop_name);
@@ -96,9 +96,7 @@ fn package_impl(
     // TODO: Change to `trace!`
     println!("Packaging \"{}\"", tar_path.display());
 
-    fs::DirBuilder::new()
-        .recursive(true)
-        .create(&output_dir)?;
+    fs::DirBuilder::new().recursive(true).create(&output_dir)?;
 
     let mut tmp_archive = fs::OpenOptions::new()
         .read(true)
@@ -111,9 +109,12 @@ fn package_impl(
         .write(&mut tmp_archive, Compression::best());
 
     let mut tar = tar::Builder::new(gz);
-    let tar_dir = OsString::from(
-        format!("{}@{}{}", drop_name, drop_version, path::MAIN_SEPARATOR)
-    );
+    let tar_dir = OsString::from(format!(
+        "{}@{}{}",
+        drop_name,
+        drop_version,
+        path::MAIN_SEPARATOR
+    ));
 
     for relative_path in manifest.files() {
         let full_path = current_dir.join(&relative_path);

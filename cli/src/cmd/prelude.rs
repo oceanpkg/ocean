@@ -1,8 +1,5 @@
 pub use clap::{AppSettings, ArgMatches, SubCommand};
-pub use oceanpkg::{
-    Config,
-    install::InstallTarget,
-};
+pub use oceanpkg::{install::InstallTarget, Config};
 
 pub type App = clap::App<'static, 'static>;
 pub type Arg = clap::Arg<'static, 'static>;
@@ -39,15 +36,11 @@ pub trait ArgExt {
 
 impl ArgExt for clap::Arg<'_, '_> {
     fn all_flag() -> Self {
-        Arg::with_name("all")
-            .short("a")
-            .long("all")
+        Arg::with_name("all").short("a").long("all")
     }
 
     fn global_flag() -> Self {
-        Arg::with_name("global")
-            .short("g")
-            .long("global")
+        Arg::with_name("global").short("g").long("global")
     }
 
     fn user_flag() -> Self {

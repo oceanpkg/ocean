@@ -10,7 +10,7 @@ mod tests;
 
 #[doc(inline)]
 pub use self::{
-    deps::{Deps, DepInfo},
+    deps::{DepInfo, Deps},
     meta::Meta,
 };
 
@@ -64,15 +64,15 @@ impl Manifest {
     /// at the given path.
     #[cfg(feature = "toml")]
     pub fn read_toml_file<T>(toml: T) -> Result<Self, std::io::Error>
-        where T: AsRef<std::path::Path>
+    where
+        T: AsRef<std::path::Path>,
     {
         use std::io::{Error, ErrorKind, Read};
 
         let mut buf = String::with_capacity(128);
         std::fs::File::open(toml)?.read_to_string(&mut buf)?;
-        Self::parse_toml(&buf).map_err(|error| {
-            Error::new(ErrorKind::InvalidData, error)
-        })
+        Self::parse_toml(&buf)
+            .map_err(|error| Error::new(ErrorKind::InvalidData, error))
     }
 
     /// Parses a manifest from [JSON](https://en.wikipedia.org/wiki/JSON).
@@ -104,7 +104,8 @@ impl Manifest {
     /// Parses a manifest from [JSON](https://en.wikipedia.org/wiki/JSON)
     /// provided by the reader.
     pub fn read_json<J>(json: J) -> Result<Self, json::Error>
-        where J: std::io::Read
+    where
+        J: std::io::Read,
     {
         json::from_reader(json)
     }
@@ -112,7 +113,8 @@ impl Manifest {
     /// Parses a manifest from a [JSON](https://en.wikipedia.org/wiki/JSON) file
     /// at the given path.
     pub fn read_json_file<J>(json: J) -> Result<Self, std::io::Error>
-        where J: AsRef<std::path::Path>
+    where
+        J: AsRef<std::path::Path>,
     {
         let reader = std::io::BufReader::new(std::fs::File::open(json)?);
         Self::read_json(reader).map_err(Into::into)

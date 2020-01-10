@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use shared::ext::PathBufExt;
 use super::DirError;
+use shared::ext::PathBufExt;
+use std::path::PathBuf;
 
 /// Indicates where to (un)install a drop.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -38,17 +38,15 @@ impl InstallTarget {
     /// - Linux:   `/home/alice/.config`
     pub fn cfg_dir(&self) -> Result<PathBuf, DirError> {
         match self {
-            Self::CurrentUser => {
-                dirs::config_dir()
-                    .ok_or(DirError::CurrentUserConfigDir)
-                    .map(|cfg| cfg.pushing("Ocean"))
-            },
+            Self::CurrentUser => dirs::config_dir()
+                .ok_or(DirError::CurrentUserConfigDir)
+                .map(|cfg| cfg.pushing("Ocean")),
             Self::SpecificUser(username) => {
                 unimplemented!("TODO: Get config directory for {:?}", username);
-            },
+            }
             Self::Global => {
                 unimplemented!("TODO: Get global config directory");
-            },
+            }
         }
     }
 }

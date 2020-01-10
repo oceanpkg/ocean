@@ -1,8 +1,5 @@
+use crate::drop::{name::Query, source::Git};
 use std::collections::BTreeMap;
-use crate::drop::{
-    name::Query,
-    source::Git,
-};
 
 /// A mapping from drop names to dependency specification information.
 pub type Deps = BTreeMap<Query, DepInfo>;

@@ -1,17 +1,10 @@
-use std::{
-    io,
-    mem,
-};
+use crate::{api, drop::Package};
 use reqwest::{
-    Client,
     header,
     multipart::{Form, Part},
-    RequestBuilder,
+    Client, RequestBuilder,
 };
-use crate::{
-    api,
-    drop::Package,
-};
+use std::{io, mem};
 
 /// Requests an API login token from [`url`].
 ///
@@ -62,16 +55,15 @@ pub fn ship_at_specific<U: reqwest::IntoUrl>(
             mem::transmute::<&str, &'static str>(name)
         };
 
-        let form = Form::new()
-            .text("name", name)
-            .text("version", version);
+        let form = Form::new().text("name", name).text("version", version);
 
         // TODO: Replace with `Part::reader` when we figure out how to make that
         // work correctly.
         let package = Part::file(&package.path)?;
         let form = form.part("packageFile", package);
 
-        let response = builder.multipart(form)
+        let response = builder
+            .multipart(form)
             .header(header::COOKIE, format!("token={}", token))
             .send()?;
 

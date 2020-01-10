@@ -10,14 +10,16 @@ pub trait OsStrExt {
 impl OsStrExt for OsStr {
     #[inline]
     fn try_as_bytes(&self) -> Option<&[u8]> {
-        #[cfg(unix)] {
+        #[cfg(unix)]
+        {
             use std::os::unix::ffi::OsStrExt;
             Some(self.as_bytes())
         }
 
         // To get the bytes on non-Unix platforms, `OsStr` needs to be converted
         // to a `str` first.
-        #[cfg(not(unix))] {
+        #[cfg(not(unix))]
+        {
             s.to_str().map(|s| s.as_bytes())
         }
     }
