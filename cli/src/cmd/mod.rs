@@ -49,5 +49,5 @@ cmds! {
     home,
     docs,
     source,
-    report,
+    submit,
 }
