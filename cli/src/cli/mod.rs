@@ -84,8 +84,8 @@ fn resolve_aliases<'a>(
             }
 
             // Perform alias cycle detection by checking the start address.
-            if let Some(start) = alias.first() {
-                let start = *start as *const OsStr as *const u8;
+            if let Some(&start) = alias.first() {
+                let start = start as *const OsStr as *const u8;
                 if seen_user_aliases.contains(&start) {
                     return Err(failure::format_err!(
                         "User-defined alias `{}` produces an infinite cycle",
