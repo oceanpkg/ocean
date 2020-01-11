@@ -1,7 +1,7 @@
 [package]
 name = "oceanpkg-shared"
 description = "Shared reusable library for the Ocean package manager."
-version = "0.1.1"
+version = "0.1.2"
 authors = ["The Ocean Project Developers"]
 license = "AGPL-3.0-only"
 readme = "README.md"
@@ -10,3 +10,6 @@ homepage = "https://www.oceanpkg.org"
 repository = "https://github.com/oceanpkg/ocean"
 documentation = "https://docs.rs/oceanpkg-shared"
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "CHANGELOG.md", "LICENSE*"]
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["consoleapi", "minwindef"] }
