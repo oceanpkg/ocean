@@ -19,6 +19,7 @@ cargo-emit = "0.1"
 
 [dependencies]
 oceanpkg = { path = "../lib", version = "0.0.11", features = ["reqwest", "toml"] }
+oceanpkg-shared = { path = "../shared", version = "0.1.2" }
 clap = "2.33"
 dirs = "2"
 failure = "0.1.6"

@@ -2,6 +2,8 @@ use crate::cmd;
 use oceanpkg::Config;
 use std::ffi::OsStr;
 
+mod exec;
+
 pub fn main(config: &mut Config) -> crate::Result {
     let args = cli().get_matches_safe()?;
     let args = resolve_aliases(config, args)?;
@@ -11,8 +13,7 @@ pub fn main(config: &mut Config) -> crate::Result {
             if let Some(run) = cmd::builtin_run_fn(subcommand) {
                 run(config, args)
             } else {
-                // TODO: Run custom user-defined subcommand.
-                Err(failure::err_msg("No known command provided"))
+                exec::run_external(config, subcommand, args)
             }
         }
         _ => Err(failure::err_msg("No subcommand provided")),
