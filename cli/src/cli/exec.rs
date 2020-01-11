@@ -12,10 +12,13 @@ pub fn run_external(
     cmd: &str,
     args: &clap::ArgMatches,
 ) -> crate::Result {
-    let mut search_dirs = vec![config.rt.bin_dir()];
+    use oceanpkg::env::*;
 
-    if let Some(path) = env::var_os("PATH") {
-        search_dirs.extend(env::split_paths(&path));
+    let bin_dir = config.rt.bin_dir();
+    let mut search_dirs = vec![bin_dir.clone()];
+
+    if let Ok(path) = config.rt.path_var() {
+        search_dirs.extend(env::split_paths(path));
     }
 
     let command_exe = find_executable(cmd, search_dirs).ok_or_else(|| {
@@ -29,8 +32,16 @@ pub fn run_external(
         command.args(args);
     }
 
+    if let Ok(ocean) = config.rt.current_exe() {
+        command.env(OCEAN, ocean);
+    }
+    command.env(OCEAN_BIN_DIR, &bin_dir);
+    command.env(OCEAN_VERSION, env!("CARGO_PKG_VERSION"));
+
     // TODO: Turn into a custom error with a better error message.
-    return Err(command.spawn_replace().into());
+    let error = command.spawn_replace();
+
+    return Err(error.into());
 }
 
 #[cfg(unix)]

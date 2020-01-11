@@ -35,5 +35,7 @@ pub mod env;
 pub mod install;
 pub mod system;
 
+mod path;
+
 #[doc(inline)]
 pub use self::{config::Config, drop::Drop};
