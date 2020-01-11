@@ -20,7 +20,7 @@ impl OsStrExt for OsStr {
         // to a `str` first.
         #[cfg(not(unix))]
         {
-            s.to_str().map(|s| s.as_bytes())
+            self.to_str().map(|s| s.as_bytes())
         }
     }
 }
