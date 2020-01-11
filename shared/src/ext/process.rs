@@ -28,7 +28,7 @@ impl CommandExt for Command {
     fn spawn_replace(&mut self) -> io::Error {
         use std::process::exit;
         use winapi::{
-            shared::minwindef::{BOOL, DWORD, FALSE, TRUE},
+            shared::minwindef::{BOOL, DWORD, TRUE},
             um::consoleapi::SetConsoleCtrlHandler,
         };
 
