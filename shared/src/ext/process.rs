@@ -7,8 +7,10 @@ pub trait CommandExt {
     ///
     /// Behavior:
     ///
-    /// - Unix: calls [`exec`]
-    /// - Windows: Sets the ctrl-c handler to return `TRUE` and calls [`status`]
+    /// - Unix: simply calls [`exec`].
+    /// - Windows: sets the ctrl-c handler to always return `TRUE` (forwarding
+    ///   ctrl-c to the child), calls [`status`], and exits with the returned
+    ///   code.
     ///
     /// [`exec`]:   https://doc.rust-lang.org/std/os/unix/process/trait.CommandExt.html#tymethod.exec
     /// [`status`]: https://doc.rust-lang.org/std/process/struct.Command.html#method.status
