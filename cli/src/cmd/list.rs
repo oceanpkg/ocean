@@ -4,7 +4,6 @@ pub const NAME: &str = "list";
 
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
-        .visible_alias("ls")
         .about("List installed drops")
         .arg(
             Arg::user_flag()

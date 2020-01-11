@@ -1,4 +1,4 @@
-use crate::Config;
+use super::super::prelude::*;
 use std::iter;
 
 /// The issue template as a macro so then it can be used as a formatting string

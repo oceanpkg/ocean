@@ -6,7 +6,6 @@ pub const NAME: &str = "config";
 
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
-        .visible_alias("cfg")
         .about("Configure the settings used by Ocean")
         .arg(
             Arg::global_flag()

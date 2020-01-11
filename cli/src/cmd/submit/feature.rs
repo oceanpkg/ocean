@@ -1,4 +1,4 @@
-use crate::Config;
+use super::super::prelude::*;
 use std::iter;
 
 /// See `.github/ISSUE_TEMPLATE/feature_request.md` for the base issue template.

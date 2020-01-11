@@ -18,7 +18,6 @@ pub const NAME: &str = "install";
 
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
-        .visible_alias("i")
         .about("Downloads and installs a drop")
         .arg(
             Arg::user_flag()

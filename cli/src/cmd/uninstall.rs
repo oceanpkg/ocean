@@ -4,8 +4,6 @@ pub const NAME: &str = "uninstall";
 
 pub fn cmd() -> App {
     SubCommand::with_name(NAME)
-        // TODO: Should we have shorthand aliases for uninstall?
-        // .visible_aliases(&["un", "remove", "rm"])
         .about("Removes a drop")
         .arg(Arg::global_flag().help("Remove the drop for all users"))
         .arg(

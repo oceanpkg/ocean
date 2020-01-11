@@ -41,14 +41,13 @@ pub fn all() -> Vec<App> {
     ]
 }
 
-/// Runs the command for `name` with its associated `ArgMatches`.
-pub fn run(
-    config: &mut Config,
-    name: &str,
-    matches: &ArgMatches,
-) -> crate::Result {
+/// A function suitable for running a subcommand with its own `ArgMatches`.
+pub type RunFn = fn(&mut Config, &ArgMatches) -> crate::Result;
+
+/// Returns the `run` function pointer for `subcommand`.
+pub fn builtin_run_fn(subcommand: &str) -> Option<RunFn> {
     #[rustfmt::skip]
-    let run = match name {
+    let run = match subcommand {
         list::NAME      => list::run,
         new::NAME       => new::run,
         search::NAME    => search::run,
@@ -65,7 +64,22 @@ pub fn run(
         docs::NAME      => docs::run,
         source::NAME    => source::run,
         submit::NAME    => submit::run,
-        _ => unreachable!("could not match command {:?}", name),
+        _               => return None,
     };
-    run(config, matches)
+    Some(run)
+}
+
+/// Returns a pre-defined aliased command.
+pub fn builtin_alias(alias: &str) -> Option<&'static str> {
+    // Default aliases should be for commands of 4 characters or more.
+    //
+    // Destructive commands like `uninstall` should never have a built-in alias.
+    #[rustfmt::skip]
+    let alias = match alias {
+        "i"  => install::NAME,
+        "ls" => list::NAME,
+        "s"  => search::NAME,
+        _    => return None,
+    };
+    Some(alias)
 }
