@@ -1,10 +1,10 @@
+use shared::ext::*;
 use std::{
     env,
     ffi::OsStr,
     io, iter,
     path::{Path, PathBuf},
 };
-use shared::ext::*;
 
 pub fn resolve_exe(
     exe: &Path,
